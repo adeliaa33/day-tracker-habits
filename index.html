@@ -1,0 +1,2134 @@
+<!DOCTYPE html>
+<html lang="id" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Adelia's Little World ♡ - Interactive Planner</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Quicksand:wght@500;600;700&family=Fredoka:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'sans-serif'],
+            cute: ['Quicksand', 'sans-serif'],
+            fun: ['Fredoka', 'cursive'],
+          },
+          colors: {
+            planner: {
+              blue: '#DCEEFF',
+              pink: '#FCE1E8',
+              lavender: '#E9E1FF',
+              cream: '#FFF9F0',
+              mint: '#DDF4E4',
+              navy: '#294C7A',
+              border: '#E7EAF2',
+              catUtama: '#3B82F6',    /* Blue */
+              catAkademik: '#A855F7', /* Purple */
+              catCare: '#EC4899',     /* Pink */
+              catHobi: '#F97316',     /* Orange */
+              catExtra: '#10B981',    /* Green */
+            }
+          },
+          boxShadow: {
+            'planner': '0 8px 25px rgba(41, 76, 122, 0.08)',
+            'planner-hover': '0 12px 30px rgba(41, 76, 122, 0.15)',
+            'soft-inner': 'inset 0 2px 6px rgba(0,0,0,0.03)'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background: linear-gradient(135deg, #f8faff 0%, #f0f4ff 50%, #fff5f8 100%);
+      background-attachment: fixed;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    .planner-card {
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(12px);
+      border: 1px solid #e7eaf2;
+      border-radius: 20px;
+    }
+
+    .tab-content {
+      display: none;
+      opacity: 0;
+      transition: opacity 0.2s ease-in-out;
+    }
+    .tab-content.active {
+      display: block;
+      opacity: 1;
+    }
+
+    .custom-check input:checked ~ .checkmark {
+      background-color: #294C7A;
+      border-color: #294C7A;
+    }
+    .custom-check input:checked ~ .checkmark:after {
+      display: block;
+    }
+    .checkmark:after {
+      content: "";
+      position: absolute;
+      display: none;
+      left: 5px;
+      top: 1px;
+      width: 5px;
+      height: 10px;
+      border: solid white;
+      border-width: 0 2.5px 2.5px 0;
+      transform: rotate(45deg);
+    }
+
+    @media (max-width: 768px) {
+      .checkmark:after {
+        left: 6px;
+        top: 2px;
+        width: 6px;
+        height: 11px;
+      }
+      input[type="text"], input[type="number"], input[type="time"], select, textarea {
+        font-size: 16px !important;
+      }
+    }
+
+    @keyframes floatUp {
+      0% { opacity: 1; transform: translateY(0) scale(1); }
+      100% { opacity: 0; transform: translateY(-60px) scale(1.4); }
+    }
+    .floating-heart {
+      position: absolute;
+      pointer-events: none;
+      animation: floatUp 1.2s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+      font-size: 20px;
+      z-index: 50;
+    }
+
+    @keyframes mascotHop {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-8deg) rotate(-3deg); }
+    }
+    .mascot-bounce {
+      animation: mascotHop 3s infinite ease-in-out;
+    }
+
+    @keyframes pulseSoft {
+      0%, 100% { box-shadow: 0 0 15px rgba(220, 238, 255, 0.5); }
+      50% { box-shadow: 0 0 25px rgba(252, 225, 232, 0.8); }
+    }
+    .pulse-card {
+      animation: pulseSoft 4s infinite ease-in-out;
+    }
+  </style>
+</head>
+<body class="font-sans text-slate-700 min-h-screen flex flex-col antialiased selection:bg-sky-100 selection:text-sky-800 pb-20 md:pb-6">
+
+  <div id="app" class="flex-grow flex flex-col max-w-6xl w-full mx-auto px-3 py-3 md:px-6 md:py-6">
+
+    <!-- Header Banner -->
+    <header class="planner-card p-4 md:p-6 mb-4 md:mb-5 shadow-planner relative overflow-hidden pulse-card bg-gradient-to-r from-[#DCEEFF] via-[#FCE1E8] to-[#E9E1FF]">
+      <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-4">
+        
+        <div class="flex items-center gap-3 md:gap-4">
+          <div class="relative group cursor-pointer shrink-0" onclick="petMascot(event)">
+            <div class="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-white/90 border-2 border-white shadow-md flex items-center justify-center text-2xl md:text-3xl mascot-bounce transition transform active:scale-90">
+              🐱
+            </div>
+            <span class="absolute -top-1 -right-1 bg-pink-500 text-white text-[8px] md:text-[9px] font-bold px-1.5 py-0.5 rounded-full shadow">PET ME!</span>
+          </div>
+
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="text-xl md:text-3xl font-extrabold text-planner-navy font-fun tracking-wide">
+                Adelia's Little World <span class="text-pink-500">♡</span>
+              </h1>
+            </div>
+            <p class="text-[11px] md:text-sm text-planner-navy/80 font-semibold mt-0.5">
+              "Little steps everyday make big results" 🐾
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between md:justify-end gap-2 shrink-0 border-t border-white/40 pt-2.5 md:pt-0 md:border-0">
+          <div class="bg-white/80 border border-white/90 px-3 py-1 md:py-1.5 rounded-xl shadow-sm text-left md:text-right flex-1 md:flex-none">
+            <div id="headerDate" class="text-[11px] md:text-xs font-bold text-planner-navy">-- ---- ----</div>
+            <div id="headerClock" class="text-[10px] md:text-[11px] text-pink-600 font-extrabold">00:00:00 WIB</div>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button id="btnAlarmToggle" onclick="toggleAlarmSetting()" title="Alarm Pengingat" class="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-white/80 hover:bg-white text-planner-navy border border-white flex items-center justify-center transition active:scale-90 relative shadow-sm">
+              <i class="fa-solid fa-bell text-xs md:text-sm" id="alarmIcon"></i>
+              <span id="alarmBadge" class="absolute -top-1 -right-1 w-2.5 h-2.5 md:w-3 md:h-3 bg-emerald-500 rounded-full border-2 border-white"></span>
+            </button>
+
+            <button id="btnAmbientToggle" onclick="toggleAmbientSound()" title="Suara Lo-Fi Hujan" class="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-white/80 hover:bg-white text-planner-navy border border-white flex items-center justify-center transition active:scale-90 shadow-sm">
+              <i class="fa-solid fa-cloud-rain text-xs md:text-sm" id="ambientIcon"></i>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </header>
+
+    <!-- Navigation (Desktop Top Bar) -->
+    <nav class="planner-card p-1.5 mb-4 md:mb-5 shadow-planner hidden md:flex items-center justify-between overflow-x-auto gap-1">
+      <button onclick="switchTab('home')" id="tab-home" class="nav-btn flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs md:text-sm transition-all whitespace-nowrap bg-planner-navy text-white shadow-sm">
+        <i class="fa-solid fa-house"></i> <span>Dashboard</span>
+      </button>
+      <button onclick="switchTab('schedule')" id="tab-schedule" class="nav-btn flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs md:text-sm transition-all whitespace-nowrap text-slate-600 hover:bg-slate-100">
+        <i class="fa-solid fa-calendar-check"></i> <span>Daily Tracker</span>
+      </button>
+      <button onclick="switchTab('matrix')" id="tab-matrix" class="nav-btn flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs md:text-sm transition-all whitespace-nowrap text-slate-600 hover:bg-slate-100">
+        <i class="fa-solid fa-table-cells"></i> <span>Weekly Grid</span>
+      </button>
+      <button onclick="switchTab('habits')" id="tab-habits" class="nav-btn flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs md:text-sm transition-all whitespace-nowrap text-slate-600 hover:bg-slate-100">
+        <i class="fa-solid fa-seedling"></i> <span>Habits</span>
+      </button>
+      <button onclick="switchTab('metime')" id="tab-metime" class="nav-btn flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs md:text-sm transition-all whitespace-nowrap text-slate-600 hover:bg-slate-100">
+        <i class="fa-solid fa-film"></i> <span>Me-Time</span>
+      </button>
+      <button onclick="switchTab('journal')" id="tab-journal" class="nav-btn flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs md:text-sm transition-all whitespace-nowrap text-slate-600 hover:bg-slate-100">
+        <i class="fa-solid fa-book-open"></i> <span>Journal</span>
+      </button>
+      <button onclick="switchTab('settings')" id="tab-settings" class="nav-btn flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs md:text-sm transition-all whitespace-nowrap text-slate-600 hover:bg-slate-100">
+        <i class="fa-solid fa-sliders"></i> <span>Pengaturan</span>
+      </button>
+    </nav>
+
+    <!-- Sticky Mobile Bottom Navigation Bar -->
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/80 px-2 py-1.5 flex justify-around items-center shadow-lg">
+      <button onclick="switchTab('home')" id="mobile-tab-home" class="mobile-nav-btn flex flex-col items-center gap-0.5 p-1 text-planner-navy font-extrabold transition">
+        <i class="fa-solid fa-house text-base"></i>
+        <span class="text-[9px]">Beranda</span>
+      </button>
+      <button onclick="switchTab('schedule')" id="mobile-tab-schedule" class="mobile-nav-btn flex flex-col items-center gap-0.5 p-1 text-slate-400 transition">
+        <i class="fa-solid fa-calendar-check text-base"></i>
+        <span class="text-[9px]">Jadwal</span>
+      </button>
+      <button onclick="switchTab('matrix')" id="mobile-tab-matrix" class="mobile-nav-btn flex flex-col items-center gap-0.5 p-1 text-slate-400 transition">
+        <i class="fa-solid fa-table-cells text-base"></i>
+        <span class="text-[9px]">Weekly</span>
+      </button>
+      <button onclick="switchTab('habits')" id="mobile-tab-habits" class="mobile-nav-btn flex flex-col items-center gap-0.5 p-1 text-slate-400 transition">
+        <i class="fa-solid fa-seedling text-base"></i>
+        <span class="text-[9px]">Habits</span>
+      </button>
+      <button onclick="switchTab('metime')" id="mobile-tab-metime" class="mobile-nav-btn flex flex-col items-center gap-0.5 p-1 text-slate-400 transition">
+        <i class="fa-solid fa-film text-base"></i>
+        <span class="text-[9px]">Me-Time</span>
+      </button>
+      <button onclick="switchTab('journal')" id="mobile-tab-journal" class="mobile-nav-btn flex flex-col items-center gap-0.5 p-1 text-slate-400 transition">
+        <i class="fa-solid fa-book-open text-base"></i>
+        <span class="text-[9px]">Jurnal</span>
+      </button>
+      <button onclick="switchTab('settings')" id="mobile-tab-settings" class="mobile-nav-btn flex flex-col items-center gap-0.5 p-1 text-slate-400 transition">
+        <i class="fa-solid fa-sliders text-base"></i>
+        <span class="text-[9px]">Opsi</span>
+      </button>
+    </nav>
+
+    <main id="content-home" class="tab-content active space-y-5">
+      
+      <!-- Top Row: Active Task Banner & Interactive Mascot Widget -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        
+        <!-- Live Current Activity Banner (2 cols) -->
+        <div class="lg:col-span-2 planner-card p-5 shadow-planner bg-gradient-to-r from-sky-50 via-purple-50 to-pink-50 border-2 border-sky-100 relative overflow-hidden flex flex-col justify-between">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <div class="inline-flex items-center gap-1.5 px-3 py-1 bg-sky-500 text-white rounded-full text-[11px] font-bold shadow-sm mb-2">
+                <span class="w-2 h-2 rounded-full bg-white animate-ping"></span>
+                <span>AKTIVITAS SAAT INI (REAL-TIME)</span>
+              </div>
+              <h2 id="currentTaskTitle" class="text-lg md:text-xl font-extrabold text-planner-navy font-cute">
+                Mencari Jadwal...
+              </h2>
+              <p id="currentTaskMeta" class="text-xs text-slate-500 mt-1 font-medium">
+                Jam --:-- - --:--
+              </p>
+            </div>
+            <div id="currentTaskCategoryBadge" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-white text-planner-navy border border-slate-200 shadow-sm shrink-0">
+              📌 Status
+            </div>
+          </div>
+
+          <div class="mt-4 pt-3 border-t border-slate-200/60 flex flex-wrap items-center justify-between gap-3">
+            <div class="text-xs text-slate-600 font-semibold flex items-center gap-2">
+              <i class="fa-solid fa-hourglass-half text-amber-500"></i>
+              <span>Sisa Waktu: <strong id="currentTaskTimer" class="text-planner-navy font-bold">-- min</strong></span>
+            </div>
+
+            <button id="btnCompleteCurrent" onclick="completeCurrentTask()" class="px-4 py-2 bg-planner-navy hover:bg-slate-800 text-white rounded-xl font-bold text-xs transition active:scale-95 shadow-sm flex items-center gap-1.5">
+              <i class="fa-solid fa-check"></i> <span>Centang Selesai Sekarang</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Mimi The Cat Interactive Pet Mascot (1 col) -->
+        <div id="mascotCard" class="planner-card p-5 shadow-planner bg-planner-cream border-2 border-amber-100 relative flex flex-col items-center justify-center text-center">
+          <div class="absolute top-3 right-3 text-[10px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full">
+            Study Buddy 🐾
+          </div>
+
+          <div class="relative cursor-pointer my-1 group" onclick="petMascot(event)">
+            <div class="text-5xl mascot-bounce transition transform group-hover:scale-110">🐱</div>
+            <div class="absolute -bottom-1 -right-2 text-xl">✨</div>
+          </div>
+
+          <div class="w-full mt-2 space-y-1">
+            <div id="mascotBubble" class="bg-white p-2.5 rounded-2xl border border-amber-200 text-xs font-bold text-planner-navy shadow-sm">
+              "Hai Adelia! Klik aku untuk semangat! ♡"
+            </div>
+            <div class="flex items-center justify-between text-[10px] font-bold text-slate-500 px-1 pt-1">
+              <span>Semangat Mimi</span>
+              <span id="mascotHappinessText">100%</span>
+            </div>
+            <div class="w-full bg-amber-100 h-2 rounded-full overflow-hidden p-0.5">
+              <div id="mascotHappinessBar" class="bg-amber-400 h-full rounded-full transition-all duration-300" style="width: 100%"></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- REKAPAN BULANAN & GRAFIK KEBERHASILAN -->
+      <div class="planner-card p-5 md:p-6 shadow-planner space-y-5 bg-gradient-to-br from-white via-slate-50/50 to-purple-50/30 border-2 border-purple-100 relative overflow-hidden">
+        
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-200/80 pb-4">
+          <div>
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 bg-purple-600 text-white rounded-full text-[10px] font-bold shadow-sm mb-1">
+              <i class="fa-solid fa-chart-line"></i>
+              <span>REKAPAN HISTORI & ANALISIS DIRI</span>
+            </div>
+            <h2 class="text-lg md:text-xl font-extrabold text-planner-navy font-cute flex items-center gap-2">
+              <span>📈</span> Progress & Keberhasilan Adelia
+            </h2>
+            <p class="text-xs text-slate-500">Evaluasi pencapaianmu tiap bulan dan rayakan setiap langkah kecil! ✨</p>
+          </div>
+
+          <div class="flex items-center gap-2 self-start md:self-auto">
+            <label class="text-xs font-bold text-slate-600">Pilih Bulan:</label>
+            <select id="monthlySelect" onchange="changeMonthlyHistory(this.value)" class="p-2 bg-white border border-purple-200 rounded-xl text-xs font-bold text-planner-navy shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-300">
+            </select>
+          </div>
+        </div>
+
+        <div id="celebrationBanner" class="hidden p-4 rounded-2xl bg-gradient-to-r from-amber-300 via-pink-300 to-purple-300 text-slate-900 shadow-md relative overflow-hidden flex flex-col sm:flex-row items-center justify-between gap-3 animate-pulse">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-2xl bg-white/90 flex items-center justify-center text-2xl shadow">🎉</div>
+            <div>
+              <div class="text-xs font-extrabold uppercase tracking-wider text-amber-900">SELAMAT ADELIA! 🌟</div>
+              <div id="celebrationTitle" class="text-sm font-extrabold font-cute">Pencapaian Luar Biasa Bulan Ini!</div>
+              <div id="celebrationSub" class="text-[11px] font-semibold text-slate-800">Kamu telah menyelesaikan target dengan sangat baik!</div>
+            </div>
+          </div>
+          <button onclick="triggerConfettiBurst()" class="px-4 py-2 bg-white hover:bg-slate-50 text-purple-900 rounded-xl font-extrabold text-xs shadow transition active:scale-95 shrink-0 flex items-center gap-1.5">
+            <span>✨ Rayakan Lagi!</span>
+          </button>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div class="p-3 bg-white border border-slate-100 rounded-xl shadow-sm text-center">
+            <div class="text-[10px] font-bold text-slate-400 uppercase">Tingkat Keberhasilan</div>
+            <div id="monthlyTaskRate" class="text-xl font-extrabold text-blue-600 font-cute">0%</div>
+            <div class="text-[10px] font-semibold text-slate-500">Rata-rata Jadwal</div>
+          </div>
+          <div class="p-3 bg-white border border-slate-100 rounded-xl shadow-sm text-center">
+            <div class="text-[10px] font-bold text-slate-400 uppercase">Konsistensi Habit</div>
+            <div id="monthlyHabitRate" class="text-xl font-extrabold text-purple-600 font-cute">0%</div>
+            <div class="text-[10px] font-semibold text-slate-500">Rata-rata Habit</div>
+          </div>
+          <div class="p-3 bg-white border border-slate-100 rounded-xl shadow-sm text-center">
+            <div class="text-[10px] font-bold text-slate-400 uppercase">Vocab Terkumpul</div>
+            <div id="monthlyTotalVocab" class="text-xl font-extrabold text-emerald-600 font-cute">0 kata</div>
+            <div class="text-[10px] font-semibold text-slate-500">Target TOEFL</div>
+          </div>
+          <div class="p-3 bg-white border border-slate-100 rounded-xl shadow-sm text-center">
+            <div class="text-[10px] font-bold text-slate-400 uppercase">Total Me-Time</div>
+            <div id="monthlyMetimeTotal" class="text-xl font-extrabold text-pink-600 font-cute">0 min</div>
+            <div class="text-[10px] font-semibold text-slate-500">Waktu Istirahat</div>
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <div class="flex items-center justify-between text-xs font-bold text-slate-700">
+            <span>📊 Grafik Tingkat Keberhasilan Harian Bulan Ini (%)</span>
+            <span class="text-[10px] text-slate-400 font-normal">Geser untuk melihat detail hari</span>
+          </div>
+          
+          <div class="w-full bg-white border border-slate-200 rounded-2xl p-4 shadow-sm overflow-x-auto">
+            <div id="monthlyChartBars" class="flex items-end gap-2 min-w-[600px] h-36 pt-6 pb-2 border-b border-slate-200 px-2">
+            </div>
+            <div class="flex items-center justify-between text-[10px] font-semibold text-slate-400 pt-2 px-1">
+              <span>Awal Bulan</span>
+              <span>Pertengahan</span>
+              <span>Akhir Bulan</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <h4 class="font-bold text-planner-navy text-xs uppercase tracking-wider flex items-center gap-1.5">
+            <i class="fa-solid fa-award text-amber-500"></i> Lencana & Hal Yang Berhasil Kamu Lakukan:
+          </h4>
+          <div id="monthlyBadgesContainer" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
+          </div>
+        </div>
+
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-4">
+        
+        <div class="planner-card p-4 shadow-planner flex items-center gap-3 border-l-4 border-l-planner-catUtama">
+          <div class="w-10 h-10 rounded-xl bg-blue-100 text-planner-catUtama flex items-center justify-center text-lg shrink-0">
+            <i class="fa-solid fa-circle-check"></i>
+          </div>
+          <div>
+            <div class="text-[11px] font-bold text-slate-400 uppercase">Jadwal Selesai</div>
+            <div id="statTaskCount" class="text-xl font-extrabold text-planner-navy font-cute">0/0</div>
+            <div id="statTaskPercent" class="text-[10px] font-bold text-blue-600">0% Selesai</div>
+          </div>
+        </div>
+
+        <div class="planner-card p-4 shadow-planner flex items-center gap-3 border-l-4 border-l-planner-catAkademik">
+          <div class="w-10 h-10 rounded-xl bg-purple-100 text-planner-catAkademik flex items-center justify-center text-lg shrink-0">
+            <i class="fa-solid fa-fire"></i>
+          </div>
+          <div>
+            <div class="text-[11px] font-bold text-slate-400 uppercase">Habit Harian</div>
+            <div id="statHabitCount" class="text-xl font-extrabold text-planner-navy font-cute">0/0</div>
+            <div id="statHabitPercent" class="text-[10px] font-bold text-purple-600">0% Selesai</div>
+          </div>
+        </div>
+
+        <div class="planner-card p-4 shadow-planner flex items-center gap-3 border-l-4 border-l-planner-catCare">
+          <div class="w-10 h-10 rounded-xl bg-pink-100 text-planner-catCare flex items-center justify-center text-lg shrink-0">
+            <i class="fa-solid fa-capsules"></i>
+          </div>
+          <div>
+            <div class="text-[11px] font-bold text-slate-400 uppercase">Vitamin Today</div>
+            <div id="statVitaminCount" class="text-xl font-extrabold text-planner-navy font-cute">0/3</div>
+            <div class="text-[10px] font-bold text-pink-500">Kesehatan ♡</div>
+          </div>
+        </div>
+
+        <div class="planner-card p-4 shadow-planner flex items-center gap-3 border-l-4 border-l-planner-catExtra">
+          <div class="w-10 h-10 rounded-xl bg-emerald-100 text-planner-catExtra flex items-center justify-center text-lg shrink-0">
+            <i class="fa-solid fa-book-bookmark"></i>
+          </div>
+          <div>
+            <div class="text-[11px] font-bold text-slate-400 uppercase">Target Vocab</div>
+            <div id="statVocabCount" class="text-xl font-extrabold text-planner-navy font-cute">0/20</div>
+            <div class="text-[10px] font-bold text-emerald-600">Kata TOEFL</div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+
+        <div class="lg:col-span-2 space-y-4">
+          
+          <div class="planner-card p-5 shadow-planner space-y-4">
+            
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+              <div>
+                <h3 class="font-bold text-planner-navy text-base font-cute flex items-center gap-2">
+                  <span>☀️</span> Checklist Rutinitas Hari Ini
+                </h3>
+                <p class="text-xs text-slate-500">Filter berdasarkan kategori warna planner Adelia:</p>
+              </div>
+              <button onclick="switchTab('schedule')" class="text-xs font-bold text-planner-navy hover:text-blue-600 transition flex items-center gap-1 self-end sm:self-auto">
+                <span>Kelola Jadwal</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
+              </button>
+            </div>
+
+            <div class="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs font-bold scrollbar-none">
+              <button onclick="filterCategory('all')" id="catFilter-all" class="cat-pill px-3 py-1.5 rounded-xl bg-planner-navy text-white transition whitespace-nowrap shadow-sm">
+                Semua
+              </button>
+              <button onclick="filterCategory('kegiatan_utama')" id="catFilter-kegiatan_utama" class="cat-pill px-3 py-1.5 rounded-xl bg-blue-50 text-blue-700 hover:bg-blue-100 transition whitespace-nowrap flex items-center gap-1">
+                <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span> Utama
+              </button>
+              <button onclick="filterCategory('belajar_akademik')" id="catFilter-belajar_akademik" class="cat-pill px-3 py-1.5 rounded-xl bg-purple-50 text-purple-700 hover:bg-purple-100 transition whitespace-nowrap flex items-center gap-1">
+                <span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span> Akademik
+              </button>
+              <button onclick="filterCategory('self_care')" id="catFilter-self_care" class="cat-pill px-3 py-1.5 rounded-xl bg-pink-50 text-pink-700 hover:bg-pink-100 transition whitespace-nowrap flex items-center gap-1">
+                <span class="w-2.5 h-2.5 rounded-full bg-pink-500"></span> Self Care
+              </button>
+              <button onclick="filterCategory('hobi_metime')" id="catFilter-hobi_metime" class="cat-pill px-3 py-1.5 rounded-xl bg-orange-50 text-orange-700 hover:bg-orange-100 transition whitespace-nowrap flex items-center gap-1">
+                <span class="w-2.5 h-2.5 rounded-full bg-orange-500"></span> Me-Time
+              </button>
+              <button onclick="filterCategory('tambahan')" id="catFilter-tambahan" class="cat-pill px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition whitespace-nowrap flex items-center gap-1">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Tambahan
+              </button>
+            </div>
+
+            <div id="dashboardTaskList" class="space-y-2.5 max-h-[480px] overflow-y-auto pr-1">
+            </div>
+
+          </div>
+
+        </div>
+
+        <div class="space-y-4">
+          
+          <div class="planner-card p-5 shadow-planner space-y-3 bg-gradient-to-br from-pink-50/50 to-white">
+            <div class="flex items-center justify-between">
+              <h4 class="font-bold text-planner-navy text-xs uppercase tracking-wider flex items-center gap-1.5">
+                <i class="fa-solid fa-capsules text-pink-500"></i> Jadwal Minum Vitamin
+              </h4>
+              <span class="text-[10px] font-bold text-pink-600 bg-pink-100 px-2 py-0.5 rounded-full">Anjuran Dokter ♡</span>
+            </div>
+
+            <div class="space-y-2 text-xs">
+              <label class="custom-check flex items-center justify-between p-2.5 rounded-xl bg-white border border-pink-100 cursor-pointer hover:border-pink-300 transition">
+                <div class="flex items-center gap-2">
+                  <input type="checkbox" id="vitBComplex" onchange="toggleVitamin('vitBComplex', this.checked)" class="sr-only">
+                  <span class="checkmark w-4 h-4 rounded border-2 border-slate-300 relative transition"></span>
+                  <span class="font-bold text-slate-800">B Complex</span>
+                </div>
+                <span class="text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-md">Setelah Sarapan</span>
+              </label>
+
+              <label class="custom-check flex items-center justify-between p-2.5 rounded-xl bg-white border border-pink-100 cursor-pointer hover:border-pink-300 transition">
+                <div class="flex items-center gap-2">
+                  <input type="checkbox" id="vitZinc" onchange="toggleVitamin('vitZinc', this.checked)" class="sr-only">
+                  <span class="checkmark w-4 h-4 rounded border-2 border-slate-300 relative transition"></span>
+                  <span class="font-bold text-slate-800">Zinc</span>
+                </div>
+                <span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md">Makan Siang</span>
+              </label>
+
+              <label class="custom-check flex items-center justify-between p-2.5 rounded-xl bg-white border border-pink-100 cursor-pointer hover:border-pink-300 transition">
+                <div class="flex items-center gap-2">
+                  <input type="checkbox" id="vitMagnesium" onchange="toggleVitamin('vitMagnesium', this.checked)" class="sr-only">
+                  <span class="checkmark w-4 h-4 rounded border-2 border-slate-300 relative transition"></span>
+                  <span class="font-bold text-slate-800">Magnesium</span>
+                </div>
+                <span class="text-[10px] font-bold text-purple-600 bg-purple-50 px-2 py-0.5 rounded-md">Sebelum Tidur</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="planner-card p-5 shadow-planner space-y-3">
+            <h4 class="font-bold text-planner-navy text-xs uppercase tracking-wider flex items-center gap-1.5">
+              <i class="fa-solid fa-bullseye text-purple-500"></i> Target Harian Interaktif
+            </h4>
+
+            <div class="p-3 rounded-xl bg-purple-50/60 border border-purple-100 space-y-2">
+              <div class="flex justify-between items-center text-xs">
+                <span class="font-bold text-purple-900">📖 Hafalan Vocab TOEFL</span>
+                <span id="vocabCounterText" class="font-extrabold text-purple-700">0 / 20 kata</span>
+              </div>
+              <div class="w-full bg-white h-2 rounded-full overflow-hidden p-0.5 border border-purple-200">
+                <div id="vocabProgressBar" class="bg-purple-500 h-full rounded-full transition-all duration-300" style="width: 0%"></div>
+              </div>
+              <div class="flex items-center justify-between gap-2 pt-1">
+                <button onclick="addVocabCount(1)" class="flex-1 py-1 bg-white hover:bg-purple-100 text-purple-700 border border-purple-200 rounded-lg text-[11px] font-bold transition active:scale-95">
+                  +1 Kata
+                </button>
+                <button onclick="addVocabCount(5)" class="flex-1 py-1 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-[11px] font-bold transition active:scale-95 shadow-sm">
+                  +5 Kata
+                </button>
+                <button onclick="resetVocabCount()" class="p-1 px-2 text-slate-400 hover:text-rose-500 text-[11px] font-bold transition" title="Reset">
+                  <i class="fa-solid fa-rotate-right"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 text-xs">
+              <button id="btnSpeakingQuick" onclick="toggleQuickTarget('speakingDone')" class="p-2.5 rounded-xl border border-slate-200 bg-white hover:border-purple-300 transition text-left space-y-1">
+                <div class="text-[10px] text-slate-400 font-bold">LATIHAN SPEAKING</div>
+                <div id="speakingQuickLabel" class="font-bold text-slate-700">🗣️ Belum</div>
+              </button>
+
+              <button id="btnPortfolioQuick" onclick="toggleQuickTarget('portfolioDone')" class="p-2.5 rounded-xl border border-slate-200 bg-white hover:border-purple-300 transition text-left space-y-1">
+                <div class="text-[10px] text-slate-400 font-bold">UPDATE PORTFOLIO</div>
+                <div id="portfolioQuickLabel" class="font-bold text-slate-700">💼 Belum</div>
+              </button>
+            </div>
+          </div>
+
+          <div class="planner-card p-5 shadow-planner bg-planner-cream border-2 border-amber-200 space-y-3">
+            <div class="flex items-center justify-between">
+              <h4 class="font-extrabold text-planner-navy text-xs font-cute flex items-center gap-1.5">
+                <span>📌</span> Jangan Lupa: <span class="text-pink-500">♥</span>
+              </h4>
+              <button onclick="addStickyNotePrompt()" class="text-xs font-bold text-amber-800 hover:text-amber-900 transition">
+                + Tambah
+              </button>
+            </div>
+
+            <div id="stickyNotesContainer" class="space-y-1.5 text-xs font-medium">
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </main>
+
+    <main id="content-schedule" class="tab-content space-y-5">
+      <div class="planner-card p-6 shadow-planner space-y-5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+          <div>
+            <h2 class="text-xl font-extrabold text-planner-navy font-cute flex items-center gap-2">
+              <span>🗓️</span> Daily Schedule Tracker
+            </h2>
+            <p class="text-xs text-slate-500 mt-0.5">
+              Kelola waktu dan kegiatanmu dengan kategori warna indah.
+            </p>
+          </div>
+          <button onclick="openAddTaskModal()" class="px-4 py-2.5 bg-planner-navy hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-sm transition flex items-center gap-1.5 self-start sm:self-auto">
+            <i class="fa-solid fa-plus"></i> Tambah Kegiatan Baru
+          </button>
+        </div>
+
+        <div id="scheduleFullList" class="space-y-3">
+        </div>
+      </div>
+    </main>
+
+    <main id="content-matrix" class="tab-content space-y-5">
+      <div class="planner-card p-4 md:p-6 shadow-planner space-y-4">
+        <div class="border-b border-slate-100 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h2 class="text-lg md:text-xl font-extrabold text-planner-navy font-cute flex items-center gap-2">
+              <span>📊</span> Weekly Grid Tracker Matrix
+            </h2>
+            <p class="text-[11px] md:text-xs text-slate-500 mt-0.5">
+              Semua perubahan centang di sini terhubung otomatis dengan Dashboard, Daily Tracker, dan Habits!
+            </p>
+          </div>
+          <div class="text-[11px] font-bold text-planner-navy bg-planner-blue px-3 py-1 rounded-full shadow-sm flex items-center gap-1.5 self-start sm:self-auto">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>Geser ke samping 👉</span>
+          </div>
+        </div>
+
+        <div class="w-full border border-slate-200 rounded-2xl overflow-x-auto shadow-sm touch-pan-x">
+          <table class="w-full min-w-[680px] text-left text-xs border-collapse">
+            <thead>
+              <tr class="bg-planner-navy text-white font-cute font-bold text-center">
+                <th class="p-3 text-left w-56 border-r border-slate-700">Waktu & Item Kegiatan / Habit</th>
+                <th id="th-Senin" class="p-2 border-r border-slate-700 w-14">Senin</th>
+                <th id="th-Selasa" class="p-2 border-r border-slate-700 w-14">Selasa</th>
+                <th id="th-Rabu" class="p-2 border-r border-slate-700 w-14">Rabu</th>
+                <th id="th-Kamis" class="p-2 border-r border-slate-700 w-14">Kamis</th>
+                <th id="th-Jumat" class="p-2 border-r border-slate-700 w-14">Jumat</th>
+                <th id="th-Sabtu" class="p-2 border-r border-slate-700 w-14">Sabtu</th>
+                <th id="th-Minggu" class="p-2 w-14">Minggu</th>
+              </tr>
+            </thead>
+            <tbody id="matrixTableBody" class="divide-y divide-slate-200 bg-white">
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+
+    <main id="content-habits" class="tab-content space-y-5">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <div class="lg:col-span-2 planner-card p-6 shadow-planner space-y-5">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div>
+              <h2 class="text-xl font-extrabold text-planner-navy font-cute flex items-center gap-2">
+                <span>🌷</span> Habit Tracker Harian
+              </h2>
+              <p class="text-xs text-slate-500">Konsistensi kecil membuat perubahan besar.</p>
+            </div>
+            <span id="habitSummaryBadge" class="text-xs font-bold px-3 py-1 bg-purple-100 text-purple-700 rounded-full">
+              0 Completed
+            </span>
+          </div>
+
+          <div id="habitListContainer" class="space-y-2.5">
+          </div>
+        </div>
+
+        <div class="planner-card p-6 shadow-planner space-y-4">
+          <h3 class="font-bold text-planner-navy text-xs uppercase tracking-wider">
+            + Tambah Habit Baru
+          </h3>
+          <input type="text" id="habitInput" placeholder="Contoh: Minum 2 liter air" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-purple-300">
+          <button onclick="addHabit()" class="w-full py-2.5 bg-planner-navy hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-sm transition">
+            Simpan Habit Baru
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <main id="content-metime" class="tab-content space-y-5">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <div class="lg:col-span-2 planner-card p-5 md:p-6 shadow-planner flex flex-col items-center justify-center text-center space-y-5">
+          <div class="w-full border-b border-slate-100 pb-3 text-left flex items-center justify-between">
+            <h2 class="text-lg md:text-xl font-extrabold text-planner-navy font-cute">
+              🎬 Me-Time Focus Timer
+            </h2>
+            <span class="text-xs font-bold bg-pink-100 text-pink-700 px-3 py-1 rounded-full">Istirahat Santai</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full text-left">
+            <div>
+              <label class="block text-xs font-bold text-slate-600 mb-1">Aktivitas</label>
+              <select id="timerActivity" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold">
+                <option value="Scroll Sosmed 📱">📱 Scroll Social Media</option>
+                <option value="Nonton Drama 🎬">🎬 Menonton Drama</option>
+                <option value="Melukis / Drawing 🎨">🎨 Melukis atau Menggambar</option>
+                <option value="Membaca Buku 📖">📖 Membaca Santai</option>
+                <option value="Istirahat Santai ☕">☕ Coffee Break</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-600 mb-1">Durasi (Menit)</label>
+              <input type="number" id="timerMinutes" value="20" min="1" max="240" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold">
+            </div>
+          </div>
+
+          <div class="relative flex items-center justify-center my-2">
+            <svg class="w-44 h-44 md:w-56 md:h-56 transform -rotate-90">
+              <circle cx="50%" cy="50%" r="42%" stroke="#f1f5f9" stroke-width="10" fill="transparent" />
+              <circle id="timerProgressCircle" cx="50%" cy="50%" r="42%" stroke="#294C7A" stroke-width="10" stroke-dasharray="500" stroke-dashoffset="0" stroke-linecap="round" fill="transparent" class="transition-all duration-1000" />
+            </svg>
+            <div class="absolute flex flex-col items-center justify-center">
+              <span id="timerDisplay" class="text-3xl md:text-4xl font-extrabold text-planner-navy font-cute">20:00</span>
+              <span id="timerStatus" class="text-xs font-bold text-blue-600 mt-1">Siap dimulai ♡</span>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2 w-full max-w-xs">
+            <button onclick="startTimer()" class="flex-1 py-2.5 bg-planner-navy text-white font-bold text-xs rounded-xl shadow-sm hover:bg-slate-800 transition active:scale-95">
+              ▶ Mulai
+            </button>
+            <button onclick="pauseTimer()" class="flex-1 py-2.5 bg-pink-100 text-pink-700 font-bold text-xs rounded-xl hover:bg-pink-200 transition active:scale-95">
+              ⏸ Jeda
+            </button>
+            <button onclick="resetTimer()" class="p-2.5 bg-slate-100 text-slate-600 font-bold text-xs rounded-xl hover:bg-slate-200 transition active:scale-95">
+              ↻ Reset
+            </button>
+          </div>
+        </div>
+
+        <div class="planner-card p-5 shadow-planner space-y-3">
+          <h3 class="font-bold text-planner-navy text-xs uppercase tracking-wider">
+            Riwayat Me-Time Hari Ini
+          </h3>
+          <div id="metimeHistory" class="space-y-2 text-xs">
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <main id="content-journal" class="tab-content space-y-5">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <div class="lg:col-span-2 planner-card p-6 shadow-planner space-y-4">
+          <h2 class="text-xl font-extrabold text-planner-navy font-cute border-b border-slate-100 pb-3">
+            📝 Jurnal & Refleksi Harian
+          </h2>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Perasaan / Mood Hari Ini</label>
+            <select id="journalMood" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold">
+              <option value="😊 Senang">😊 Senang</option>
+              <option value="😌 Tenang">😌 Tenang</option>
+              <option value="🥱 Lelah">🥱 Lelah</option>
+              <option value="😵‍💫 Kewalahan">😵‍💫 Kewalahan</option>
+              <option value="🥺 Sedih">🥺 Sedih</option>
+              <option value="✨ Semangat">✨ Semangat</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Apa yang aku syukuri hari ini?</label>
+            <textarea id="journalGratitude" rows="2" placeholder="Hal kecil yang membuat tersenyum..." class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-purple-300"></textarea>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Pencapaianku hari ini</label>
+            <textarea id="journalAchievement" rows="2" placeholder="Pencapaian sekecil apa pun..." class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-purple-300"></textarea>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Satu langkah kecil untuk besok</label>
+            <textarea id="journalTomorrow" rows="2" placeholder="Besok aku ingin coba..." class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-purple-300"></textarea>
+          </div>
+
+          <button onclick="saveJournal()" class="w-full py-3 bg-planner-navy hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-md transition">
+            Simpan Jurnal Hari Ini ♡
+          </button>
+        </div>
+
+        <div class="planner-card p-5 shadow-planner space-y-3">
+          <h3 class="font-bold text-planner-navy text-xs uppercase tracking-wider">
+            Riwayat Jurnal
+          </h3>
+          <div id="journalHistoryList" class="space-y-3 max-h-[400px] overflow-y-auto pr-1">
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <main id="content-settings" class="tab-content space-y-5">
+      <div class="planner-card p-6 shadow-planner max-w-2xl mx-auto space-y-5">
+        <h2 class="text-xl font-extrabold text-planner-navy font-cute border-b border-slate-100 pb-3">
+          ⚙️ Pengaturan & Backup Data
+        </h2>
+
+        <div class="space-y-3 text-xs">
+          <div class="p-4 bg-purple-50 rounded-2xl border border-purple-100 space-y-2">
+            <h4 class="font-bold text-purple-900">Cadangkan / Impor Data (JSON)</h4>
+            <p class="text-slate-600">Unduh berkas JSON untuk memindahkan jadwal ke perangkat lain.</p>
+            <div class="flex gap-2 pt-1">
+              <button onclick="exportDataJSON()" class="px-4 py-2 bg-planner-navy text-white rounded-xl font-bold">Ekspor JSON</button>
+              <label class="px-4 py-2 bg-white text-planner-navy border border-purple-200 rounded-xl font-bold cursor-pointer">
+                Impor JSON <input type="file" accept=".json" onchange="importDataJSON(event)" class="hidden">
+              </label>
+            </div>
+          </div>
+
+          <div class="p-4 bg-rose-50 rounded-2xl border border-rose-100 space-y-2">
+            <h4 class="font-bold text-rose-900">Reset Data</h4>
+            <p class="text-slate-600">Bersihkan centang hari ini atau pulihkan ke data awal bawaan planner Adelia.</p>
+            <div class="flex gap-2 pt-1">
+              <button onclick="resetTodayChecks()" class="px-4 py-2 bg-rose-500 text-white rounded-xl font-bold">Reset Centang Hari Ini</button>
+              <button onclick="restoreDefaultData()" class="px-4 py-2 bg-white text-rose-700 border border-rose-200 rounded-xl font-bold">Kembalikan Data Bawaan</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="mt-8 text-center text-xs text-slate-400 py-3 font-medium border-t border-slate-200/60">
+      Made with ♡ for Adelia · Progress, not perfection ✨
+    </footer>
+
+  </div>
+
+  <div id="toastContainer" class="fixed bottom-16 md:bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <canvas id="confettiCanvas" class="fixed inset-0 pointer-events-none z-50 w-full h-full"></canvas>
+
+  <div id="customModal" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="planner-card bg-white p-6 max-w-sm w-full shadow-2xl space-y-4">
+      <div class="flex items-center gap-3 text-planner-navy">
+        <span id="modalIcon" class="text-2xl">🐱</span>
+        <h3 id="modalTitle" class="font-extrabold text-base font-cute">Pemberitahuan</h3>
+      </div>
+      <p id="modalMessage" class="text-xs text-slate-600 leading-relaxed"></p>
+      <div class="flex justify-end pt-2">
+        <button onclick="closeModal()" class="px-4 py-2 bg-planner-navy text-white font-bold text-xs rounded-xl">
+          Selesai ♡
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="taskModal" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="planner-card bg-white p-6 max-w-md w-full shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+        <h3 id="taskModalTitle" class="font-extrabold text-slate-800 text-sm font-cute flex items-center gap-2">
+          <span>＋</span> Kelola Kegiatan
+        </h3>
+        <button onclick="closeTaskModal()" class="text-slate-400 hover:text-slate-600">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <input type="hidden" id="editTaskId" value="">
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Nama Kegiatan</label>
+          <input type="text" id="taskNameInput" placeholder="Contoh: Membaca jurnal skripsi" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Kategori Warna</label>
+          <select id="taskCategoryInput" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-bold">
+            <option value="kegiatan_utama">🟦 Kegiatan Utama (PKL, Pulang)</option>
+            <option value="belajar_akademik">🟪 Belajar / Akademik (TOEFL, Skripsi, Jurnal)</option>
+            <option value="self_care">🩷 Self Care / Kesehatan (Sarapan, Skincare, Tidur)</option>
+            <option value="hobi_metime">🟧 Hobi / Me Time (Sosmed, Drama, Melukis)</option>
+            <option value="tambahan">🟩 Tambahan / Lainnya (Portfolio, LinkedIn)</option>
+          </select>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Jam Mulai</label>
+            <input type="time" id="taskStartInput" value="19:30" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Jam Selesai</label>
+            <input type="time" id="taskEndInput" value="20:00" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2">
+        <button onclick="closeTaskModal()" class="px-4 py-2 bg-slate-100 text-slate-600 font-bold text-xs rounded-xl">
+          Batal
+        </button>
+        <button onclick="saveTask()" class="px-4 py-2 bg-planner-navy text-white font-bold text-xs rounded-xl shadow-sm">
+          Simpan Kegiatan
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* UTILITY: SANITIZE HTML TO PREVENT SCRIPT ERRORS & INJECTIONS */
+    function escapeHTML(str) {
+      if (str === null || str === undefined) return '';
+      return String(str).replace(/[&<>"']/g, function(m) {
+        return {
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#39;'
+        }[m];
+      });
+    }
+
+    /* LOCAL STORAGE KEY */
+    const STORAGE_KEY = "adelia_planner_v3";
+
+    /* CATEGORY COLOR MAPPINGS */
+    const categoryConfig = {
+      kegiatan_utama: { label: "Kegiatan Utama", color: "#3B82F6", bg: "bg-blue-50", text: "text-blue-700", border: "border-blue-200", badgeBg: "bg-blue-500" },
+      belajar_akademik: { label: "Belajar / Akademik", color: "#A855F7", bg: "bg-purple-50", text: "text-purple-700", border: "border-purple-200", badgeBg: "bg-purple-500" },
+      self_care: { label: "Self Care / Kesehatan", color: "#EC4899", bg: "bg-pink-50", text: "text-pink-700", border: "border-pink-200", badgeBg: "bg-pink-500" },
+      hobi_metime: { label: "Hobi / Me Time", color: "#F97316", bg: "bg-orange-50", text: "text-orange-700", border: "border-orange-200", badgeBg: "bg-orange-500" },
+      tambahan: { label: "Tambahan / Lainnya", color: "#10B981", bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-200", badgeBg: "bg-emerald-500" }
+    };
+
+    const defaultTasks = [
+      { id: "task_1", name: "Belajar TOEFL (buku TOEFL Hacks)", category: "belajar_akademik", start: "04:30", end: "05:00" },
+      { id: "task_2", name: "Hafalan vocab (20 kata/hari)", category: "belajar_akademik", start: "05:00", end: "05:15" },
+      { id: "task_3", name: "Setelah sarapan (pagi) Minum kolagen", category: "self_care", start: "06:30", end: "07:00" },
+      { id: "task_4", name: "Latihan speaking (stimuler)", category: "belajar_akademik", start: "07:00", end: "07:15" },
+      { id: "task_5", name: "Sebelum mulai tugas PKL (Portfolio / Baca Jurnal)", category: "belajar_akademik", start: "07:15", end: "07:50" },
+      { id: "task_6", name: "PKL (sesuai jadwal Senin-Jumat)", category: "kegiatan_utama", start: "08:00", end: "12:00" },
+      { id: "task_7", name: "Makan siang + Istirahat", category: "self_care", start: "12:00", end: "13:00" },
+      { id: "task_8", name: "Lanjut tugas PKL + Baca jurnal", category: "kegiatan_utama", start: "13:00", end: "16:00" },
+      { id: "task_9", name: "Jeda menunggu jemput (Portfolio)", category: "tambahan", start: "16:00", end: "18:00" },
+      { id: "task_10", name: "Pulang + Istirahat", category: "kegiatan_utama", start: "18:00", end: "19:00" },
+      { id: "task_11", name: "Makan malam + Minum kolagen", category: "self_care", start: "19:00", end: "19:40" },
+      { id: "task_12", name: "Skripsi (malam)", category: "belajar_akademik", start: "19:45", end: "20:30" },
+      { id: "task_13", name: "Scroll media sosial (Me-Time)", category: "hobi_metime", start: "20:30", end: "20:50" },
+      { id: "task_14", name: "Menonton drama", category: "hobi_metime", start: "20:50", end: "21:20" },
+      { id: "task_15", name: "Skincare & Vitamin (malam)", category: "self_care", start: "21:20", end: "21:40" },
+      { id: "task_16", name: "Tidur nyenyak 💤", category: "self_care", start: "22:30", end: "04:30" }
+    ];
+
+    const defaultHabits = [
+      "TOEFL (buku Hacks)",
+      "Hafal vocab (20 kata)",
+      "Speaking (stimuler)",
+      "Baca & cari jurnal",
+      "Update CV/Portfolio/LinkedIn",
+      "Minum kolagen (pagi & malam)",
+      "Vitamin (B, Zn, Mg)",
+      "Skripsi (malam)",
+      "Hobi (melukis & gambar)"
+    ];
+
+    const defaultStickyNotes = [
+      "Minum air putih 💧",
+      "Jaga pola makan 🥗",
+      "Jangan lupa istirahat ☕",
+      "Nikmati prosesnya 🌸",
+      "Kamu hebat! ✨"
+    ];
+
+    const mascotQuotes = [
+      "Little steps everyday make big results! 🐾",
+      "Adelia pasti bisa! Kamu hebat! ♡",
+      "Jangan lupa minum air putih & istirahat ya! 💧",
+      "Progress, not perfection! 🌷",
+      "Mimi selalu dukung Adelia! ✨",
+      "Semangat terus yaa Adelia ♡"
+    ];
+
+    const weekDaysIndo = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+
+    function getDateKey(dateObj = new Date()) {
+      return `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}-${String(dateObj.getDate()).padStart(2, '0')}`;
+    }
+
+    function getWeekDayKey(dayName) {
+      const now = new Date();
+      const currentDayIdx = now.getDay(); 
+      const normalizedCurrentIdx = currentDayIdx === 0 ? 6 : currentDayIdx - 1; 
+      const targetIdx = weekDaysIndo.indexOf(dayName);
+
+      if (targetIdx === -1) return getDateKey();
+
+      const diff = targetIdx - normalizedCurrentIdx;
+      const targetDate = new Date(now);
+      targetDate.setDate(now.getDate() + diff);
+      return getDateKey(targetDate);
+    }
+
+    function getTodayIndoName() {
+      const dayIdx = new Date().getDay();
+      return weekDaysIndo[dayIdx === 0 ? 6 : dayIdx - 1];
+    }
+
+    function getInitialData() {
+      return {
+        tasks: defaultTasks,
+        habits: defaultHabits,
+        stickyNotes: defaultStickyNotes,
+        checks: {},
+        vitamins: {},
+        vocabCount: {},
+        quickTargets: {},
+        sessions: [],
+        journals: {},
+        alarmEnabled: true,
+        mascotPetCount: 0
+      };
+    }
+
+    let appData;
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      appData = stored ? JSON.parse(stored) : getInitialData();
+    } catch (e) {
+      appData = getInitialData();
+    }
+
+    let currentFilterCategory = "all";
+    let selectedHistoryMonth = "";
+
+    function saveData() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+      } catch (e) {}
+      renderApp();
+    }
+
+    window.showToast = function(msg) {
+      const container = document.getElementById("toastContainer");
+      if (!container) return;
+      const toast = document.createElement("div");
+      toast.className = "px-4 py-2.5 rounded-2xl bg-slate-900 text-white font-bold text-xs shadow-xl transition transform duration-300 translate-y-2 opacity-0 flex items-center gap-2 pointer-events-auto border border-slate-700/50 z-50";
+      toast.innerHTML = `<span>✨</span> <span>${escapeHTML(msg)}</span>`;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.classList.remove("translate-y-2", "opacity-0");
+      }, 10);
+      setTimeout(() => {
+        toast.classList.add("translate-y-2", "opacity-0");
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    };
+
+    window.openModal = function(title, msg, icon = "🐱") {
+      const m = document.getElementById("customModal");
+      if (!m) return;
+      document.getElementById("modalTitle").textContent = title;
+      document.getElementById("modalMessage").textContent = msg;
+      document.getElementById("modalIcon").textContent = icon;
+      m.classList.remove("hidden");
+    };
+
+    window.closeModal = function() {
+      const m = document.getElementById("customModal");
+      if (m) m.classList.add("hidden");
+    };
+
+    /* WEB AUDIO API SYNTHESIZER */
+    let audioCtx = null;
+    let ambientNoiseNode = null;
+    let isAmbientPlaying = false;
+
+    function getAudioContext() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    window.playChimeSound = function() {
+      try {
+        const ctx = getAudioContext();
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(523.25, now); // C5
+        osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.1); // E5
+        osc.frequency.exponentialRampToValueAtTime(783.99, now + 0.25); // G5
+
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start(now);
+        osc.stop(now + 0.5);
+      } catch (e) {}
+    };
+
+    window.toggleAlarmSetting = function() {
+      appData.alarmEnabled = !appData.alarmEnabled;
+      const icon = document.getElementById("alarmIcon");
+      const badge = document.getElementById("alarmBadge");
+
+      if (appData.alarmEnabled) {
+        if (icon) icon.className = "fa-solid fa-bell text-xs md:text-sm text-planner-navy";
+        if (badge) badge.className = "absolute -top-1 -right-1 w-2.5 h-2.5 md:w-3 md:h-3 bg-emerald-500 rounded-full border-2 border-white";
+        showToast("Alarm pengingat diaktifkan 🔔");
+      } else {
+        if (icon) icon.className = "fa-solid fa-bell-slash text-xs md:text-sm text-slate-400";
+        if (badge) badge.className = "hidden";
+        showToast("Alarm pengingat dinonaktifkan 🔕");
+      }
+      saveData();
+    };
+
+    window.toggleAmbientSound = function() {
+      try {
+        const ctx = getAudioContext();
+        const icon = document.getElementById("ambientIcon");
+
+        if (!isAmbientPlaying) {
+          const bufferSize = ctx.sampleRate * 2;
+          const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+          const output = noiseBuffer.getChannelData(0);
+          for (let i = 0; i < bufferSize; i++) {
+            output[i] = Math.random() * 2 - 1;
+          }
+
+          ambientNoiseNode = ctx.createBufferSource();
+          ambientNoiseNode.buffer = noiseBuffer;
+          ambientNoiseNode.loop = true;
+
+          const filter = ctx.createBiquadFilter();
+          filter.type = 'lowpass';
+          filter.frequency.value = 400;
+
+          const gain = ctx.createGain();
+          gain.gain.value = 0.05;
+
+          ambientNoiseNode.connect(filter);
+          filter.connect(gain);
+          gain.connect(ctx.destination);
+
+          ambientNoiseNode.start();
+          isAmbientPlaying = true;
+          if (icon) icon.className = "fa-solid fa-volume-high text-xs md:text-sm text-blue-600 animate-pulse";
+          showToast("Suara Lo-Fi Hujan diputar 🌧️");
+        } else {
+          if (ambientNoiseNode) ambientNoiseNode.stop();
+          isAmbientPlaying = false;
+          if (icon) icon.className = "fa-solid fa-cloud-rain text-xs md:text-sm text-planner-navy";
+          showToast("Suara ambient dihentikan");
+        }
+      } catch (e) {}
+    };
+
+    /* CONFETTI ENGINE */
+    let confettiParticles = [];
+    let confettiAnimId = null;
+
+    window.triggerConfettiBurst = function() {
+      const canvas = document.getElementById("confettiCanvas");
+      if (!canvas) return;
+      
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      const ctx = canvas.getContext("2d");
+
+      const colors = ['#FCE1E8', '#DCEEFF', '#E9E1FF', '#3B82F6', '#EC4899', '#A855F7', '#F59E0B', '#10B981'];
+      confettiParticles = [];
+
+      for (let i = 0; i < 90; i++) {
+        confettiParticles.push({
+          x: window.innerWidth / 2 + (Math.random() * 200 - 100),
+          y: window.innerHeight / 2 + (Math.random() * 100 - 50),
+          vx: (Math.random() - 0.5) * 12,
+          vy: Math.random() * -12 - 4,
+          size: Math.random() * 8 + 4,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          rotation: Math.random() * 360,
+          rotSpeed: (Math.random() - 0.5) * 10,
+          opacity: 1
+        });
+      }
+
+      if (confettiAnimId) cancelAnimationFrame(confettiAnimId);
+
+      function renderConfetti() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        let activeCount = 0;
+
+        confettiParticles.forEach(p => {
+          if (p.opacity <= 0) return;
+          activeCount++;
+
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.35;
+          p.rotation += p.rotSpeed;
+          p.opacity -= 0.012;
+
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate((p.rotation * Math.PI) / 180);
+          ctx.globalAlpha = Math.max(0, p.opacity);
+          ctx.fillStyle = p.color;
+          ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+          ctx.restore();
+        });
+
+        if (activeCount > 0) {
+          confettiAnimId = requestAnimationFrame(renderConfetti);
+        } else {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+      }
+
+      renderConfetti();
+    };
+
+    window.switchTab = function(tabId) {
+      document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
+      const target = document.getElementById(`content-${tabId}`);
+      if (target) target.classList.add("active");
+
+      document.querySelectorAll(".nav-btn").forEach(btn => {
+        btn.className = "nav-btn flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs md:text-sm transition-all whitespace-nowrap text-slate-600 hover:bg-slate-100";
+      });
+      const activeNavBtn = document.getElementById(`tab-${tabId}`);
+      if (activeNavBtn) {
+        activeNavBtn.className = "nav-btn flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs md:text-sm transition-all whitespace-nowrap bg-planner-navy text-white shadow-sm";
+      }
+
+      document.querySelectorAll(".mobile-nav-btn").forEach(btn => {
+        btn.className = "mobile-nav-btn flex flex-col items-center gap-0.5 p-1 text-slate-400 transition";
+      });
+      const activeMobileNav = document.getElementById(`mobile-tab-${tabId}`);
+      if (activeMobileNav) {
+        activeMobileNav.className = "mobile-nav-btn flex flex-col items-center gap-0.5 p-1 text-planner-navy font-extrabold transition";
+      }
+    };
+
+    window.updateRealtimeClock = function() {
+      const now = new Date();
+      
+      const dateHeader = document.getElementById("headerDate");
+      if (dateHeader) {
+        dateHeader.textContent = now.toLocaleDateString("id-ID", {
+          weekday: "long", day: "numeric", month: "long", year: "numeric"
+        });
+      }
+
+      const clockHeader = document.getElementById("headerClock");
+      if (clockHeader) {
+        clockHeader.textContent = now.toLocaleTimeString("id-ID", {
+          hour: "2-digit", minute: "2-digit", second: "2-digit"
+        }) + " WIB";
+      }
+
+      // Live task detector
+      const tasks = appData.tasks || [];
+      const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+      let activeTask = null;
+      let minutesRemaining = 0;
+
+      tasks.forEach(t => {
+        const [h1, m1] = t.start.split(":").map(Number);
+        const [h2, m2] = t.end.split(":").map(Number);
+        const startMin = h1 * 60 + m1;
+        let endMin = h2 * 60 + m2;
+        if (endMin < startMin) endMin += 24 * 60; // Overnight task
+
+        if (currentMinutes >= startMin && currentMinutes < endMin) {
+          activeTask = t;
+          minutesRemaining = endMin - currentMinutes;
+        }
+      });
+
+      const titleEl = document.getElementById("currentTaskTitle");
+      const metaEl = document.getElementById("currentTaskMeta");
+      const badgeEl = document.getElementById("currentTaskCategoryBadge");
+      const timerEl = document.getElementById("currentTaskTimer");
+
+      if (activeTask) {
+        if (titleEl) titleEl.textContent = activeTask.name;
+        if (metaEl) metaEl.textContent = `Jam ${activeTask.start} - ${activeTask.end}`;
+        if (timerEl) timerEl.textContent = `${minutesRemaining} min lagi`;
+
+        const cfg = categoryConfig[activeTask.category] || categoryConfig.kegiatan_utama;
+        if (badgeEl) {
+          badgeEl.className = `px-3 py-1.5 rounded-xl text-xs font-bold ${cfg.bg} ${cfg.text} border ${cfg.border} shadow-sm shrink-0`;
+          badgeEl.textContent = `📌 ${cfg.label}`;
+        }
+      } else {
+        if (titleEl) titleEl.textContent = "Waktu Santai / Istirahat Bebas ✨";
+        if (metaEl) metaEl.textContent = "Tidak ada jadwal khusus saat ini";
+        if (timerEl) timerEl.textContent = "-- min";
+        if (badgeEl) {
+          badgeEl.className = "px-3 py-1.5 rounded-xl text-xs font-bold bg-white text-slate-500 border border-slate-200 shrink-0";
+          badgeEl.textContent = "☕ Free Time";
+        }
+      }
+    };
+
+    window.petMascot = function(e) {
+      playChimeSound();
+      appData.mascotPetCount = (appData.mascotPetCount || 0) + 1;
+
+      // Floating Heart FX
+      const heart = document.createElement("div");
+      heart.className = "floating-heart";
+      heart.textContent = e && e.shiftKey ? "💖" : "🌸";
+      heart.style.left = `${(e ? e.clientX : window.innerWidth / 2) - 10}px`;
+      heart.style.top = `${(e ? e.clientY : window.innerHeight / 2) - 20}px`;
+      document.body.appendChild(heart);
+      setTimeout(() => heart.remove(), 1200);
+
+      const bubble = document.getElementById("mascotBubble");
+      if (bubble) {
+        const randMsg = mascotQuotes[Math.floor(Math.random() * mascotQuotes.length)];
+        bubble.textContent = randMsg;
+      }
+
+      saveData();
+    };
+
+    window.isTaskChecked = function(taskId, dateStr = getDateKey()) {
+      return !!(appData.checks && appData.checks[`${dateStr}_${taskId}`]);
+    };
+
+    window.toggleTaskChecked = function(taskId, isChecked, dateStr = getDateKey()) {
+      if (!appData.checks) appData.checks = {};
+      appData.checks[`${dateStr}_${taskId}`] = isChecked;
+      if (isChecked) playChimeSound();
+      saveData();
+    };
+
+    window.isHabitChecked = function(habitIdx, dateStr = getDateKey()) {
+      return !!(appData.checks && appData.checks[`${dateStr}_habit_${habitIdx}`]);
+    };
+
+    window.toggleHabitChecked = function(habitIdx, isChecked, dateStr = getDateKey()) {
+      if (!appData.checks) appData.checks = {};
+      appData.checks[`${dateStr}_habit_${habitIdx}`] = isChecked;
+      if (isChecked) playChimeSound();
+      saveData();
+    };
+
+    window.completeCurrentTask = function() {
+      const now = new Date();
+      const currentMinutes = now.getHours() * 60 + now.getMinutes();
+      const tasks = appData.tasks || [];
+
+      let activeTask = tasks.find(t => {
+        const [h1, m1] = t.start.split(":").map(Number);
+        const [h2, m2] = t.end.split(":").map(Number);
+        return currentMinutes >= (h1 * 60 + m1) && currentMinutes < (h2 * 60 + m2);
+      });
+
+      if (!activeTask) {
+        activeTask = tasks.find(t => !isTaskChecked(t.id));
+      }
+
+      if (activeTask) {
+        toggleTaskChecked(activeTask.id, true);
+        showToast(`" ${activeTask.name} " telah diselesaikan! ✨`);
+      } else {
+        showToast("Semua kegiatan hari ini sudah selesai! 🎉");
+      }
+    };
+
+    window.filterCategory = function(cat) {
+      currentFilterCategory = cat;
+      document.querySelectorAll(".cat-pill").forEach(el => {
+        el.classList.remove("bg-planner-navy", "text-white");
+      });
+      const activePill = document.getElementById(`catFilter-${cat}`);
+      if (activePill) activePill.classList.add("bg-planner-navy", "text-white");
+      renderDashboardTasks();
+    };
+
+    function renderDashboardTasks() {
+      const container = document.getElementById("dashboardTaskList");
+      if (!container) return;
+
+      const tasks = appData.tasks || [];
+      const todayKey = getDateKey();
+
+      const filtered = tasks.filter(t => {
+        if (currentFilterCategory === "all") return true;
+        return t.category === currentFilterCategory;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-8 text-xs text-slate-400 font-medium">
+            Tidak ada kegiatan di kategori ini 🌸
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filtered.map(t => {
+        const checked = isTaskChecked(t.id, todayKey);
+        const cfg = categoryConfig[t.category] || categoryConfig.kegiatan_utama;
+
+        const [h1, m1] = t.start.split(":").map(Number);
+        const [h2, m2] = t.end.split(":").map(Number);
+        let durationMin = (h2 * 60 + m2) - (h1 * 60 + m1);
+        if (durationMin < 0) durationMin += 1440;
+
+        return `
+          <div class="p-3 rounded-2xl border ${checked ? 'bg-slate-50/70 border-slate-200' : 'bg-white border-slate-100 shadow-sm hover:border-slate-300'} flex items-center justify-between gap-3 transition">
+            <label class="custom-check flex items-center gap-3 flex-1 cursor-pointer min-w-0">
+              <input type="checkbox" ${checked ? "checked" : ""} onchange="toggleTaskChecked('${t.id}', this.checked)" class="sr-only">
+              <span class="checkmark w-5 h-5 rounded-md border-2 border-slate-300 relative shrink-0 transition"></span>
+              <div class="min-w-0">
+                <div class="text-xs font-bold text-slate-800 ${checked ? 'line-through text-slate-400' : ''} truncate">${escapeHTML(t.name)}</div>
+                <div class="text-[10px] text-slate-400 font-medium">${t.start} - ${t.end}</div>
+              </div>
+            </label>
+
+            <div class="flex items-center gap-2 shrink-0">
+              <span class="px-2 py-0.5 rounded-lg text-[10px] font-bold ${cfg.bg} ${cfg.text}">
+                ${durationMin} min
+              </span>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderVitamins() {
+      const todayKey = getDateKey();
+      const vitData = (appData.vitamins && appData.vitamins[todayKey]) || {};
+
+      ['vitBComplex', 'vitZinc', 'vitMagnesium'].forEach(vit => {
+        const checkEl = document.getElementById(vit);
+        if (checkEl) checkEl.checked = !!vitData[vit];
+      });
+
+      const vitDoneCount = Object.values(vitData).filter(Boolean).length;
+      const countEl = document.getElementById("statVitaminCount");
+      if (countEl) countEl.textContent = `${vitDoneCount}/3`;
+    }
+
+    window.toggleVitamin = function(vitKey, isChecked) {
+      const todayKey = getDateKey();
+      if (!appData.vitamins) appData.vitamins = {};
+      if (!appData.vitamins[todayKey]) appData.vitamins[todayKey] = {};
+
+      appData.vitamins[todayKey][vitKey] = isChecked;
+      if (isChecked) playChimeSound();
+      saveData();
+    };
+
+    function renderVocabCounter() {
+      const todayKey = getDateKey();
+      const count = (appData.vocabCount && appData.vocabCount[todayKey]) || 0;
+
+      const txt = document.getElementById("vocabCounterText");
+      const bar = document.getElementById("vocabProgressBar");
+      const statTxt = document.getElementById("statVocabCount");
+
+      if (txt) txt.textContent = `${count} / 20 kata`;
+      if (statTxt) statTxt.textContent = `${count}/20`;
+      if (bar) bar.style.width = `${Math.min(100, Math.round((count / 20) * 100))}%`;
+    }
+
+    window.addVocabCount = function(num) {
+      const todayKey = getDateKey();
+      if (!appData.vocabCount) appData.vocabCount = {};
+      appData.vocabCount[todayKey] = Math.max(0, (appData.vocabCount[todayKey] || 0) + num);
+      playChimeSound();
+      saveData();
+    };
+
+    window.resetVocabCount = function() {
+      const todayKey = getDateKey();
+      if (!appData.vocabCount) appData.vocabCount = {};
+      appData.vocabCount[todayKey] = 0;
+      saveData();
+    };
+
+    function renderQuickTargets() {
+      const todayKey = getDateKey();
+      const targets = (appData.quickTargets && appData.quickTargets[todayKey]) || {};
+
+      const spkLabel = document.getElementById("speakingQuickLabel");
+      const portLabel = document.getElementById("portfolioQuickLabel");
+
+      if (spkLabel) spkLabel.innerHTML = targets.speakingDone ? "🗣️ <span class='text-emerald-600'>Selesai</span>" : "🗣️ Belum";
+      if (portLabel) portLabel.innerHTML = targets.portfolioDone ? "💼 <span class='text-emerald-600'>Selesai</span>" : "💼 Belum";
+    }
+
+    window.toggleQuickTarget = function(key) {
+      const todayKey = getDateKey();
+      if (!appData.quickTargets) appData.quickTargets = {};
+      if (!appData.quickTargets[todayKey]) appData.quickTargets[todayKey] = {};
+
+      appData.quickTargets[todayKey][key] = !appData.quickTargets[todayKey][key];
+      if (appData.quickTargets[todayKey][key]) playChimeSound();
+      saveData();
+    };
+
+    function renderStickyNotes() {
+      const container = document.getElementById("stickyNotesContainer");
+      if (!container) return;
+
+      const notes = appData.stickyNotes || [];
+      container.innerHTML = notes.map((note, idx) => `
+        <div class="flex items-center justify-between p-2 rounded-xl bg-white/80 border border-amber-200/80 shadow-sm">
+          <span>• ${escapeHTML(note)}</span>
+          <button onclick="deleteStickyNote(${idx})" class="text-slate-400 hover:text-rose-500 p-1">
+            <i class="fa-solid fa-xmark text-[10px]"></i>
+          </button>
+        </div>
+      `).join("");
+    }
+
+    window.addStickyNotePrompt = function() {
+      const text = prompt("Tulis catatan atau pengingat singkat baru:");
+      if (text && text.trim()) {
+        if (!appData.stickyNotes) appData.stickyNotes = [];
+        appData.stickyNotes.push(text.trim());
+        saveData();
+      }
+    };
+
+    window.deleteStickyNote = function(idx) {
+      if (appData.stickyNotes) {
+        appData.stickyNotes.splice(idx, 1);
+        saveData();
+      }
+    };
+
+    window.openAddTaskModal = function() {
+      document.getElementById("editTaskId").value = "";
+      document.getElementById("taskNameInput").value = "";
+      document.getElementById("taskCategoryInput").value = "kegiatan_utama";
+      document.getElementById("taskStartInput").value = "08:00";
+      document.getElementById("taskEndInput").value = "09:00";
+      document.getElementById("taskModalTitle").innerHTML = "<span>＋</span> Tambah Kegiatan Baru";
+      document.getElementById("taskModal").classList.remove("hidden");
+    };
+
+    window.openEditTaskModal = function(id) {
+      const t = (appData.tasks || []).find(x => x.id === id);
+      if (!t) return;
+      document.getElementById("editTaskId").value = t.id;
+      document.getElementById("taskNameInput").value = t.name;
+      document.getElementById("taskCategoryInput").value = t.category || "kegiatan_utama";
+      document.getElementById("taskStartInput").value = t.start;
+      document.getElementById("taskEndInput").value = t.end;
+      document.getElementById("taskModalTitle").innerHTML = "<span>✏️</span> Edit Kegiatan";
+      document.getElementById("taskModal").classList.remove("hidden");
+    };
+
+    window.closeTaskModal = function() {
+      document.getElementById("taskModal").classList.add("hidden");
+    };
+
+    window.saveTask = function() {
+      const id = document.getElementById("editTaskId").value;
+      const name = document.getElementById("taskNameInput").value.trim();
+      const category = document.getElementById("taskCategoryInput").value;
+      const start = document.getElementById("taskStartInput").value;
+      const end = document.getElementById("taskEndInput").value;
+
+      if (!name || !start || !end) {
+        showToast("Harap isi nama dan waktu kegiatan!");
+        return;
+      }
+
+      if (!appData.tasks) appData.tasks = [];
+
+      if (id) {
+        const idx = appData.tasks.findIndex(x => x.id === id);
+        if (idx !== -1) {
+          appData.tasks[idx] = { id, name, category, start, end };
+          showToast("Kegiatan berhasil diperbarui ✨");
+        }
+      } else {
+        const newId = "task_" + Date.now();
+        appData.tasks.push({ id: newId, name, category, start, end });
+        showToast("Kegiatan baru berhasil ditambahkan! 🌸");
+      }
+
+      appData.tasks.sort((a, b) => a.start.localeCompare(b.start));
+
+      closeTaskModal();
+      saveData();
+    };
+
+    window.deleteTask = function(id) {
+      if (confirm("Hapus kegiatan ini?")) {
+        appData.tasks = (appData.tasks || []).filter(x => x.id !== id);
+        showToast("Kegiatan berhasil dihapus");
+        saveData();
+      }
+    };
+
+    function renderFullSchedule() {
+      const container = document.getElementById("scheduleFullList");
+      if (!container) return;
+
+      const tasks = appData.tasks || [];
+      const todayKey = getDateKey();
+
+      container.innerHTML = tasks.map(t => {
+        const checked = isTaskChecked(t.id, todayKey);
+        const cfg = categoryConfig[t.category] || categoryConfig.kegiatan_utama;
+
+        const [h1, m1] = t.start.split(":").map(Number);
+        const [h2, m2] = t.end.split(":").map(Number);
+        let durationMin = (h2 * 60 + m2) - (h1 * 60 + m1);
+        if (durationMin < 0) durationMin += 1440;
+
+        return `
+          <div class="p-4 rounded-2xl border ${checked ? 'bg-slate-50 border-slate-200' : 'bg-white border-slate-200 shadow-sm'} flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <label class="custom-check flex items-start gap-3 flex-1 cursor-pointer">
+              <input type="checkbox" ${checked ? "checked" : ""} onchange="toggleTaskChecked('${t.id}', this.checked)" class="sr-only">
+              <span class="checkmark w-5 h-5 rounded-md border-2 border-slate-300 relative shrink-0 mt-0.5"></span>
+              <div>
+                <div class="text-sm font-bold text-slate-800 ${checked ? 'line-through text-slate-400' : ''}">${escapeHTML(t.name)}</div>
+                <div class="text-xs text-slate-400 font-medium mt-0.5">Jam ${t.start} - ${t.end}</div>
+              </div>
+            </label>
+
+            <div class="flex items-center gap-2 self-end sm:self-auto">
+              <span class="px-2.5 py-1 rounded-xl text-xs font-bold ${cfg.bg} ${cfg.text} border ${cfg.border}">
+                ${durationMin} min
+              </span>
+              <button onclick="openEditTaskModal('${t.id}')" class="p-2 text-slate-400 hover:text-blue-600 transition" title="Edit">
+                <i class="fa-solid fa-pen-to-square"></i>
+              </button>
+              <button onclick="deleteTask('${t.id}')" class="p-2 text-slate-400 hover:text-rose-500 transition" title="Hapus">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderMatrixTable() {
+      const tbody = document.getElementById("matrixTableBody");
+      if (!tbody) return;
+
+      const todayIndo = getTodayIndoName();
+      weekDaysIndo.forEach(day => {
+        const th = document.getElementById(`th-${day}`);
+        if (th) {
+          if (day === todayIndo) {
+            th.className = "p-2 border-r border-slate-700 w-14 bg-pink-500 text-white font-extrabold";
+          } else {
+            th.className = "p-2 border-r border-slate-700 w-14";
+          }
+        }
+      });
+
+      const tasks = appData.tasks || [];
+      const habits = appData.habits || [];
+
+      let html = "";
+
+      tasks.forEach(t => {
+        html += `<tr class="hover:bg-slate-50">
+          <td class="p-2.5 font-bold text-slate-800 border-r border-slate-200">
+            <div class="text-xs">${escapeHTML(t.name)}</div>
+            <div class="text-[10px] text-slate-400 font-normal">${t.start} - ${t.end}</div>
+          </td>`;
+
+        weekDaysIndo.forEach(day => {
+          const dateKey = getWeekDayKey(day);
+          const checked = isTaskChecked(t.id, dateKey);
+          html += `
+            <td class="p-2 text-center border-r border-slate-200">
+              <input type="checkbox" ${checked ? "checked" : ""} onchange="toggleTaskChecked('${t.id}', this.checked, '${dateKey}')" class="w-4 h-4 accent-planner-navy cursor-pointer">
+            </td>
+          `;
+        });
+        html += `</tr>`;
+      });
+
+      // Habits Divider Row
+      html += `<tr class="bg-purple-50/80 font-bold text-purple-900"><td colspan="8" class="p-2 text-xs uppercase tracking-wider">🌸 Habit Tracker Matrix</td></tr>`;
+
+      habits.forEach((h, idx) => {
+        html += `<tr class="hover:bg-slate-50">
+          <td class="p-2.5 font-bold text-slate-700 border-r border-slate-200 text-xs">
+            🌿 ${escapeHTML(h)}
+          </td>`;
+
+        weekDaysIndo.forEach(day => {
+          const dateKey = getWeekDayKey(day);
+          const checked = isHabitChecked(idx, dateKey);
+          html += `
+            <td class="p-2 text-center border-r border-slate-200">
+              <input type="checkbox" ${checked ? "checked" : ""} onchange="toggleHabitChecked(${idx}, this.checked, '${dateKey}')" class="w-4 h-4 accent-purple-600 cursor-pointer">
+            </td>
+          `;
+        });
+        html += `</tr>`;
+      });
+
+      tbody.innerHTML = html;
+    }
+
+    function renderHabits() {
+      const container = document.getElementById("habitListContainer");
+      if (!container) return;
+
+      const habits = appData.habits || [];
+      const todayKey = getDateKey();
+
+      let doneCount = 0;
+
+      container.innerHTML = habits.map((h, idx) => {
+        const checked = isHabitChecked(idx, todayKey);
+        if (checked) doneCount++;
+
+        return `
+          <div class="p-3 rounded-2xl border ${checked ? 'bg-purple-50/70 border-purple-200' : 'bg-white border-slate-200 shadow-sm'} flex items-center justify-between gap-3">
+            <label class="custom-check flex items-center gap-3 flex-1 cursor-pointer">
+              <input type="checkbox" ${checked ? "checked" : ""} onchange="toggleHabitChecked(${idx}, this.checked)" class="sr-only">
+              <span class="checkmark w-5 h-5 rounded-md border-2 border-slate-300 relative shrink-0"></span>
+              <span class="text-xs font-bold text-slate-800 ${checked ? 'line-through text-purple-400' : ''}">${escapeHTML(h)}</span>
+            </label>
+
+            <button onclick="deleteHabit(${idx})" class="p-1.5 text-slate-300 hover:text-rose-500 transition">
+              <i class="fa-solid fa-trash-can text-xs"></i>
+            </button>
+          </div>
+        `;
+      }).join("");
+
+      const badge = document.getElementById("habitSummaryBadge");
+      const statHabitCount = document.getElementById("statHabitCount");
+      const statHabitPercent = document.getElementById("statHabitPercent");
+
+      if (badge) badge.textContent = `${doneCount} / ${habits.length} Completed`;
+      if (statHabitCount) statHabitCount.textContent = `${doneCount}/${habits.length}`;
+
+      const pct = habits.length ? Math.round((doneCount / habits.length) * 100) : 0;
+      if (statHabitPercent) statHabitPercent.textContent = `${pct}% Selesai`;
+    }
+
+    window.addHabit = function() {
+      const input = document.getElementById("habitInput");
+      if (!input || !input.value.trim()) return;
+
+      if (!appData.habits) appData.habits = [];
+      appData.habits.push(input.value.trim());
+      input.value = "";
+      showToast("Habit baru ditambahkan 🌿");
+      saveData();
+    };
+
+    window.deleteHabit = function(idx) {
+      if (appData.habits) {
+        appData.habits.splice(idx, 1);
+        saveData();
+      }
+    };
+
+    let seconds = 1200, timerInterval = null, timerRunning = false;
+
+    window.showTimer = function() {
+      const m = Math.floor(seconds / 60);
+      const s = seconds % 60;
+      const display = document.getElementById("timerDisplay");
+      if (display) display.textContent = `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+
+      const totalMin = Number(document.getElementById("timerMinutes")?.value) || 20;
+      const circle = document.getElementById("timerProgressCircle");
+      if (circle) {
+        const totalSec = totalMin * 60;
+        const progress = totalSec > 0 ? (seconds / totalSec) : 0;
+        const dashoffset = 500 * (1 - progress);
+        circle.style.strokeDashoffset = dashoffset;
+      }
+    };
+
+    window.startTimer = function() {
+      if (timerRunning) return;
+      if (seconds <= 0) resetTimer();
+      timerRunning = true;
+      const status = document.getElementById("timerStatus");
+      if (status) status.textContent = "Waktumu berjalan ♡";
+
+      timerInterval = setInterval(() => {
+        seconds--;
+        showTimer();
+        if (seconds <= 0) {
+          clearInterval(timerInterval);
+          timerInterval = null;
+          timerRunning = false;
+          
+          const minutes = Number(document.getElementById("timerMinutes")?.value) || 20;
+          const activity = document.getElementById("timerActivity")?.value || "Me-Time";
+          
+          const todayKey = getDateKey();
+          if (!appData.sessions) appData.sessions = [];
+          appData.sessions.push({ date: todayKey, name: activity, minutes: minutes });
+          
+          saveData();
+          playChimeSound();
+          triggerConfettiBurst();
+          
+          if (status) status.textContent = "Selesai! Good job ♡";
+          openModal("Me-Time Selesai! 🎉", `Semoga Adelia merasa lebih segar setelah ${minutes} menit ${activity}! ♡`, "🌸");
+        }
+      }, 1000);
+    };
+
+    window.pauseTimer = function() {
+      clearInterval(timerInterval);
+      timerInterval = null;
+      timerRunning = false;
+      const status = document.getElementById("timerStatus");
+      if (status) status.textContent = "Dijeda ⏸";
+    };
+
+    window.resetTimer = function() {
+      pauseTimer();
+      const minVal = Number(document.getElementById("timerMinutes")?.value) || 20;
+      seconds = Math.max(1, minVal) * 60;
+      showTimer();
+      const status = document.getElementById("timerStatus");
+      if (status) status.textContent = "Siap dimulai ♡";
+    };
+
+    window.saveJournal = function() {
+      const mood = document.getElementById("journalMood")?.value || "😊 Senang";
+      const gratitude = document.getElementById("journalGratitude")?.value || "";
+      const achievement = document.getElementById("journalAchievement")?.value || "";
+      const tomorrow = document.getElementById("journalTomorrow")?.value || "";
+
+      const todayKey = getDateKey();
+      if (!appData.journals) appData.journals = {};
+      appData.journals[todayKey] = { mood, gratitude, achievement, tomorrow };
+
+      playChimeSound();
+      showToast("Jurnal hari ini berhasil disimpan! ♡");
+      saveData();
+    };
+
+    function renderJournalHistory() {
+      const container = document.getElementById("journalHistoryList");
+      if (!container) return;
+
+      const journals = appData.journals || {};
+      const dates = Object.keys(journals).sort().reverse();
+
+      if (dates.length === 0) {
+        container.innerHTML = `<div class="text-xs text-slate-400 py-4 text-center">Belum ada jurnal tersimpan 📖</div>`;
+        return;
+      }
+
+      container.innerHTML = dates.map(d => {
+        const j = journals[d];
+        return `
+          <div class="p-3.5 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-1.5 text-xs">
+            <div class="flex items-center justify-between font-bold text-planner-navy">
+              <span>📅 ${d}</span>
+              <span class="px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 font-bold">${escapeHTML(j.mood)}</span>
+            </div>
+            ${j.gratitude ? `<div class="text-slate-600"><strong>Syukur:</strong> ${escapeHTML(j.gratitude)}</div>` : ''}
+            ${j.achievement ? `<div class="text-slate-600"><strong>Pencapaian:</strong> ${escapeHTML(j.achievement)}</div>` : ''}
+          </div>
+        `;
+      }).join("");
+    }
+
+    function getAvailableMonths() {
+      const months = new Set();
+      const now = new Date();
+      months.add(`${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`);
+
+      if (appData.checks) {
+        Object.keys(appData.checks).forEach(k => {
+          const parts = k.split("_");
+          if (parts[0] && parts[0].includes("-")) months.add(parts[0].substring(0, 7));
+        });
+      }
+      return Array.from(months).sort().reverse();
+    }
+
+    window.changeMonthlyHistory = function(monthStr) {
+      selectedHistoryMonth = monthStr;
+      renderMonthlyAnalytics();
+    };
+
+    window.renderMonthlyAnalytics = function() {
+      const selectEl = document.getElementById("monthlySelect");
+      const months = getAvailableMonths();
+
+      if (selectEl && months.length > 0) {
+        selectEl.innerHTML = months.map(m => {
+          const [year, month] = m.split("-");
+          const d = new Date(year, month - 1, 1);
+          const label = d.toLocaleDateString("id-ID", { month: "long", year: "numeric" });
+          return `<option value="${m}" ${m === selectedHistoryMonth ? "selected" : ""}>${label}</option>`;
+        }).join("");
+      }
+
+      if (!selectedHistoryMonth && months.length > 0) {
+        selectedHistoryMonth = months[0];
+      }
+
+      const targetMonth = selectedHistoryMonth || `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
+      const [targetYear, targetMonthNum] = targetMonth.split("-").map(Number);
+
+      const daysInMonth = new Date(targetYear, targetMonthNum, 0).getDate();
+
+      let totalTaskCompletionPctSum = 0;
+      let totalHabitCompletionPctSum = 0;
+      let monthlyVocabTotal = 0;
+      let monthlyMetimeTotalMinutes = 0;
+
+      const chartBarsEl = document.getElementById("monthlyChartBars");
+      let barsHTML = "";
+
+      const tasksCount = (appData.tasks || []).length || 1;
+      const habitsCount = (appData.habits || []).length || 1;
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dayKey = `${targetYear}-${String(targetMonthNum).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        
+        let dayTasksDone = 0;
+        (appData.tasks || []).forEach(t => {
+          if (appData.checks && appData.checks[`${dayKey}_${t.id}`]) dayTasksDone++;
+        });
+
+        let dayHabitsDone = 0;
+        (appData.habits || []).forEach((h, idx) => {
+          if (appData.checks && appData.checks[`${dayKey}_habit_${idx}`]) dayHabitsDone++;
+        });
+
+        const dayTaskPct = Math.round((dayTasksDone / tasksCount) * 100);
+        const dayHabitPct = Math.round((dayHabitsDone / habitsCount) * 100);
+
+        totalTaskCompletionPctSum += dayTaskPct;
+        totalHabitCompletionPctSum += dayHabitPct;
+
+        monthlyVocabTotal += (appData.vocabCount && appData.vocabCount[dayKey]) || 0;
+
+        if (appData.sessions) {
+          appData.sessions.filter(s => s.date === dayKey).forEach(s => {
+            monthlyMetimeTotalMinutes += (s.minutes || 0);
+          });
+        }
+
+        const overallDayPct = Math.round((dayTaskPct + dayHabitPct) / 2);
+
+        let barBg = "bg-slate-200";
+        if (overallDayPct >= 80) barBg = "bg-emerald-400";
+        else if (overallDayPct >= 50) barBg = "bg-purple-400";
+        else if (overallDayPct > 0) barBg = "bg-sky-300";
+
+        barsHTML += `
+          <div class="flex-1 flex flex-col items-center gap-1 group relative min-w-[14px]">
+            <div class="w-full bg-slate-100 h-28 rounded-lg flex items-end overflow-hidden p-0.5">
+              <div class="w-full ${barBg} rounded-md transition-all duration-500" style="height: ${Math.max(5, overallDayPct)}%"></div>
+            </div>
+            <span class="text-[9px] font-bold text-slate-400 group-hover:text-purple-700">${day}</span>
+            
+            <div class="absolute bottom-full mb-2 hidden group-hover:flex flex-col bg-slate-900 text-white text-[10px] p-2 rounded-xl shadow-xl z-20 whitespace-nowrap pointer-events-none">
+              <span class="font-bold text-amber-300">Tgl ${day}/${targetMonthNum}/${targetYear}</span>
+              <span>Jadwal: ${dayTaskPct}%</span>
+              <span>Habit: ${dayHabitPct}%</span>
+            </div>
+          </div>
+        `;
+      }
+
+      if (chartBarsEl) chartBarsEl.innerHTML = barsHTML;
+
+      const avgTaskPct = Math.round(totalTaskCompletionPctSum / daysInMonth);
+      const avgHabitPct = Math.round(totalHabitCompletionPctSum / daysInMonth);
+
+      const taskRateEl = document.getElementById("monthlyTaskRate");
+      const habitRateEl = document.getElementById("monthlyHabitRate");
+      const vocabTotalEl = document.getElementById("monthlyTotalVocab");
+      const metimeTotalEl = document.getElementById("monthlyMetimeTotal");
+
+      if (taskRateEl) taskRateEl.textContent = `${avgTaskPct}%`;
+      if (habitRateEl) habitRateEl.textContent = `${avgHabitPct}%`;
+      if (vocabTotalEl) vocabTotalEl.textContent = `${monthlyVocabTotal} kata`;
+      if (metimeTotalEl) metimeTotalEl.textContent = `${monthlyMetimeTotalMinutes} min`;
+
+      const badgesContainer = document.getElementById("monthlyBadgesContainer");
+      if (badgesContainer) {
+        const badges = [
+          { title: "👑 Consistency Queen", desc: "Pencapaian Jadwal >70%", unlocked: avgTaskPct >= 70, color: "bg-amber-100 text-amber-800 border-amber-200" },
+          { title: "📖 Vocab Master", desc: "Kumpul >100 Vocab", unlocked: monthlyVocabTotal >= 100, color: "bg-emerald-100 text-emerald-800 border-emerald-200" },
+          { title: "🌷 Habit Champ", desc: "Konsistensi Habit >70%", unlocked: avgHabitPct >= 70, color: "bg-purple-100 text-purple-800 border-purple-200" },
+          { title: "🌸 Self-Care Goddess", desc: "Me-Time >120 Menit", unlocked: monthlyMetimeTotalMinutes >= 120, color: "bg-pink-100 text-pink-800 border-pink-200" }
+        ];
+
+        badgesContainer.innerHTML = badges.map(b => `
+          <div class="p-2.5 rounded-xl border ${b.unlocked ? b.color : 'bg-slate-50 text-slate-400 border-slate-200 opacity-60'} flex items-center gap-2">
+            <span class="text-base">${b.unlocked ? '✨' : '🔒'}</span>
+            <div>
+              <div class="font-extrabold text-[11px]">${b.title}</div>
+              <div class="text-[9px] ${b.unlocked ? 'text-slate-700' : 'text-slate-400'}">${b.desc}</div>
+            </div>
+          </div>
+        `).join("");
+      }
+
+      const celebBanner = document.getElementById("celebrationBanner");
+      if (celebBanner) {
+        if (avgTaskPct >= 80 || avgHabitPct >= 80) {
+          celebBanner.classList.remove("hidden");
+        } else {
+          celebBanner.classList.add("hidden");
+        }
+      }
+    };
+
+    window.exportDataJSON = function() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData, null, 2));
+      const dlAnchorElem = document.createElement('a');
+      dlAnchorElem.setAttribute("href", dataStr);
+      dlAnchorElem.setAttribute("download", `adelia_planner_backup_${getDateKey()}.json`);
+      document.body.appendChild(dlAnchorElem);
+      dlAnchorElem.click();
+      dlAnchorElem.remove();
+      showToast("Data berhasil diekspor ke JSON! 📁");
+    };
+
+    window.importDataJSON = function(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if (imported && (imported.tasks || imported.habits)) {
+            appData = imported;
+            saveData();
+            showToast("Data berhasil diimpor! 🎉");
+          } else {
+            openModal("Gagal Impor", "Format berkas JSON tidak sesuai.", "⚠️");
+          }
+        } catch (err) {
+          openModal("Gagal Impor", "Gagal membaca berkas JSON.", "⚠️");
+        }
+      };
+      reader.readAsText(file);
+    };
+
+    window.resetTodayChecks = function() {
+      if (confirm("Reset centang untuk hari ini?")) {
+        const todayKey = getDateKey();
+        if (appData.checks) {
+          Object.keys(appData.checks).forEach(k => {
+            if (k.startsWith(todayKey)) delete appData.checks[k];
+          });
+        }
+        if (appData.vitamins) delete appData.vitamins[todayKey];
+        if (appData.vocabCount) delete appData.vocabCount[todayKey];
+        if (appData.quickTargets) delete appData.quickTargets[todayKey];
+        showToast("Centang hari ini telah di-reset");
+        saveData();
+      }
+    };
+
+    window.restoreDefaultData = function() {
+      if (confirm("Kembalikan ke data awal bawaan Adelia's Little World? Data baru akan ditimpa.")) {
+        appData = getInitialData();
+        saveData();
+        showToast("Data berhasil dikembalikan ke awal 🌸");
+      }
+    };
+
+    function renderApp() {
+      updateRealtimeClock();
+      renderDashboardTasks();
+      renderVitamins();
+      renderVocabCounter();
+      renderQuickTargets();
+      renderStickyNotes();
+      renderFullSchedule();
+      renderMatrixTable();
+      renderHabits();
+      renderJournalHistory();
+      renderMonthlyAnalytics();
+
+      const tasks = appData.tasks || [];
+      const doneTasks = tasks.filter(t => isTaskChecked(t.id)).length;
+      const countEl = document.getElementById("statTaskCount");
+      const pctEl = document.getElementById("statTaskPercent");
+
+      if (countEl) countEl.textContent = `${doneTasks}/${tasks.length}`;
+      const taskPercent = tasks.length ? Math.round((doneTasks / tasks.length) * 100) : 0;
+      if (pctEl) pctEl.textContent = `${taskPercent}% Selesai`;
+
+      const mascotBar = document.getElementById("mascotHappinessBar");
+      const mascotText = document.getElementById("mascotHappinessText");
+      if (mascotBar && mascotText) {
+        const petBonus = Math.min(100, (appData.mascotPetCount || 0) * 10 + taskPercent);
+        mascotBar.style.width = `${petBonus}%`;
+        mascotText.textContent = `${petBonus}%`;
+      }
+    }
+
+    window.onload = function() {
+      resetTimer();
+      renderApp();
+      setInterval(updateRealtimeClock, 1000);
+    };
+  </script>
+</body>
+</html>
