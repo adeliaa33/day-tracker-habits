@@ -201,66 +201,144 @@
       </div>
     </header>
 
-    <!-- Navigation (Desktop Top Bar) -->
-    <nav class="planner-card p-1.5 mb-4 md:mb-5 shadow-planner hidden md:flex items-center justify-between overflow-x-auto gap-1">
-      <button onclick="switchTab('home')" id="tab-home" class="nav-btn flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs md:text-sm transition-all whitespace-nowrap bg-planner-navy text-white shadow-sm">
-        <i class="fa-solid fa-house"></i> <span>Dashboard</span>
+    <!-- MAIN LAUNCHER VIEW: 3x3 Grid Menu (Shown by Default on website load) -->
+    <div id="mainLauncherGrid" class="planner-card p-4 md:p-6 shadow-planner bg-white border-2 border-slate-100 rounded-3xl space-y-4 mb-4 md:mb-5">
+      
+      <!-- Banner Header Launcher -->
+      <div class="p-3.5 md:p-4 rounded-2xl bg-gradient-to-r from-[#DCEEFF] via-[#FCE1E8] to-[#E9E1FF] border border-white/60 shadow-sm flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <span class="text-2xl">✨</span>
+          <div>
+            <h3 class="font-extrabold text-planner-navy text-xs md:text-sm font-cute">Menu Utama Planner Adelia</h3>
+            <p class="text-[10px] md:text-[11px] text-slate-500 font-semibold">Klik salah satu menu di bawah untuk membuka fitur ♡</p>
+          </div>
+        </div>
+        <span class="text-[9px] md:text-[10px] font-bold text-pink-600 bg-white/80 px-2.5 py-1 rounded-full shadow-sm">Grid Menu 3x3</span>
+      </div>
+
+      <!-- Grid 3x3 Menu Buttons (3 Kolom x 3 Baris) -->
+      <div class="grid grid-cols-3 gap-2.5 md:gap-4">
+        
+        <!-- Baris 1: Beranda, Jadwal, Weekly -->
+        <button onclick="switchTab('home')" id="grid-tab-home" class="grid-nav-btn p-3.5 md:p-5 rounded-2xl bg-sky-50 hover:bg-sky-100 border border-sky-200/60 flex flex-col items-center justify-center gap-2 transition active:scale-95 shadow-sm group">
+          <div class="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-white flex items-center justify-center text-sky-600 text-lg md:text-xl shadow-sm group-hover:scale-110 transition">
+            <i class="fa-solid fa-house"></i>
+          </div>
+          <span class="font-extrabold text-xs md:text-sm text-slate-700">Beranda</span>
+        </button>
+
+        <button onclick="switchTab('schedule')" id="grid-tab-schedule" class="grid-nav-btn p-3.5 md:p-5 rounded-2xl bg-purple-50 hover:bg-purple-100 border border-purple-200/60 flex flex-col items-center justify-center gap-2 transition active:scale-95 shadow-sm group">
+          <div class="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-white flex items-center justify-center text-purple-600 text-lg md:text-xl shadow-sm group-hover:scale-110 transition">
+            <i class="fa-solid fa-calendar-check"></i>
+          </div>
+          <span class="font-extrabold text-xs md:text-sm text-slate-700">Jadwal</span>
+        </button>
+
+        <button onclick="switchTab('matrix')" id="grid-tab-matrix" class="grid-nav-btn p-3.5 md:p-5 rounded-2xl bg-blue-50 hover:bg-blue-100 border border-blue-200/60 flex flex-col items-center justify-center gap-2 transition active:scale-95 shadow-sm group">
+          <div class="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-white flex items-center justify-center text-blue-600 text-lg md:text-xl shadow-sm group-hover:scale-110 transition">
+            <i class="fa-solid fa-table-cells"></i>
+          </div>
+          <span class="font-extrabold text-xs md:text-sm text-slate-700">Weekly</span>
+        </button>
+
+        <!-- Baris 2: Habits, Analisis, Me-Time -->
+        <button onclick="switchTab('habits')" id="grid-tab-habits" class="grid-nav-btn p-3.5 md:p-5 rounded-2xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/60 flex flex-col items-center justify-center gap-2 transition active:scale-95 shadow-sm group">
+          <div class="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-white flex items-center justify-center text-emerald-600 text-lg md:text-xl shadow-sm group-hover:scale-110 transition">
+            <i class="fa-solid fa-seedling"></i>
+          </div>
+          <span class="font-extrabold text-xs md:text-sm text-slate-700">Habits</span>
+        </button>
+
+        <button onclick="switchTab('analytics')" id="grid-tab-analytics" class="grid-nav-btn p-3.5 md:p-5 rounded-2xl bg-indigo-50 hover:bg-indigo-100 border border-indigo-200/60 flex flex-col items-center justify-center gap-2 transition active:scale-95 shadow-sm group">
+          <div class="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-white flex items-center justify-center text-indigo-600 text-lg md:text-xl shadow-sm group-hover:scale-110 transition">
+            <i class="fa-solid fa-chart-pie"></i>
+          </div>
+          <span class="font-extrabold text-xs md:text-sm text-slate-700">Analisis</span>
+        </button>
+
+        <button onclick="switchTab('metime')" id="grid-tab-metime" class="grid-nav-btn p-3.5 md:p-5 rounded-2xl bg-orange-50 hover:bg-orange-100 border border-orange-200/60 flex flex-col items-center justify-center gap-2 transition active:scale-95 shadow-sm group">
+          <div class="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-white flex items-center justify-center text-orange-600 text-lg md:text-xl shadow-sm group-hover:scale-110 transition">
+            <i class="fa-solid fa-film"></i>
+          </div>
+          <span class="font-extrabold text-xs md:text-sm text-slate-700">Me-Time</span>
+        </button>
+
+        <!-- Baris 3: Kalender, Jurnal, Opsi -->
+        <button onclick="switchTab('calendar')" id="grid-tab-calendar" class="grid-nav-btn p-3.5 md:p-5 rounded-2xl bg-pink-50 hover:bg-pink-100 border border-pink-200/60 flex flex-col items-center justify-center gap-2 transition active:scale-95 shadow-sm group">
+          <div class="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-white flex items-center justify-center text-pink-600 text-lg md:text-xl shadow-sm group-hover:scale-110 transition">
+            <i class="fa-solid fa-calendar-days"></i>
+          </div>
+          <span class="font-extrabold text-xs md:text-sm text-slate-700">Kalender</span>
+        </button>
+
+        <button onclick="switchTab('journal')" id="grid-tab-journal" class="grid-nav-btn p-3.5 md:p-5 rounded-2xl bg-amber-50 hover:bg-amber-100 border border-amber-200/60 flex flex-col items-center justify-center gap-2 transition active:scale-95 shadow-sm group">
+          <div class="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-white flex items-center justify-center text-amber-600 text-lg md:text-xl shadow-sm group-hover:scale-110 transition">
+            <i class="fa-solid fa-book-open"></i>
+          </div>
+          <span class="font-extrabold text-xs md:text-sm text-slate-700">Jurnal</span>
+        </button>
+
+        <button onclick="switchTab('settings')" id="grid-tab-settings" class="grid-nav-btn p-3.5 md:p-5 rounded-2xl bg-slate-100 hover:bg-slate-200 border border-slate-300/60 flex flex-col items-center justify-center gap-2 transition active:scale-95 shadow-sm group">
+          <div class="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-white flex items-center justify-center text-slate-600 text-lg md:text-xl shadow-sm group-hover:scale-110 transition">
+            <i class="fa-solid fa-sliders"></i>
+          </div>
+          <span class="font-extrabold text-xs md:text-sm text-slate-700">Opsi</span>
+        </button>
+
+      </div>
+    </div>
+
+    <!-- BACK TO MAIN MENU BUTTON (Shown when inside any sub-feature) -->
+    <div id="topBackNav" class="hidden mb-4 flex items-center justify-between bg-white/90 backdrop-blur-md p-2.5 px-4 rounded-2xl border border-slate-200/80 shadow-sm">
+      <button onclick="showLauncherGrid()" class="px-3.5 py-1.5 bg-planner-navy hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow transition active:scale-95 flex items-center gap-2">
+        <i class="fa-solid fa-grip text-xs"></i> <span>‹ Kembali ke Menu Utama</span>
       </button>
-      <button onclick="switchTab('schedule')" id="tab-schedule" class="nav-btn flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs md:text-sm transition-all whitespace-nowrap text-slate-600 hover:bg-slate-100">
-        <i class="fa-solid fa-calendar-check"></i> <span>Daily Tracker</span>
-      </button>
-      <button onclick="switchTab('matrix')" id="tab-matrix" class="nav-btn flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs md:text-sm transition-all whitespace-nowrap text-slate-600 hover:bg-slate-100">
-        <i class="fa-solid fa-table-cells"></i> <span>Weekly Grid</span>
-      </button>
-      <button onclick="switchTab('habits')" id="tab-habits" class="nav-btn flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs md:text-sm transition-all whitespace-nowrap text-slate-600 hover:bg-slate-100">
-        <i class="fa-solid fa-seedling"></i> <span>Habits</span>
-      </button>
-      <button onclick="switchTab('metime')" id="tab-metime" class="nav-btn flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs md:text-sm transition-all whitespace-nowrap text-slate-600 hover:bg-slate-100">
-        <i class="fa-solid fa-film"></i> <span>Me-Time</span>
-      </button>
-      <button onclick="switchTab('journal')" id="tab-journal" class="nav-btn flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs md:text-sm transition-all whitespace-nowrap text-slate-600 hover:bg-slate-100">
-        <i class="fa-solid fa-book-open"></i> <span>Journal</span>
-      </button>
-      <button onclick="switchTab('settings')" id="tab-settings" class="nav-btn flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs md:text-sm transition-all whitespace-nowrap text-slate-600 hover:bg-slate-100">
-        <i class="fa-solid fa-sliders"></i> <span>Pengaturan</span>
-      </button>
-    </nav>
+      <span id="activeTabBreadcrumb" class="text-xs font-extrabold text-planner-navy font-cute">--</span>
+    </div>
 
     <!-- Sticky Mobile Bottom Navigation Bar -->
-    <nav class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/80 px-2 py-1.5 flex justify-around items-center shadow-lg">
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/80 px-1 py-1.5 flex justify-around items-center shadow-lg overflow-x-auto">
       <button onclick="switchTab('home')" id="mobile-tab-home" class="mobile-nav-btn flex flex-col items-center gap-0.5 p-1 text-planner-navy font-extrabold transition">
-        <i class="fa-solid fa-house text-base"></i>
-        <span class="text-[9px]">Beranda</span>
+        <i class="fa-solid fa-house text-sm"></i>
+        <span class="text-[8px]">Beranda</span>
       </button>
       <button onclick="switchTab('schedule')" id="mobile-tab-schedule" class="mobile-nav-btn flex flex-col items-center gap-0.5 p-1 text-slate-400 transition">
-        <i class="fa-solid fa-calendar-check text-base"></i>
-        <span class="text-[9px]">Jadwal</span>
+        <i class="fa-solid fa-calendar-check text-sm"></i>
+        <span class="text-[8px]">Jadwal</span>
       </button>
       <button onclick="switchTab('matrix')" id="mobile-tab-matrix" class="mobile-nav-btn flex flex-col items-center gap-0.5 p-1 text-slate-400 transition">
-        <i class="fa-solid fa-table-cells text-base"></i>
-        <span class="text-[9px]">Weekly</span>
+        <i class="fa-solid fa-table-cells text-sm"></i>
+        <span class="text-[8px]">Weekly</span>
       </button>
       <button onclick="switchTab('habits')" id="mobile-tab-habits" class="mobile-nav-btn flex flex-col items-center gap-0.5 p-1 text-slate-400 transition">
-        <i class="fa-solid fa-seedling text-base"></i>
-        <span class="text-[9px]">Habits</span>
+        <i class="fa-solid fa-seedling text-sm"></i>
+        <span class="text-[8px]">Habits</span>
+      </button>
+      <button onclick="switchTab('analytics')" id="mobile-tab-analytics" class="mobile-nav-btn flex flex-col items-center gap-0.5 p-1 text-slate-400 transition">
+        <i class="fa-solid fa-chart-pie text-sm"></i>
+        <span class="text-[8px]">Analisis</span>
       </button>
       <button onclick="switchTab('metime')" id="mobile-tab-metime" class="mobile-nav-btn flex flex-col items-center gap-0.5 p-1 text-slate-400 transition">
-        <i class="fa-solid fa-film text-base"></i>
-        <span class="text-[9px]">Me-Time</span>
+        <i class="fa-solid fa-film text-sm"></i>
+        <span class="text-[8px]">Me-Time</span>
+      </button>
+      <button onclick="switchTab('calendar')" id="mobile-tab-calendar" class="mobile-nav-btn flex flex-col items-center gap-0.5 p-1 text-slate-400 transition">
+        <i class="fa-solid fa-calendar-days text-sm"></i>
+        <span class="text-[8px]">Kalender</span>
       </button>
       <button onclick="switchTab('journal')" id="mobile-tab-journal" class="mobile-nav-btn flex flex-col items-center gap-0.5 p-1 text-slate-400 transition">
-        <i class="fa-solid fa-book-open text-base"></i>
-        <span class="text-[9px]">Jurnal</span>
+        <i class="fa-solid fa-book-open text-sm"></i>
+        <span class="text-[8px]">Jurnal</span>
       </button>
       <button onclick="switchTab('settings')" id="mobile-tab-settings" class="mobile-nav-btn flex flex-col items-center gap-0.5 p-1 text-slate-400 transition">
-        <i class="fa-solid fa-sliders text-base"></i>
-        <span class="text-[9px]">Opsi</span>
+        <i class="fa-solid fa-sliders text-sm"></i>
+        <span class="text-[8px]">Opsi</span>
       </button>
     </nav>
 
-    <main id="content-home" class="tab-content active space-y-5">
+    <main id="content-home" class="tab-content space-y-5">
       
-      <!-- Top Row: Active Task Banner & Interactive Mascot Widget -->
+      <!-- Top Activity & Mimi Banner -->
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
         
         <!-- Live Current Activity Banner (2 cols) -->
@@ -322,90 +400,20 @@
 
       </div>
 
-      <!-- REKAPAN BULANAN & GRAFIK KEBERHASILAN -->
-      <div class="planner-card p-5 md:p-6 shadow-planner space-y-5 bg-gradient-to-br from-white via-slate-50/50 to-purple-50/30 border-2 border-purple-100 relative overflow-hidden">
-        
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-200/80 pb-4">
+      <!-- Dashboard Quick Analytics Link Card -->
+      <div class="planner-card p-4 shadow-planner bg-gradient-to-r from-purple-50 via-pink-50 to-indigo-50 border border-purple-100 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center text-lg shadow shrink-0">
+            <i class="fa-solid fa-chart-line"></i>
+          </div>
           <div>
-            <div class="inline-flex items-center gap-1.5 px-3 py-1 bg-purple-600 text-white rounded-full text-[10px] font-bold shadow-sm mb-1">
-              <i class="fa-solid fa-chart-line"></i>
-              <span>REKAPAN HISTORI & ANALISIS DIRI</span>
-            </div>
-            <h2 class="text-lg md:text-xl font-extrabold text-planner-navy font-cute flex items-center gap-2">
-              <span>📈</span> Progress & Keberhasilan Adelia
-            </h2>
-            <p class="text-xs text-slate-500">Evaluasi pencapaianmu tiap bulan dan rayakan setiap langkah kecil! ✨</p>
-          </div>
-
-          <div class="flex items-center gap-2 self-start md:self-auto">
-            <label class="text-xs font-bold text-slate-600">Pilih Bulan:</label>
-            <select id="monthlySelect" onchange="changeMonthlyHistory(this.value)" class="p-2 bg-white border border-purple-200 rounded-xl text-xs font-bold text-planner-navy shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-300">
-            </select>
+            <h3 class="font-bold text-planner-navy text-sm font-cute">Rekap Histori & Analisis Diri</h3>
+            <p class="text-xs text-slate-500">Lihat grafik performa bulanan, tingkat keberhasilan, dan lencana prestasimu!</p>
           </div>
         </div>
-
-        <div id="celebrationBanner" class="hidden p-4 rounded-2xl bg-gradient-to-r from-amber-300 via-pink-300 to-purple-300 text-slate-900 shadow-md relative overflow-hidden flex flex-col sm:flex-row items-center justify-between gap-3 animate-pulse">
-          <div class="flex items-center gap-3">
-            <div class="w-12 h-12 rounded-2xl bg-white/90 flex items-center justify-center text-2xl shadow">🎉</div>
-            <div>
-              <div class="text-xs font-extrabold uppercase tracking-wider text-amber-900">SELAMAT ADELIA! 🌟</div>
-              <div id="celebrationTitle" class="text-sm font-extrabold font-cute">Pencapaian Luar Biasa Bulan Ini!</div>
-              <div id="celebrationSub" class="text-[11px] font-semibold text-slate-800">Kamu telah menyelesaikan target dengan sangat baik!</div>
-            </div>
-          </div>
-          <button onclick="triggerConfettiBurst()" class="px-4 py-2 bg-white hover:bg-slate-50 text-purple-900 rounded-xl font-extrabold text-xs shadow transition active:scale-95 shrink-0 flex items-center gap-1.5">
-            <span>✨ Rayakan Lagi!</span>
-          </button>
-        </div>
-
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div class="p-3 bg-white border border-slate-100 rounded-xl shadow-sm text-center">
-            <div class="text-[10px] font-bold text-slate-400 uppercase">Tingkat Keberhasilan</div>
-            <div id="monthlyTaskRate" class="text-xl font-extrabold text-blue-600 font-cute">0%</div>
-            <div class="text-[10px] font-semibold text-slate-500">Rata-rata Jadwal</div>
-          </div>
-          <div class="p-3 bg-white border border-slate-100 rounded-xl shadow-sm text-center">
-            <div class="text-[10px] font-bold text-slate-400 uppercase">Konsistensi Habit</div>
-            <div id="monthlyHabitRate" class="text-xl font-extrabold text-purple-600 font-cute">0%</div>
-            <div class="text-[10px] font-semibold text-slate-500">Rata-rata Habit</div>
-          </div>
-          <div class="p-3 bg-white border border-slate-100 rounded-xl shadow-sm text-center">
-            <div class="text-[10px] font-bold text-slate-400 uppercase">Vocab Terkumpul</div>
-            <div id="monthlyTotalVocab" class="text-xl font-extrabold text-emerald-600 font-cute">0 kata</div>
-            <div class="text-[10px] font-semibold text-slate-500">Target TOEFL</div>
-          </div>
-          <div class="p-3 bg-white border border-slate-100 rounded-xl shadow-sm text-center">
-            <div class="text-[10px] font-bold text-slate-400 uppercase">Total Me-Time</div>
-            <div id="monthlyMetimeTotal" class="text-xl font-extrabold text-pink-600 font-cute">0 min</div>
-            <div class="text-[10px] font-semibold text-slate-500">Waktu Istirahat</div>
-          </div>
-        </div>
-
-        <div class="space-y-2">
-          <div class="flex items-center justify-between text-xs font-bold text-slate-700">
-            <span>📊 Grafik Tingkat Keberhasilan Harian Bulan Ini (%)</span>
-            <span class="text-[10px] text-slate-400 font-normal">Geser untuk melihat detail hari</span>
-          </div>
-          
-          <div class="w-full bg-white border border-slate-200 rounded-2xl p-4 shadow-sm overflow-x-auto">
-            <div id="monthlyChartBars" class="flex items-end gap-2 min-w-[600px] h-36 pt-6 pb-2 border-b border-slate-200 px-2">
-            </div>
-            <div class="flex items-center justify-between text-[10px] font-semibold text-slate-400 pt-2 px-1">
-              <span>Awal Bulan</span>
-              <span>Pertengahan</span>
-              <span>Akhir Bulan</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="space-y-2">
-          <h4 class="font-bold text-planner-navy text-xs uppercase tracking-wider flex items-center gap-1.5">
-            <i class="fa-solid fa-award text-amber-500"></i> Lencana & Hal Yang Berhasil Kamu Lakukan:
-          </h4>
-          <div id="monthlyBadgesContainer" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
-          </div>
-        </div>
-
+        <button onclick="switchTab('analytics')" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold text-xs transition active:scale-95 shadow shrink-0 flex items-center gap-1.5">
+          <span>Buka Analisis Lengkap 📊</span>
+        </button>
       </div>
 
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-4">
@@ -622,6 +630,94 @@
       </div>
     </main>
 
+    <!-- DEDICATED ANALYTICS & HISTORY TAB -->
+    <main id="content-analytics" class="tab-content space-y-5">
+      <div class="planner-card p-5 md:p-6 shadow-planner space-y-5 bg-gradient-to-br from-white via-slate-50/50 to-purple-50/30 border-2 border-purple-100 relative overflow-hidden">
+        
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-200/80 pb-4">
+          <div>
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 bg-purple-600 text-white rounded-full text-[10px] font-bold shadow-sm mb-1">
+              <i class="fa-solid fa-chart-pie"></i>
+              <span>REKAPAN HISTORI & ANALISIS DIRI</span>
+            </div>
+            <h2 class="text-lg md:text-xl font-extrabold text-planner-navy font-cute flex items-center gap-2">
+              <span>📈</span> Progress & Keberhasilan Adelia
+            </h2>
+            <p class="text-xs text-slate-500">Evaluasi pencapaianmu tiap bulan dan rayakan setiap langkah kecil! ✨</p>
+          </div>
+
+          <div class="flex items-center gap-2 self-start md:self-auto">
+            <label class="text-xs font-bold text-slate-600">Pilih Bulan:</label>
+            <select id="monthlySelect" onchange="changeMonthlyHistory(this.value)" class="p-2 bg-white border border-purple-200 rounded-xl text-xs font-bold text-planner-navy shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-300">
+            </select>
+          </div>
+        </div>
+
+        <div id="celebrationBanner" class="hidden p-4 rounded-2xl bg-gradient-to-r from-amber-300 via-pink-300 to-purple-300 text-slate-900 shadow-md relative overflow-hidden flex flex-col sm:flex-row items-center justify-between gap-3 animate-pulse">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-2xl bg-white/90 flex items-center justify-center text-2xl shadow">🎉</div>
+            <div>
+              <div class="text-xs font-extrabold uppercase tracking-wider text-amber-900">SELAMAT ADELIA! 🌟</div>
+              <div id="celebrationTitle" class="text-sm font-extrabold font-cute">Pencapaian Luar Biasa Bulan Ini!</div>
+              <div id="celebrationSub" class="text-[11px] font-semibold text-slate-800">Kamu telah menyelesaikan target dengan sangat baik!</div>
+            </div>
+          </div>
+          <button onclick="triggerConfettiBurst()" class="px-4 py-2 bg-white hover:bg-slate-50 text-purple-900 rounded-xl font-extrabold text-xs shadow transition active:scale-95 shrink-0 flex items-center gap-1.5">
+            <span>✨ Rayakan Lagi!</span>
+          </button>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div class="p-3 bg-white border border-slate-100 rounded-xl shadow-sm text-center">
+            <div class="text-[10px] font-bold text-slate-400 uppercase">Tingkat Keberhasilan</div>
+            <div id="monthlyTaskRate" class="text-xl font-extrabold text-blue-600 font-cute">0%</div>
+            <div class="text-[10px] font-semibold text-slate-500">Rata-rata Jadwal</div>
+          </div>
+          <div class="p-3 bg-white border border-slate-100 rounded-xl shadow-sm text-center">
+            <div class="text-[10px] font-bold text-slate-400 uppercase">Konsistensi Habit</div>
+            <div id="monthlyHabitRate" class="text-xl font-extrabold text-purple-600 font-cute">0%</div>
+            <div class="text-[10px] font-semibold text-slate-500">Rata-rata Habit</div>
+          </div>
+          <div class="p-3 bg-white border border-slate-100 rounded-xl shadow-sm text-center">
+            <div class="text-[10px] font-bold text-slate-400 uppercase">Vocab Terkumpul</div>
+            <div id="monthlyTotalVocab" class="text-xl font-extrabold text-emerald-600 font-cute">0 kata</div>
+            <div class="text-[10px] font-semibold text-slate-500">Target TOEFL</div>
+          </div>
+          <div class="p-3 bg-white border border-slate-100 rounded-xl shadow-sm text-center">
+            <div class="text-[10px] font-bold text-slate-400 uppercase">Total Me-Time</div>
+            <div id="monthlyMetimeTotal" class="text-xl font-extrabold text-pink-600 font-cute">0 min</div>
+            <div class="text-[10px] font-semibold text-slate-500">Waktu Istirahat</div>
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <div class="flex items-center justify-between text-xs font-bold text-slate-700">
+            <span>📊 Grafik Tingkat Keberhasilan Harian Bulan Ini (%)</span>
+            <span class="text-[10px] text-slate-400 font-normal">Geser untuk melihat detail hari</span>
+          </div>
+          
+          <div class="w-full bg-white border border-slate-200 rounded-2xl p-4 shadow-sm overflow-x-auto">
+            <div id="monthlyChartBars" class="flex items-end gap-2 min-w-[600px] h-36 pt-6 pb-2 border-b border-slate-200 px-2">
+            </div>
+            <div class="flex items-center justify-between text-[10px] font-semibold text-slate-400 pt-2 px-1">
+              <span>Awal Bulan</span>
+              <span>Pertengahan</span>
+              <span>Akhir Bulan</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <h4 class="font-bold text-planner-navy text-xs uppercase tracking-wider flex items-center gap-1.5">
+            <i class="fa-solid fa-award text-amber-500"></i> Lencana & Hal Yang Berhasil Kamu Lakukan:
+          </h4>
+          <div id="monthlyBadgesContainer" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
+          </div>
+        </div>
+
+      </div>
+    </main>
+
     <main id="content-matrix" class="tab-content space-y-5">
       <div class="planner-card p-4 md:p-6 shadow-planner space-y-4">
         <div class="border-b border-slate-100 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
@@ -688,6 +784,103 @@
             Simpan Habit Baru
           </button>
         </div>
+      </div>
+    </main>
+
+    <main id="content-calendar" class="tab-content space-y-5">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        
+        <!-- Kalender Interaktif (2 Cols) -->
+        <div class="lg:col-span-2 planner-card p-5 md:p-6 shadow-planner space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+            <div>
+              <h2 class="text-xl font-extrabold text-planner-navy font-cute flex items-center gap-2">
+                <span>🗓️</span> Kalender Agenda & Catatan Adelia
+              </h2>
+              <p class="text-xs text-slate-500">Klik tanggal untuk mencatat agenda, pengingat, atau tugas penting.</p>
+            </div>
+            
+            <div class="flex items-center gap-2 self-start sm:self-auto">
+              <button onclick="prevCalendarMonth()" class="p-2 bg-slate-100 hover:bg-slate-200 rounded-xl text-xs font-bold transition">
+                <i class="fa-solid fa-chevron-left"></i>
+              </button>
+              <span id="calendarMonthLabel" class="text-sm font-extrabold text-planner-navy min-w-[130px] text-center font-cute">
+                -- ----
+              </span>
+              <button onclick="nextCalendarMonth()" class="p-2 bg-slate-100 hover:bg-slate-200 rounded-xl text-xs font-bold transition">
+                <i class="fa-solid fa-chevron-right"></i>
+              </button>
+              <button onclick="goToTodayCalendar()" class="px-3 py-2 bg-purple-100 hover:bg-purple-200 text-purple-700 font-bold text-xs rounded-xl transition">
+                Hari Ini
+              </button>
+            </div>
+          </div>
+
+          <!-- Grid Hari Kalender -->
+          <div class="w-full">
+            <div class="grid grid-cols-7 text-center font-bold text-xs text-planner-navy py-2 bg-purple-50/60 rounded-xl mb-2">
+              <span class="text-rose-500">Min</span>
+              <span>Sen</span>
+              <span>Sel</span>
+              <span>Rab</span>
+              <span>Kam</span>
+              <span>Jum</span>
+              <span class="text-blue-500">Sab</span>
+            </div>
+            <div id="calendarGridDays" class="grid grid-cols-7 gap-1.5 text-center text-xs">
+            </div>
+          </div>
+
+          <!-- Agenda Khusus Tanggal Terpilih -->
+          <div class="pt-3 border-t border-slate-100 space-y-3">
+            <div class="flex items-center justify-between">
+              <h3 class="font-extrabold text-planner-navy text-xs font-cute flex items-center gap-1.5">
+                <span>📌</span> Agenda untuk Tanggal: <span id="selectedCalendarDateLabel" class="text-purple-600 font-extrabold">-- ---- ----</span>
+              </h3>
+              <button onclick="toggleAddAgendaForm()" class="px-3 py-1 bg-planner-navy hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-sm transition">
+                + Tambah Agenda
+              </button>
+            </div>
+
+            <div id="addAgendaForm" class="hidden p-3 bg-purple-50/60 border border-purple-200 rounded-2xl space-y-2 text-xs">
+              <input type="text" id="agendaTitleInput" placeholder="Judul Agenda / Ujian / Acara..." class="w-full p-2 bg-white border border-slate-200 rounded-xl font-bold">
+              <div class="grid grid-cols-2 gap-2">
+                <input type="time" id="agendaTimeInput" value="09:00" class="p-2 bg-white border border-slate-200 rounded-xl">
+                <select id="agendaTagInput" class="p-2 bg-white border border-slate-200 rounded-xl font-bold">
+                  <option value="🎯 Penting">🎯 Penting</option>
+                  <option value="📚 Akademik">📚 Akademik / Skripsi</option>
+                  <option value="🌸 Personal">🌸 Personal / Event</option>
+                  <option value="💼 PKL">💼 PKL / Tugas</option>
+                </select>
+              </div>
+              <div class="flex justify-end gap-2 pt-1">
+                <button onclick="toggleAddAgendaForm()" class="px-3 py-1 bg-white text-slate-600 font-bold rounded-lg border">Batal</button>
+                <button onclick="saveCalendarAgenda()" class="px-3 py-1 bg-purple-600 text-white font-bold rounded-lg shadow-sm">Simpan</button>
+              </div>
+            </div>
+
+            <div id="calendarAgendaList" class="space-y-2 max-h-[220px] overflow-y-auto pr-1">
+            </div>
+          </div>
+        </div>
+
+        <!-- Papan Catatan Interaktif (1 Col) -->
+        <div class="planner-card p-5 shadow-planner space-y-4 flex flex-col justify-between">
+          <div class="space-y-3">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+              <h3 class="font-extrabold text-planner-navy text-xs uppercase tracking-wider flex items-center gap-1.5">
+                <i class="fa-solid fa-sticky-note text-amber-500"></i> Catatan & Ide Adelia
+              </h3>
+              <button onclick="openNoteModal()" class="text-xs font-bold text-purple-700 hover:text-purple-900">
+                + Tulis Catatan
+              </button>
+            </div>
+
+            <div id="quickNotesGrid" class="space-y-2.5 max-h-[460px] overflow-y-auto pr-1">
+            </div>
+          </div>
+        </div>
+
       </div>
     </main>
 
@@ -909,6 +1102,52 @@
     </div>
   </div>
 
+  <!-- Modal Tambah Catatan Baru -->
+  <div id="noteModal" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="planner-card bg-white p-6 max-w-md w-full shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+        <h3 class="font-extrabold text-slate-800 text-sm font-cute flex items-center gap-2">
+          <span>📝</span> Tulis Catatan Baru
+        </h3>
+        <button onclick="closeNoteModal()" class="text-slate-400 hover:text-slate-600">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Judul Catatan</label>
+          <input type="text" id="noteTitleInput" placeholder="Judul ide atau instruksi..." class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-bold">
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Warna Kartu</label>
+          <select id="noteColorInput" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-bold">
+            <option value="pink">🩷 Pink Sweet</option>
+            <option value="blue">🟦 Blue Sky</option>
+            <option value="purple">🟪 Lavender</option>
+            <option value="amber">🟧 Amber Cream</option>
+            <option value="emerald">🟩 Mint Green</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Isi Catatan</label>
+          <textarea id="noteContentInput" rows="4" placeholder="Tulis detail catatan, draft, atau daftar di sini..." class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-300"></textarea>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2">
+        <button onclick="closeNoteModal()" class="px-4 py-2 bg-slate-100 text-slate-600 font-bold text-xs rounded-xl">
+          Batal
+        </button>
+        <button onclick="saveQuickNote()" class="px-4 py-2 bg-planner-navy text-white font-bold text-xs rounded-xl shadow-sm">
+          Simpan Catatan ♡
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script>
     /* UTILITY: SANITIZE HTML TO PREVENT SCRIPT ERRORS & INJECTIONS */
     function escapeHTML(str) {
@@ -925,7 +1164,7 @@
     }
 
     /* LOCAL STORAGE KEY */
-    const STORAGE_KEY = "adelia_planner_v3";
+    const STORAGE_KEY = "adelia_planner_v5";
 
     /* CATEGORY COLOR MAPPINGS */
     const categoryConfig = {
@@ -1020,7 +1259,13 @@
         quickTargets: {},
         sessions: [],
         journals: {},
+        agendas: {},
+        quickNotes: [
+          { id: "note_1", title: "Target Buku TOEFL Hacks 📖", content: "Selesaikan bab Listening Section & latihan soal 20 nomor setiap pagi.", color: "purple", date: getDateKey(), pinned: true },
+          { id: "note_2", title: "Pengingat Jurnal Skripsi 📝", content: "Cari min 3 jurnal internasional bereputasi seputar topik penelitian.", color: "blue", date: getDateKey(), pinned: false }
+        ],
         alarmEnabled: true,
+        lastNotifiedTask: "",
         mascotPetCount: 0
       };
     }
@@ -1088,6 +1333,37 @@
       return audioCtx;
     }
 
+    window.playAlarmSound = function() {
+      try {
+        const ctx = getAudioContext();
+        const now = ctx.currentTime;
+        const notes = [523.25, 659.25, 783.99, 1046.50];
+        notes.forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.15);
+
+          gain.gain.setValueAtTime(0.3, now + idx * 0.15);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.15 + 0.3);
+
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+
+          osc.start(now + idx * 0.15);
+          osc.stop(now + idx * 0.15 + 0.3);
+        });
+      } catch (e) {}
+    };
+
+    window.triggerDeviceVibration = function(pattern = [300, 150, 300, 150, 450]) {
+      if ("vibrate" in navigator) {
+        try {
+          navigator.vibrate(pattern);
+        } catch (e) {}
+      }
+    };
+
     window.playChimeSound = function() {
       try {
         const ctx = getAudioContext();
@@ -1096,9 +1372,9 @@
         const gain = ctx.createGain();
 
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(523.25, now); // C5
-        osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.1); // E5
-        osc.frequency.exponentialRampToValueAtTime(783.99, now + 0.25); // G5
+        osc.frequency.setValueAtTime(523.25, now);
+        osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.1);
+        osc.frequency.exponentialRampToValueAtTime(783.99, now + 0.25);
 
         gain.gain.setValueAtTime(0.15, now);
         gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
@@ -1233,18 +1509,45 @@
       renderConfetti();
     };
 
+    window.showLauncherGrid = function() {
+      document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
+      
+      const gridLauncher = document.getElementById("mainLauncherGrid");
+      const backNav = document.getElementById("topBackNav");
+      if (gridLauncher) gridLauncher.classList.remove("hidden");
+      if (backNav) backNav.classList.add("hidden");
+
+      document.querySelectorAll(".grid-nav-btn").forEach(btn => btn.classList.remove("ring-2", "ring-planner-navy", "shadow-md"));
+      document.querySelectorAll(".mobile-nav-btn").forEach(btn => {
+        btn.className = "mobile-nav-btn flex flex-col items-center gap-0.5 p-1 text-slate-400 transition";
+      });
+    };
+
     window.switchTab = function(tabId) {
+      const gridLauncher = document.getElementById("mainLauncherGrid");
+      if (gridLauncher) gridLauncher.classList.add("hidden");
+
+      const backNav = document.getElementById("topBackNav");
+      const breadcrumb = document.getElementById("activeTabBreadcrumb");
+      if (backNav) backNav.classList.remove("hidden");
+
+      const tabTitles = {
+        home: "🏡 Beranda",
+        schedule: "🗓️ Daily Schedule",
+        matrix: "📊 Weekly Grid",
+        habits: "🌷 Habit Tracker",
+        analytics: "📈 Analisis & Histori",
+        metime: "🎬 Me-Time Focus",
+        calendar: "🗓️ Kalender & Agenda",
+        journal: "📝 Daily Journal",
+        settings: "⚙️ Pengaturan"
+      };
+
+      if (breadcrumb) breadcrumb.textContent = tabTitles[tabId] || tabId;
+
       document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
       const target = document.getElementById(`content-${tabId}`);
       if (target) target.classList.add("active");
-
-      document.querySelectorAll(".nav-btn").forEach(btn => {
-        btn.className = "nav-btn flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs md:text-sm transition-all whitespace-nowrap text-slate-600 hover:bg-slate-100";
-      });
-      const activeNavBtn = document.getElementById(`tab-${tabId}`);
-      if (activeNavBtn) {
-        activeNavBtn.className = "nav-btn flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs md:text-sm transition-all whitespace-nowrap bg-planner-navy text-white shadow-sm";
-      }
 
       document.querySelectorAll(".mobile-nav-btn").forEach(btn => {
         btn.className = "mobile-nav-btn flex flex-col items-center gap-0.5 p-1 text-slate-400 transition";
@@ -1253,6 +1556,8 @@
       if (activeMobileNav) {
         activeMobileNav.className = "mobile-nav-btn flex flex-col items-center gap-0.5 p-1 text-planner-navy font-extrabold transition";
       }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     window.updateRealtimeClock = function() {
@@ -1272,9 +1577,9 @@
         }) + " WIB";
       }
 
-      // Live task detector
       const tasks = appData.tasks || [];
       const currentMinutes = now.getHours() * 60 + now.getMinutes();
+      const todayKey = getDateKey();
 
       let activeTask = null;
       let minutesRemaining = 0;
@@ -1284,11 +1589,21 @@
         const [h2, m2] = t.end.split(":").map(Number);
         const startMin = h1 * 60 + m1;
         let endMin = h2 * 60 + m2;
-        if (endMin < startMin) endMin += 24 * 60; // Overnight task
+        if (endMin < startMin) endMin += 24 * 60;
 
         if (currentMinutes >= startMin && currentMinutes < endMin) {
           activeTask = t;
           minutesRemaining = endMin - currentMinutes;
+
+          const notificationId = `${todayKey}_${t.id}_start`;
+          if (appData.alarmEnabled && appData.lastNotifiedTask !== notificationId && (currentMinutes - startMin) <= 1) {
+            appData.lastNotifiedTask = notificationId;
+            playAlarmSound();
+            triggerDeviceVibration([400, 200, 400]);
+            showToast(`⏰ Waktunya: ${t.name}!`);
+            openModal("Pengingat Waktu Kegiatan 🔔", `Hai Adelia! Sekarang waktunya untuk "${t.name}" (${t.start} - ${t.end}). Semangat yaa! ♡`, "⏰");
+            saveData();
+          }
         }
       });
 
@@ -1322,7 +1637,6 @@
       playChimeSound();
       appData.mascotPetCount = (appData.mascotPetCount || 0) + 1;
 
-      // Floating Heart FX
       const heart = document.createElement("div");
       heart.className = "floating-heart";
       heart.textContent = e && e.shiftKey ? "💖" : "🌸";
@@ -1699,7 +2013,6 @@
         html += `</tr>`;
       });
 
-      // Habits Divider Row
       html += `<tr class="bg-purple-50/80 font-bold text-purple-900"><td colspan="8" class="p-2 text-xs uppercase tracking-wider">🌸 Habit Tracker Matrix</td></tr>`;
 
       habits.forEach((h, idx) => {
@@ -1780,6 +2093,292 @@
       }
     };
 
+    /* KALENDER & AGENDA */
+    let calendarCurrentYear = new Date().getFullYear();
+    let calendarCurrentMonth = new Date().getMonth();
+    let selectedCalendarDate = getDateKey();
+
+    function renderCalendar() {
+      const grid = document.getElementById("calendarGridDays");
+      const monthLabel = document.getElementById("calendarMonthLabel");
+      const selectedLabel = document.getElementById("selectedCalendarDateLabel");
+      if (!grid || !monthLabel) return;
+
+      const firstDayOfMonth = new Date(calendarCurrentYear, calendarCurrentMonth, 1);
+      const daysInMonth = new Date(calendarCurrentYear, calendarCurrentMonth + 1, 0).getDate();
+      const startDayIndex = firstDayOfMonth.getDay();
+
+      const monthNamesIndo = [
+        "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+        "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+      ];
+
+      monthLabel.textContent = `${monthNamesIndo[calendarCurrentMonth]} ${calendarCurrentYear}`;
+
+      if (selectedLabel) {
+        const [y, m, d] = selectedCalendarDate.split("-").map(Number);
+        const selDateObj = new Date(y, m - 1, d);
+        selectedLabel.textContent = selDateObj.toLocaleDateString("id-ID", {
+          weekday: "long", day: "numeric", month: "long", year: "numeric"
+        });
+      }
+
+      let html = "";
+
+      for (let i = 0; i < startDayIndex; i++) {
+        html += `<div class="p-2 rounded-xl text-slate-300"></div>`;
+      }
+
+      const todayStr = getDateKey();
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dayKey = `${calendarCurrentYear}-${String(calendarCurrentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        
+        const isSelected = (dayKey === selectedCalendarDate);
+        const isToday = (dayKey === todayStr);
+
+        const hasAgenda = appData.agendas && appData.agendas[dayKey] && appData.agendas[dayKey].length > 0;
+
+        let dayClass = "bg-white text-slate-700 hover:bg-purple-50 border-slate-100";
+        if (isSelected) {
+          dayClass = "bg-purple-600 text-white font-extrabold shadow-md border-purple-600 scale-105";
+        } else if (isToday) {
+          dayClass = "bg-pink-100 text-pink-700 font-extrabold border-pink-300";
+        }
+
+        html += `
+          <button onclick="selectCalendarDate('${dayKey}')" class="p-2 rounded-2xl border transition flex flex-col items-center justify-center relative min-h-[42px] ${dayClass}">
+            <span class="text-xs">${day}</span>
+            ${hasAgenda ? `<span class="w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-amber-300' : 'bg-purple-500'} mt-0.5"></span>` : ''}
+          </button>
+        `;
+      }
+
+      grid.innerHTML = html;
+      renderCalendarAgendas();
+    }
+
+    window.selectCalendarDate = function(dateStr) {
+      selectedCalendarDate = dateStr;
+      renderCalendar();
+    };
+
+    window.prevCalendarMonth = function() {
+      calendarCurrentMonth--;
+      if (calendarCurrentMonth < 0) {
+        calendarCurrentMonth = 11;
+        calendarCurrentYear--;
+      }
+      renderCalendar();
+    };
+
+    window.nextCalendarMonth = function() {
+      calendarCurrentMonth++;
+      if (calendarCurrentMonth > 11) {
+        calendarCurrentMonth = 0;
+        calendarCurrentYear++;
+      }
+      renderCalendar();
+    };
+
+    window.goToTodayCalendar = function() {
+      const now = new Date();
+      calendarCurrentYear = now.getFullYear();
+      calendarCurrentMonth = now.getMonth();
+      selectedCalendarDate = getDateKey();
+      renderCalendar();
+    };
+
+    window.toggleAddAgendaForm = function() {
+      const form = document.getElementById("addAgendaForm");
+      if (form) form.classList.toggle("hidden");
+    };
+
+    window.saveCalendarAgenda = function() {
+      const title = document.getElementById("agendaTitleInput")?.value.trim();
+      const time = document.getElementById("agendaTimeInput")?.value || "09:00";
+      const tag = document.getElementById("agendaTagInput")?.value || "🎯 Penting";
+
+      if (!title) {
+        showToast("Tulis judul agenda terlebih dahulu!");
+        return;
+      }
+
+      if (!appData.agendas) appData.agendas = {};
+      if (!appData.agendas[selectedCalendarDate]) appData.agendas[selectedCalendarDate] = [];
+
+      const newAgenda = {
+        id: "agenda_" + Date.now(),
+        title: title,
+        time: time,
+        tag: tag,
+        done: false
+      };
+
+      appData.agendas[selectedCalendarDate].push(newAgenda);
+      
+      const inputTitle = document.getElementById("agendaTitleInput");
+      if (inputTitle) inputTitle.value = "";
+      toggleAddAgendaForm();
+      
+      playChimeSound();
+      showToast("Agenda baru berhasil dicatat di Kalender! ✨");
+      saveData();
+    };
+
+    window.toggleAgendaDone = function(agendaId) {
+      if (appData.agendas && appData.agendas[selectedCalendarDate]) {
+        const item = appData.agendas[selectedCalendarDate].find(x => x.id === agendaId);
+        if (item) {
+          item.done = !item.done;
+          if (item.done) playChimeSound();
+          saveData();
+        }
+      }
+    };
+
+    window.deleteAgenda = function(agendaId) {
+      if (appData.agendas && appData.agendas[selectedCalendarDate]) {
+        appData.agendas[selectedCalendarDate] = appData.agendas[selectedCalendarDate].filter(x => x.id !== agendaId);
+        showToast("Agenda berhasil dihapus");
+        saveData();
+      }
+    };
+
+    function renderCalendarAgendas() {
+      const container = document.getElementById("calendarAgendaList");
+      if (!container) return;
+
+      const items = (appData.agendas && appData.agendas[selectedCalendarDate]) || [];
+
+      if (items.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-4 text-xs text-slate-400">
+            Belum ada agenda dicatat pada tanggal ini 🌸
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = items.map(a => `
+        <div class="p-2.5 rounded-xl border ${a.done ? 'bg-slate-50 border-slate-200' : 'bg-white border-purple-100 shadow-sm'} flex items-center justify-between gap-2 text-xs">
+          <label class="custom-check flex items-center gap-2.5 flex-1 cursor-pointer min-w-0">
+            <input type="checkbox" ${a.done ? "checked" : ""} onchange="toggleAgendaDone('${a.id}')" class="sr-only">
+            <span class="checkmark w-4 h-4 rounded border-2 border-slate-300 relative shrink-0"></span>
+            <div class="min-w-0">
+              <span class="font-bold text-slate-800 ${a.done ? 'line-through text-slate-400' : ''} truncate block">${escapeHTML(a.title)}</span>
+              <span class="text-[10px] text-slate-400">${a.time} WIB · ${escapeHTML(a.tag)}</span>
+            </div>
+          </label>
+          <button onclick="deleteAgenda('${a.id}')" class="p-1 text-slate-300 hover:text-rose-500 transition">
+            <i class="fa-solid fa-trash-can text-xs"></i>
+          </button>
+        </div>
+      `).join("");
+    }
+
+    /* BOARD CATATAN */
+    window.openNoteModal = function() {
+      const title = document.getElementById("noteTitleInput");
+      const content = document.getElementById("noteContentInput");
+      if (title) title.value = "";
+      if (content) content.value = "";
+      document.getElementById("noteModal")?.classList.remove("hidden");
+    };
+
+    window.closeNoteModal = function() {
+      document.getElementById("noteModal")?.classList.add("hidden");
+    };
+
+    window.saveQuickNote = function() {
+      const title = document.getElementById("noteTitleInput")?.value.trim();
+      const color = document.getElementById("noteColorInput")?.value || "purple";
+      const content = document.getElementById("noteContentInput")?.value.trim();
+
+      if (!title || !content) {
+        showToast("Isi judul dan konten catatan!");
+        return;
+      }
+
+      if (!appData.quickNotes) appData.quickNotes = [];
+
+      appData.quickNotes.unshift({
+        id: "note_" + Date.now(),
+        title: title,
+        color: color,
+        content: content,
+        date: getDateKey(),
+        pinned: false
+      });
+
+      closeNoteModal();
+      playChimeSound();
+      showToast("Catatan baru disimpan! 📝");
+      saveData();
+    };
+
+    window.deleteQuickNote = function(noteId) {
+      if (appData.quickNotes) {
+        appData.quickNotes = appData.quickNotes.filter(n => n.id !== noteId);
+        showToast("Catatan dihapus");
+        saveData();
+      }
+    };
+
+    window.togglePinNote = function(noteId) {
+      if (appData.quickNotes) {
+        const n = appData.quickNotes.find(x => x.id === noteId);
+        if (n) {
+          n.pinned = !n.pinned;
+          saveData();
+        }
+      }
+    };
+
+    function renderQuickNotes() {
+      const container = document.getElementById("quickNotesGrid");
+      if (!container) return;
+
+      const notes = appData.quickNotes || [];
+
+      if (notes.length === 0) {
+        container.innerHTML = `<div class="text-xs text-slate-400 py-6 text-center">Belum ada catatan tersimpan 📝</div>`;
+        return;
+      }
+
+      const colorStyles = {
+        pink: "bg-pink-50 border-pink-200 text-pink-900",
+        blue: "bg-blue-50 border-blue-200 text-blue-900",
+        purple: "bg-purple-50 border-purple-200 text-purple-900",
+        amber: "bg-amber-50 border-amber-200 text-amber-900",
+        emerald: "bg-emerald-50 border-emerald-200 text-emerald-900"
+      };
+
+      const sorted = [...notes].sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
+
+      container.innerHTML = sorted.map(n => {
+        const style = colorStyles[n.color] || colorStyles.purple;
+        return `
+          <div class="p-3.5 rounded-2xl border ${style} shadow-sm space-y-2 relative group text-xs">
+            <div class="flex items-center justify-between font-bold">
+              <span class="truncate pr-2">${escapeHTML(n.title)}</span>
+              <div class="flex items-center gap-1 shrink-0">
+                <button onclick="togglePinNote('${n.id}')" class="p-1 text-slate-400 hover:text-amber-500" title="Pin Catatan">
+                  <i class="fa-solid fa-thumbtack ${n.pinned ? 'text-amber-500' : ''}"></i>
+                </button>
+                <button onclick="deleteQuickNote('${n.id}')" class="p-1 text-slate-400 hover:text-rose-500" title="Hapus">
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+              </div>
+            </div>
+            <p class="text-slate-700 whitespace-pre-line leading-relaxed font-medium">${escapeHTML(n.content)}</p>
+            <div class="text-[9px] text-slate-400 text-right pt-1 font-semibold">${n.date}</div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    /* ME-TIME TIMER */
     let seconds = 1200, timerInterval = null, timerRunning = false;
 
     window.showTimer = function() {
@@ -1821,11 +2420,12 @@
           appData.sessions.push({ date: todayKey, name: activity, minutes: minutes });
           
           saveData();
-          playChimeSound();
+          playAlarmSound();
+          triggerDeviceVibration([300, 100, 300, 100, 500]);
           triggerConfettiBurst();
           
           if (status) status.textContent = "Selesai! Good job ♡";
-          openModal("Me-Time Selesai! 🎉", `Semoga Adelia merasa lebih segar setelah ${minutes} menit ${activity}! ♡`, "🌸");
+          openModal("Me-Time Selesai! 🎉", `Waktu me-time habis! Semoga Adelia merasa lebih segar setelah ${minutes} menit ${activity}! ♡`, "⏰");
         }
       }, 1000);
     };
@@ -2103,6 +2703,8 @@
       renderFullSchedule();
       renderMatrixTable();
       renderHabits();
+      renderCalendar();
+      renderQuickNotes();
       renderJournalHistory();
       renderMonthlyAnalytics();
 
@@ -2127,6 +2729,7 @@
     window.onload = function() {
       resetTimer();
       renderApp();
+      showLauncherGrid();
       setInterval(updateRealtimeClock, 1000);
     };
   </script>
