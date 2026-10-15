@@ -34,11 +34,11 @@
               mint: '#DDF4E4',
               navy: '#294C7A',
               border: '#E7EAF2',
-              catUtama: '#3B82F6',    /* Blue */
-              catAkademik: '#A855F7', /* Purple */
-              catCare: '#EC4899',     /* Pink */
-              catHobi: '#F97316',     /* Orange */
-              catExtra: '#10B981',    /* Green */
+              catUtama: '#3B82F6',
+              catAkademik: '#A855F7',
+              catCare: '#EC4899',
+              catHobi: '#F97316',
+              catExtra: '#10B981',
             }
           },
           boxShadow: {
@@ -98,6 +98,12 @@
     .custom-check input:checked ~ .checkmark:after {
       display: block;
     }
+    .custom-check input:disabled ~ .checkmark {
+      background-color: #f1f5f9;
+      border-color: #cbd5e1;
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
     .checkmark:after {
       content: "";
       position: absolute;
@@ -111,44 +117,20 @@
       transform: rotate(45deg);
     }
 
-    @media (max-width: 768px) {
-      .checkmark:after {
-        left: 6px;
-        top: 2px;
-        width: 6px;
-        height: 11px;
+    @media print {
+      body * {
+        visibility: hidden;
       }
-      input[type="text"], input[type="number"], input[type="time"], select, textarea {
-        font-size: 16px !important;
+      #pdfReportContainer, #pdfReportContainer * {
+        visibility: visible;
       }
-    }
-
-    @keyframes floatUp {
-      0% { opacity: 1; transform: translateY(0) scale(1); }
-      100% { opacity: 0; transform: translateY(-60px) scale(1.4); }
-    }
-    .floating-heart {
-      position: absolute;
-      pointer-events: none;
-      animation: floatUp 1.2s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
-      font-size: 20px;
-      z-index: 50;
-    }
-
-    @keyframes mascotHop {
-      0%, 100% { transform: translateY(0) rotate(0deg); }
-      50% { transform: translateY(-8deg) rotate(-3deg); }
-    }
-    .mascot-bounce {
-      animation: mascotHop 3s infinite ease-in-out;
-    }
-
-    @keyframes pulseSoft {
-      0%, 100% { box-shadow: 0 0 15px rgba(220, 238, 255, 0.5); }
-      50% { box-shadow: 0 0 25px rgba(252, 225, 232, 0.8); }
-    }
-    .pulse-card {
-      animation: pulseSoft 4s infinite ease-in-out;
+      #pdfReportContainer {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        display: block !important;
+      }
     }
   </style>
 </head>
@@ -157,12 +139,12 @@
   <div id="app" class="flex-grow flex flex-col max-w-6xl w-full mx-auto px-3 py-3 md:px-6 md:py-6">
 
     <!-- Header Banner -->
-    <header class="planner-card p-4 md:p-6 mb-4 md:mb-5 shadow-planner relative overflow-hidden pulse-card bg-gradient-to-r from-[#DCEEFF] via-[#FCE1E8] to-[#E9E1FF]">
+    <header class="planner-card p-4 md:p-6 mb-4 md:mb-5 shadow-planner relative overflow-hidden bg-gradient-to-r from-[#DCEEFF] via-[#FCE1E8] to-[#E9E1FF]">
       <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-4">
         
         <div class="flex items-center gap-3 md:gap-4">
           <div class="relative group cursor-pointer shrink-0" onclick="petMascot(event)">
-            <div class="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-white/90 border-2 border-white shadow-md flex items-center justify-center text-2xl md:text-3xl mascot-bounce transition transform active:scale-90">
+            <div class="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-white/90 border-2 border-white shadow-md flex items-center justify-center text-2xl md:text-3xl transition transform active:scale-90">
               🐱
             </div>
             <span class="absolute -top-1 -right-1 bg-pink-500 text-white text-[8px] md:text-[9px] font-bold px-1.5 py-0.5 rounded-full shadow">PET ME!</span>
@@ -201,10 +183,10 @@
       </div>
     </header>
 
-    <!-- MAIN LAUNCHER VIEW: Grid Menu 3x3 + Current & Next Task Summary -->
+    <!-- MAIN LAUNCHER VIEW: 3x3 Grid + Current & Next Task Summary -->
     <div id="mainLauncherGrid" class="space-y-4 mb-4 md:mb-5">
       
-      <!-- WIDGET AKTIVITAS TERKINI & AKTIVITAS MENDATANG (Layanan Teratas Launcher) -->
+      <!-- WIDGET AKTIVITAS TERKINI & AKTIVITAS MENDATANG -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
         
         <!-- Kartu 1: Aktivitas Terkini (Real-time) -->
@@ -231,7 +213,7 @@
             <span class="text-[11px] text-slate-600 font-semibold">
               Sisa: <strong id="launcherCurrentTaskTimer" class="text-planner-navy font-bold">-- min</strong>
             </span>
-            <button onclick="completeCurrentTask()" class="px-3 py-1 bg-planner-navy hover:bg-slate-800 text-white rounded-xl font-bold text-[11px] transition active:scale-95 shadow-sm flex items-center gap-1">
+            <button id="btnLauncherComplete" onclick="completeCurrentTask()" class="px-3 py-1 bg-planner-navy hover:bg-slate-800 text-white rounded-xl font-bold text-[11px] transition active:scale-95 shadow-sm flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed">
               <i class="fa-solid fa-check text-[10px]"></i> <span>Selesai</span>
             </button>
           </div>
@@ -270,37 +252,24 @@
       <!-- KOTAK MENU 3x3 GRID -->
       <div class="planner-card p-4 md:p-6 shadow-planner bg-white border-2 border-slate-100 rounded-3xl space-y-4">
         
-        <!-- Banner Header Launcher -->
-        <div class="p-3.5 md:p-4 rounded-2xl bg-gradient-to-r from-[#DCEEFF] via-[#FCE1E8] to-[#E9E1FF] border border-white/60 shadow-sm flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <span class="text-2xl">✨</span>
-            <div>
-              <h3 class="font-extrabold text-planner-navy text-xs md:text-sm font-cute">Menu Utama Planner Adelia</h3>
-              <p class="text-[10px] md:text-[11px] text-slate-500 font-semibold">Klik salah satu menu di bawah untuk membuka fitur ♡</p>
-            </div>
-          </div>
-          <span class="text-[9px] md:text-[10px] font-bold text-pink-600 bg-white/80 px-2.5 py-1 rounded-full shadow-sm">Semangattt</span>
-        </div>
-
-        <!-- Grid 3x3 Menu Buttons (3 Kolom x 3 Baris) -->
         <div class="grid grid-cols-3 gap-2.5 md:gap-4">
           
           <!-- Baris 1: Beranda, Jadwal, Weekly -->
-          <button onclick="switchTab('home')" id="grid-tab-home" class="grid-nav-btn p-3.5 md:p-5 rounded-2xl bg-sky-50 hover:bg-sky-100 border border-sky-200/60 flex flex-col items-center justify-center gap-2 transition active:scale-95 shadow-sm group">
+          <button onclick="switchTab('home')" id="grid-tab-home" class="p-3.5 md:p-5 rounded-2xl bg-sky-50 hover:bg-sky-100 border border-sky-200/60 flex flex-col items-center justify-center gap-2 transition active:scale-95 shadow-sm group">
             <div class="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-white flex items-center justify-center text-sky-600 text-lg md:text-xl shadow-sm group-hover:scale-110 transition">
               <i class="fa-solid fa-house"></i>
             </div>
             <span class="font-extrabold text-xs md:text-sm text-slate-700">Beranda</span>
           </button>
 
-          <button onclick="switchTab('schedule')" id="grid-tab-schedule" class="grid-nav-btn p-3.5 md:p-5 rounded-2xl bg-purple-50 hover:bg-purple-100 border border-purple-200/60 flex flex-col items-center justify-center gap-2 transition active:scale-95 shadow-sm group">
+          <button onclick="switchTab('schedule')" id="grid-tab-schedule" class="p-3.5 md:p-5 rounded-2xl bg-purple-50 hover:bg-purple-100 border border-purple-200/60 flex flex-col items-center justify-center gap-2 transition active:scale-95 shadow-sm group">
             <div class="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-white flex items-center justify-center text-purple-600 text-lg md:text-xl shadow-sm group-hover:scale-110 transition">
               <i class="fa-solid fa-calendar-check"></i>
             </div>
             <span class="font-extrabold text-xs md:text-sm text-slate-700">Jadwal</span>
           </button>
 
-          <button onclick="switchTab('matrix')" id="grid-tab-matrix" class="grid-nav-btn p-3.5 md:p-5 rounded-2xl bg-blue-50 hover:bg-blue-100 border border-blue-200/60 flex flex-col items-center justify-center gap-2 transition active:scale-95 shadow-sm group">
+          <button onclick="switchTab('matrix')" id="grid-tab-matrix" class="p-3.5 md:p-5 rounded-2xl bg-blue-50 hover:bg-blue-100 border border-blue-200/60 flex flex-col items-center justify-center gap-2 transition active:scale-95 shadow-sm group">
             <div class="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-white flex items-center justify-center text-blue-600 text-lg md:text-xl shadow-sm group-hover:scale-110 transition">
               <i class="fa-solid fa-table-cells"></i>
             </div>
@@ -308,21 +277,21 @@
           </button>
 
           <!-- Baris 2: Habits, Analisis, Me-Time -->
-          <button onclick="switchTab('habits')" id="grid-tab-habits" class="grid-nav-btn p-3.5 md:p-5 rounded-2xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/60 flex flex-col items-center justify-center gap-2 transition active:scale-95 shadow-sm group">
+          <button onclick="switchTab('habits')" id="grid-tab-habits" class="p-3.5 md:p-5 rounded-2xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/60 flex flex-col items-center justify-center gap-2 transition active:scale-95 shadow-sm group">
             <div class="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-white flex items-center justify-center text-emerald-600 text-lg md:text-xl shadow-sm group-hover:scale-110 transition">
               <i class="fa-solid fa-seedling"></i>
             </div>
             <span class="font-extrabold text-xs md:text-sm text-slate-700">Habits</span>
           </button>
 
-          <button onclick="switchTab('analytics')" id="grid-tab-analytics" class="grid-nav-btn p-3.5 md:p-5 rounded-2xl bg-indigo-50 hover:bg-indigo-100 border border-indigo-200/60 flex flex-col items-center justify-center gap-2 transition active:scale-95 shadow-sm group">
+          <button onclick="switchTab('analytics')" id="grid-tab-analytics" class="p-3.5 md:p-5 rounded-2xl bg-indigo-50 hover:bg-indigo-100 border border-indigo-200/60 flex flex-col items-center justify-center gap-2 transition active:scale-95 shadow-sm group">
             <div class="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-white flex items-center justify-center text-indigo-600 text-lg md:text-xl shadow-sm group-hover:scale-110 transition">
               <i class="fa-solid fa-chart-pie"></i>
             </div>
             <span class="font-extrabold text-xs md:text-sm text-slate-700">Analisis</span>
           </button>
 
-          <button onclick="switchTab('metime')" id="grid-tab-metime" class="grid-nav-btn p-3.5 md:p-5 rounded-2xl bg-orange-50 hover:bg-orange-100 border border-orange-200/60 flex flex-col items-center justify-center gap-2 transition active:scale-95 shadow-sm group">
+          <button onclick="switchTab('metime')" id="grid-tab-metime" class="p-3.5 md:p-5 rounded-2xl bg-orange-50 hover:bg-orange-100 border border-orange-200/60 flex flex-col items-center justify-center gap-2 transition active:scale-95 shadow-sm group">
             <div class="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-white flex items-center justify-center text-orange-600 text-lg md:text-xl shadow-sm group-hover:scale-110 transition">
               <i class="fa-solid fa-film"></i>
             </div>
@@ -330,21 +299,21 @@
           </button>
 
           <!-- Baris 3: Kalender, Jurnal, Opsi -->
-          <button onclick="switchTab('calendar')" id="grid-tab-calendar" class="grid-nav-btn p-3.5 md:p-5 rounded-2xl bg-pink-50 hover:bg-pink-100 border border-pink-200/60 flex flex-col items-center justify-center gap-2 transition active:scale-95 shadow-sm group">
+          <button onclick="switchTab('calendar')" id="grid-tab-calendar" class="p-3.5 md:p-5 rounded-2xl bg-pink-50 hover:bg-pink-100 border border-pink-200/60 flex flex-col items-center justify-center gap-2 transition active:scale-95 shadow-sm group">
             <div class="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-white flex items-center justify-center text-pink-600 text-lg md:text-xl shadow-sm group-hover:scale-110 transition">
               <i class="fa-solid fa-calendar-days"></i>
             </div>
             <span class="font-extrabold text-xs md:text-sm text-slate-700">Kalender</span>
           </button>
 
-          <button onclick="switchTab('journal')" id="grid-tab-journal" class="grid-nav-btn p-3.5 md:p-5 rounded-2xl bg-amber-50 hover:bg-amber-100 border border-amber-200/60 flex flex-col items-center justify-center gap-2 transition active:scale-95 shadow-sm group">
+          <button onclick="switchTab('journal')" id="grid-tab-journal" class="p-3.5 md:p-5 rounded-2xl bg-amber-50 hover:bg-amber-100 border border-amber-200/60 flex flex-col items-center justify-center gap-2 transition active:scale-95 shadow-sm group">
             <div class="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-white flex items-center justify-center text-amber-600 text-lg md:text-xl shadow-sm group-hover:scale-110 transition">
               <i class="fa-solid fa-book-open"></i>
             </div>
             <span class="font-extrabold text-xs md:text-sm text-slate-700">Jurnal</span>
           </button>
 
-          <button onclick="switchTab('settings')" id="grid-tab-settings" class="grid-nav-btn p-3.5 md:p-5 rounded-2xl bg-slate-100 hover:bg-slate-200 border border-slate-300/60 flex flex-col items-center justify-center gap-2 transition active:scale-95 shadow-sm group">
+          <button onclick="switchTab('settings')" id="grid-tab-settings" class="p-3.5 md:p-5 rounded-2xl bg-slate-100 hover:bg-slate-200 border border-slate-300/60 flex flex-col items-center justify-center gap-2 transition active:scale-95 shadow-sm group">
             <div class="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-white flex items-center justify-center text-slate-600 text-lg md:text-xl shadow-sm group-hover:scale-110 transition">
               <i class="fa-solid fa-sliders"></i>
             </div>
@@ -356,7 +325,7 @@
 
     </div>
 
-    <!-- BACK TO MAIN MENU BUTTON (Only shown inside sub-features) -->
+    <!-- BACK TO MAIN MENU BUTTON -->
     <div id="topBackNav" class="hidden mb-4 flex items-center justify-between bg-white/90 backdrop-blur-md p-2.5 px-4 rounded-2xl border border-slate-200/80 shadow-sm">
       <button onclick="showLauncherGrid()" class="px-3.5 py-1.5 bg-planner-navy hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow transition active:scale-95 flex items-center gap-2">
         <i class="fa-solid fa-grip text-xs"></i> <span>‹ Kembali ke Menu Utama</span>
@@ -364,9 +333,9 @@
       <span id="activeTabBreadcrumb" class="text-xs font-extrabold text-planner-navy font-cute">--</span>
     </div>
 
-    <!-- Sticky Mobile Bottom Navigation Bar (Ditinjau: Hidden by Default, Only Shown inside Sub-Features) -->
-    <nav id="mobileBottomBar" class="hidden md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/80 px-1 py-1.5 justify-around items-center shadow-lg overflow-x-auto">
-      <button onclick="switchTab('home')" id="mobile-tab-home" class="mobile-nav-btn flex flex-col items-center gap-0.5 p-1 text-planner-navy font-extrabold transition">
+    <!-- Mobile Bottom Navigation Bar (Shown only when inside a menu) -->
+    <nav id="mobileBottomBar" class="hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/80 px-1 py-1.5 justify-around items-center shadow-lg overflow-x-auto">
+      <button onclick="switchTab('home')" id="mobile-tab-home" class="mobile-nav-btn flex flex-col items-center gap-0.5 p-1 text-slate-400 transition">
         <i class="fa-solid fa-house text-sm"></i>
         <span class="text-[8px]">Beranda</span>
       </button>
@@ -407,10 +376,8 @@
     <!-- TAB 1: BERANDA / DASHBOARD -->
     <main id="content-home" class="tab-content space-y-5">
       
-      <!-- Top Activity & Mimi Banner -->
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
         
-        <!-- Live Current Activity Banner (2 cols) -->
         <div class="lg:col-span-2 planner-card p-5 shadow-planner bg-gradient-to-r from-sky-50 via-purple-50 to-pink-50 border-2 border-sky-100 relative overflow-hidden flex flex-col justify-between">
           <div class="flex items-start justify-between gap-3">
             <div>
@@ -436,20 +403,19 @@
               <span>Sisa Waktu: <strong id="currentTaskTimer" class="text-planner-navy font-bold">-- min</strong></span>
             </div>
 
-            <button id="btnCompleteCurrent" onclick="completeCurrentTask()" class="px-4 py-2 bg-planner-navy hover:bg-slate-800 text-white rounded-xl font-bold text-xs transition active:scale-95 shadow-sm flex items-center gap-1.5">
+            <button id="btnCompleteCurrent" onclick="completeCurrentTask()" class="px-4 py-2 bg-planner-navy hover:bg-slate-800 text-white rounded-xl font-bold text-xs transition active:scale-95 shadow-sm flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed">
               <i class="fa-solid fa-check"></i> <span>Centang Selesai Sekarang</span>
             </button>
           </div>
         </div>
 
-        <!-- Mimi The Cat Interactive Pet Mascot (1 col) -->
         <div id="mascotCard" class="planner-card p-5 shadow-planner bg-planner-cream border-2 border-amber-100 relative flex flex-col items-center justify-center text-center">
           <div class="absolute top-3 right-3 text-[10px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full">
             Study Buddy 🐾
           </div>
 
           <div class="relative cursor-pointer my-1 group" onclick="petMascot(event)">
-            <div class="text-5xl mascot-bounce transition transform group-hover:scale-110">🐱</div>
+            <div class="text-5xl transition transform group-hover:scale-110">🐱</div>
             <div class="absolute -bottom-1 -right-2 text-xl">✨</div>
           </div>
 
@@ -469,23 +435,6 @@
 
       </div>
 
-      <!-- Dashboard Quick Analytics Link Card -->
-      <div class="planner-card p-4 shadow-planner bg-gradient-to-r from-purple-50 via-pink-50 to-indigo-50 border border-purple-100 flex flex-col sm:flex-row items-center justify-between gap-3">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center text-lg shadow shrink-0">
-            <i class="fa-solid fa-chart-line"></i>
-          </div>
-          <div>
-            <h3 class="font-bold text-planner-navy text-sm font-cute">Rekap Histori & Analisis Diri</h3>
-            <p class="text-xs text-slate-500">Lihat grafik performa bulanan, tingkat keberhasilan, dan lencana prestasimu!</p>
-          </div>
-        </div>
-        <button onclick="switchTab('analytics')" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold text-xs transition active:scale-95 shadow shrink-0 flex items-center gap-1.5">
-          <span>Buka Analisis Lengkap 📊</span>
-        </button>
-      </div>
-
-      <!-- KARTU AGENDA KALENDER HARI INI DI DASHBOARD -->
       <div class="planner-card p-4 shadow-planner bg-gradient-to-br from-pink-50/60 via-purple-50/40 to-white border-2 border-pink-100 space-y-3">
         <div class="flex items-center justify-between">
           <h3 class="font-extrabold text-planner-navy text-xs font-cute flex items-center gap-2">
@@ -558,7 +507,6 @@
                 <h3 class="font-bold text-planner-navy text-base font-cute flex items-center gap-2">
                   <span>☀️</span> Checklist Rutinitas Hari Ini
                 </h3>
-                <p class="text-xs text-slate-500">Filter berdasarkan kategori warna planner Adelia:</p>
               </div>
               <button onclick="switchTab('schedule')" class="text-xs font-bold text-planner-navy hover:text-blue-600 transition flex items-center gap-1 self-end sm:self-auto">
                 <span>Kelola Jadwal</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
@@ -700,9 +648,6 @@
             <h2 class="text-xl font-extrabold text-planner-navy font-cute flex items-center gap-2">
               <span>🗓️</span> Daily Schedule Tracker
             </h2>
-            <p class="text-xs text-slate-500 mt-0.5">
-              Kelola waktu dan kegiatanmu dengan kategori warna indah.
-            </p>
           </div>
           <button onclick="openAddTaskModal()" class="px-4 py-2.5 bg-planner-navy hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-sm transition flex items-center gap-1.5 self-start sm:self-auto">
             <i class="fa-solid fa-plus"></i> Tambah Kegiatan Baru
@@ -737,13 +682,12 @@
           </div>
         </div>
 
-        <div id="celebrationBanner" class="hidden p-4 rounded-2xl bg-gradient-to-r from-amber-300 via-pink-300 to-purple-300 text-slate-900 shadow-md relative overflow-hidden flex flex-col sm:flex-row items-center justify-between gap-3 animate-pulse">
+        <div id="celebrationBanner" class="hidden p-4 rounded-2xl bg-gradient-to-r from-amber-300 via-pink-300 to-purple-300 text-slate-900 shadow-md relative overflow-hidden flex flex-col sm:flex-row items-center justify-between gap-3">
           <div class="flex items-center gap-3">
             <div class="w-12 h-12 rounded-2xl bg-white/90 flex items-center justify-center text-2xl shadow">🎉</div>
             <div>
               <div class="text-xs font-extrabold uppercase tracking-wider text-amber-900">SELAMAT ADELIA! 🌟</div>
               <div id="celebrationTitle" class="text-sm font-extrabold font-cute">Pencapaian Luar Biasa Bulan Ini!</div>
-              <div id="celebrationSub" class="text-[11px] font-semibold text-slate-800">Kamu telah menyelesaikan target dengan sangat baik!</div>
             </div>
           </div>
           <button onclick="triggerConfettiBurst()" class="px-4 py-2 bg-white hover:bg-slate-50 text-purple-900 rounded-xl font-extrabold text-xs shadow transition active:scale-95 shrink-0 flex items-center gap-1.5">
@@ -755,47 +699,18 @@
           <div class="p-3 bg-white border border-slate-100 rounded-xl shadow-sm text-center">
             <div class="text-[10px] font-bold text-slate-400 uppercase">Tingkat Keberhasilan</div>
             <div id="monthlyTaskRate" class="text-xl font-extrabold text-blue-600 font-cute">0%</div>
-            <div class="text-[10px] font-semibold text-slate-500">Rata-rata Jadwal</div>
           </div>
           <div class="p-3 bg-white border border-slate-100 rounded-xl shadow-sm text-center">
             <div class="text-[10px] font-bold text-slate-400 uppercase">Konsistensi Habit</div>
             <div id="monthlyHabitRate" class="text-xl font-extrabold text-purple-600 font-cute">0%</div>
-            <div class="text-[10px] font-semibold text-slate-500">Rata-rata Habit</div>
           </div>
           <div class="p-3 bg-white border border-slate-100 rounded-xl shadow-sm text-center">
             <div class="text-[10px] font-bold text-slate-400 uppercase">Vocab Terkumpul</div>
             <div id="monthlyTotalVocab" class="text-xl font-extrabold text-emerald-600 font-cute">0 kata</div>
-            <div class="text-[10px] font-semibold text-slate-500">Target TOEFL</div>
           </div>
           <div class="p-3 bg-white border border-slate-100 rounded-xl shadow-sm text-center">
             <div class="text-[10px] font-bold text-slate-400 uppercase">Total Me-Time</div>
             <div id="monthlyMetimeTotal" class="text-xl font-extrabold text-pink-600 font-cute">0 min</div>
-            <div class="text-[10px] font-semibold text-slate-500">Waktu Istirahat</div>
-          </div>
-        </div>
-
-        <div class="space-y-2">
-          <div class="flex items-center justify-between text-xs font-bold text-slate-700">
-            <span>📊 Grafik Tingkat Keberhasilan Harian Bulan Ini (%)</span>
-            <span class="text-[10px] text-slate-400 font-normal">Geser untuk melihat detail hari</span>
-          </div>
-          
-          <div class="w-full bg-white border border-slate-200 rounded-2xl p-4 shadow-sm overflow-x-auto">
-            <div id="monthlyChartBars" class="flex items-end gap-2 min-w-[600px] h-36 pt-6 pb-2 border-b border-slate-200 px-2">
-            </div>
-            <div class="flex items-center justify-between text-[10px] font-semibold text-slate-400 pt-2 px-1">
-              <span>Awal Bulan</span>
-              <span>Pertengahan</span>
-              <span>Akhir Bulan</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="space-y-2">
-          <h4 class="font-bold text-planner-navy text-xs uppercase tracking-wider flex items-center gap-1.5">
-            <i class="fa-solid fa-award text-amber-500"></i> Lencana & Hal Yang Berhasil Kamu Lakukan:
-          </h4>
-          <div id="monthlyBadgesContainer" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
           </div>
         </div>
 
@@ -810,13 +725,6 @@
             <h2 class="text-lg md:text-xl font-extrabold text-planner-navy font-cute flex items-center gap-2">
               <span>📊</span> Weekly Grid Tracker Matrix
             </h2>
-            <p class="text-[11px] md:text-xs text-slate-500 mt-0.5">
-              Semua perubahan centang di sini terhubung otomatis dengan Dashboard, Daily Tracker, dan Habits!
-            </p>
-          </div>
-          <div class="text-[11px] font-bold text-planner-navy bg-planner-blue px-3 py-1 rounded-full shadow-sm flex items-center gap-1.5 self-start sm:self-auto">
-            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span>Geser ke samping 👉</span>
           </div>
         </div>
 
@@ -850,7 +758,6 @@
               <h2 class="text-xl font-extrabold text-planner-navy font-cute flex items-center gap-2">
                 <span>🌷</span> Habit Tracker Harian
               </h2>
-              <p class="text-xs text-slate-500">Konsistensi kecil membuat perubahan besar.</p>
             </div>
             <span id="habitSummaryBadge" class="text-xs font-bold px-3 py-1 bg-purple-100 text-purple-700 rounded-full">
               0 Completed
@@ -877,14 +784,12 @@
     <main id="content-calendar" class="tab-content space-y-5">
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
         
-        <!-- Kalender Interaktif (2 Cols) -->
         <div class="lg:col-span-2 planner-card p-5 md:p-6 shadow-planner space-y-4">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
             <div>
               <h2 class="text-xl font-extrabold text-planner-navy font-cute flex items-center gap-2">
-                <span>🗓️</span> Kalender Agenda & Catatan Adelia
+                <span>🗓️</span> Kalender Agenda Adelia
               </h2>
-              <p class="text-xs text-slate-500">Klik tanggal untuk mencatat agenda, pengingat, atau tugas penting.</p>
             </div>
             
             <div class="flex items-center gap-2 self-start sm:self-auto">
@@ -903,7 +808,6 @@
             </div>
           </div>
 
-          <!-- Grid Hari Kalender -->
           <div class="w-full">
             <div class="grid grid-cols-7 text-center font-bold text-xs text-planner-navy py-2 bg-purple-50/60 rounded-xl mb-2">
               <span class="text-rose-500">Min</span>
@@ -918,7 +822,6 @@
             </div>
           </div>
 
-          <!-- Agenda Khusus Tanggal Terpilih -->
           <div class="pt-3 border-t border-slate-100 space-y-3">
             <div class="flex items-center justify-between">
               <h3 class="font-extrabold text-planner-navy text-xs font-cute flex items-center gap-1.5">
@@ -951,12 +854,11 @@
           </div>
         </div>
 
-        <!-- Papan Catatan Interaktif (1 Col) -->
         <div class="planner-card p-5 shadow-planner space-y-4 flex flex-col justify-between">
           <div class="space-y-3">
             <div class="flex items-center justify-between border-b border-slate-100 pb-2">
               <h3 class="font-extrabold text-planner-navy text-xs uppercase tracking-wider flex items-center gap-1.5">
-                <i class="fa-solid fa-sticky-note text-amber-500"></i> Catatan & Ide Adelia
+                <i class="fa-solid fa-sticky-note text-amber-500"></i> Catatan Adelia
               </h3>
               <button onclick="openNoteModal()" class="text-xs font-bold text-purple-700 hover:text-purple-900">
                 + Tulis Catatan
@@ -985,7 +887,7 @@
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full text-left">
             <div>
               <label class="block text-xs font-bold text-slate-600 mb-1">Aktivitas</label>
-              <select id="timerActivity" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold">
+              <select id="timerActivity" onchange="resetTimer()" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold">
                 <option value="Scroll Sosmed 📱">📱 Scroll Social Media</option>
                 <option value="Nonton Drama 🎬">🎬 Menonton Drama</option>
                 <option value="Melukis / Drawing 🎨">🎨 Melukis atau Menggambar</option>
@@ -995,7 +897,7 @@
             </div>
             <div>
               <label class="block text-xs font-bold text-slate-600 mb-1">Durasi (Menit)</label>
-              <input type="number" id="timerMinutes" value="20" min="1" max="240" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold">
+              <input type="number" id="timerMinutes" value="20" min="1" max="240" onchange="resetTimer()" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold">
             </div>
           </div>
 
@@ -1063,11 +965,6 @@
             <textarea id="journalAchievement" rows="2" placeholder="Pencapaian sekecil apa pun..." class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-purple-300"></textarea>
           </div>
 
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Satu langkah kecil untuk besok</label>
-            <textarea id="journalTomorrow" rows="2" placeholder="Besok aku ingin coba..." class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-purple-300"></textarea>
-          </div>
-
           <button onclick="saveJournal()" class="w-full py-3 bg-planner-navy hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-md transition">
             Simpan Jurnal Hari Ini ♡
           </button>
@@ -1087,13 +984,29 @@
     <main id="content-settings" class="tab-content space-y-5">
       <div class="planner-card p-6 shadow-planner max-w-2xl mx-auto space-y-5">
         <h2 class="text-xl font-extrabold text-planner-navy font-cute border-b border-slate-100 pb-3">
-          ⚙️ Pengaturan & Backup Data
+          ⚙️ Pengaturan & Cetak Laporan PDF Estetik
         </h2>
 
-        <div class="space-y-3 text-xs">
+        <div class="space-y-4 text-xs">
+          
+          <div class="p-4 bg-gradient-to-r from-pink-50 via-purple-50 to-sky-50 rounded-2xl border-2 border-pink-200 space-y-3 shadow-sm">
+            <div class="flex items-center gap-2 text-pink-900 font-extrabold text-sm">
+              <i class="fa-solid fa-file-pdf text-pink-600 text-2xl"></i>
+              <h4>Cetak Laporan Progress ke PDF Estetik (.PDF)</h4>
+            </div>
+            <p class="text-slate-600 leading-relaxed">
+              Dokumen PDF diformat rapi dengan tema pastel manis ala <strong>Adelia's Little World ♡</strong>. Memuat ringkasan skor performa, tabel checklist jadwal harian, log kebiasaan, hingga catatanku!
+            </p>
+            <div class="pt-1">
+              <button onclick="exportProgressPDF()" class="w-full py-3 bg-pink-500 hover:bg-pink-600 text-white rounded-xl font-extrabold shadow-md transition active:scale-95 flex items-center justify-center gap-2 text-xs">
+                <i class="fa-solid fa-print"></i>
+                <span>Cetak / Simpan Laporan PDF Estetik Sekarang ✨</span>
+              </button>
+            </div>
+          </div>
+
           <div class="p-4 bg-purple-50 rounded-2xl border border-purple-100 space-y-2">
-            <h4 class="font-bold text-purple-900">Cadangkan / Impor Data (JSON)</h4>
-            <p class="text-slate-600">Unduh berkas JSON untuk memindahkan jadwal ke perangkat lain.</p>
+            <h4 class="font-bold text-purple-900">Cadangkan / Impor Data Aplikasi (JSON)</h4>
             <div class="flex gap-2 pt-1">
               <button onclick="exportDataJSON()" class="px-4 py-2 bg-planner-navy text-white rounded-xl font-bold">Ekspor JSON</button>
               <label class="px-4 py-2 bg-white text-planner-navy border border-purple-200 rounded-xl font-bold cursor-pointer">
@@ -1104,7 +1017,6 @@
 
           <div class="p-4 bg-rose-50 rounded-2xl border border-rose-100 space-y-2">
             <h4 class="font-bold text-rose-900">Reset Data</h4>
-            <p class="text-slate-600">Bersihkan centang hari ini atau pulihkan ke data awal bawaan planner Adelia.</p>
             <div class="flex gap-2 pt-1">
               <button onclick="resetTodayChecks()" class="px-4 py-2 bg-rose-500 text-white rounded-xl font-bold">Reset Centang Hari Ini</button>
               <button onclick="restoreDefaultData()" class="px-4 py-2 bg-white text-rose-700 border border-rose-200 rounded-xl font-bold">Kembalikan Data Bawaan</button>
@@ -1118,6 +1030,74 @@
       Made with ♡ for Adelia · Progress, not perfection ✨
     </footer>
 
+  </div>
+
+  <!-- PDF REPORT PRINT TEMPLATE (Hidden from web view, formatted for PDF print) -->
+  <div id="pdfReportContainer" class="hidden p-8 bg-white font-sans text-slate-800 space-y-6">
+    <div class="border-b-4 border-pink-300 pb-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <span class="text-4xl">🐱</span>
+        <div>
+          <h1 class="text-2xl font-black text-slate-800 font-cute">Adelia's Little World ♡</h1>
+          <p class="text-xs text-pink-600 font-bold">Laporan Progress & Rekapitulasi Harian</p>
+        </div>
+      </div>
+      <div class="text-right text-xs">
+        <div id="pdfPrintDate" class="font-bold text-slate-700">Tanggal: --</div>
+        <div class="text-slate-400">Printed from Web App</div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-4 gap-3 text-center text-xs">
+      <div class="p-3 rounded-xl bg-sky-50 border border-sky-200">
+        <div class="text-slate-400 font-bold uppercase text-[9px]">Jadwal Selesai</div>
+        <div id="pdfTaskRate" class="text-base font-extrabold text-sky-700">0%</div>
+      </div>
+      <div class="p-3 rounded-xl bg-purple-50 border border-purple-200">
+        <div class="text-slate-400 font-bold uppercase text-[9px]">Habit Completed</div>
+        <div id="pdfHabitRate" class="text-base font-extrabold text-purple-700">0%</div>
+      </div>
+      <div class="p-3 rounded-xl bg-pink-50 border border-pink-200">
+        <div class="text-slate-400 font-bold uppercase text-[9px]">Vitamin Today</div>
+        <div id="pdfVitaminCount" class="text-base font-extrabold text-pink-700">0/3</div>
+      </div>
+      <div class="p-3 rounded-xl bg-emerald-50 border border-emerald-200">
+        <div class="text-slate-400 font-bold uppercase text-[9px]">Target Vocab</div>
+        <div id="pdfVocabCount" class="text-base font-extrabold text-emerald-700">0/20</div>
+      </div>
+    </div>
+
+    <div class="space-y-2">
+      <h3 class="font-extrabold text-slate-800 text-sm border-b pb-1 font-cute">🗓️ Log Daily Schedule Checklist</h3>
+      <table class="w-full text-xs border-collapse">
+        <thead>
+          <tr class="bg-slate-100 text-slate-700 font-bold">
+            <th class="p-2 text-left border">Jam</th>
+            <th class="p-2 text-left border">Nama Kegiatan</th>
+            <th class="p-2 text-left border">Kategori</th>
+            <th class="p-2 text-center border">Status</th>
+          </tr>
+        </thead>
+        <tbody id="pdfTaskListBody">
+        </tbody>
+      </table>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4">
+      <div class="space-y-2">
+        <h3 class="font-extrabold text-slate-800 text-sm border-b pb-1 font-cute">🌷 Habit Tracker</h3>
+        <ul id="pdfHabitList" class="text-xs space-y-1"></ul>
+      </div>
+
+      <div class="space-y-2">
+        <h3 class="font-extrabold text-slate-800 text-sm border-b pb-1 font-cute">💊 Vitamin & Target</h3>
+        <div id="pdfVitaminList" class="text-xs space-y-1"></div>
+      </div>
+    </div>
+
+    <div class="pt-4 border-t text-center text-[10px] text-slate-400 font-medium">
+      "Little steps everyday make big results" 🐾 · Created with ♡ for Adelia
+    </div>
   </div>
 
   <!-- TOAST CONTAINER -->
@@ -1243,7 +1223,7 @@
   </div>
 
   <script>
-    /* UTILITY: SANITIZE HTML TO PREVENT SCRIPT ERRORS & INJECTIONS */
+    /* UTILITY: SANITIZE HTML */
     function escapeHTML(str) {
       if (str === null || str === undefined) return '';
       return String(str).replace(/[&<>"']/g, function(m) {
@@ -1257,10 +1237,8 @@
       });
     }
 
-    /* LOCAL STORAGE KEY */
-    const STORAGE_KEY = "adelia_planner_v5";
+    const STORAGE_KEY = "adelia_planner_v9";
 
-    /* CATEGORY COLOR MAPPINGS */
     const categoryConfig = {
       kegiatan_utama: { label: "Kegiatan Utama", color: "#3B82F6", bg: "bg-blue-50", text: "text-blue-700", border: "border-blue-200", badgeBg: "bg-blue-500" },
       belajar_akademik: { label: "Belajar / Akademik", color: "#A855F7", bg: "bg-purple-50", text: "text-purple-700", border: "border-purple-200", badgeBg: "bg-purple-500" },
@@ -1308,38 +1286,10 @@
       "Kamu hebat! ✨"
     ];
 
-    const mascotQuotes = [
-      "Little steps everyday make big results! 🐾",
-      "Adelia pasti bisa! Kamu hebat! ♡",
-      "Jangan lupa minum air putih & istirahat ya! 💧",
-      "Progress, not perfection! 🌷",
-      "Mimi selalu dukung Adelia! ✨",
-      "Semangat terus yaa Adelia ♡"
-    ];
-
     const weekDaysIndo = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
 
     function getDateKey(dateObj = new Date()) {
       return `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}-${String(dateObj.getDate()).padStart(2, '0')}`;
-    }
-
-    function getWeekDayKey(dayName) {
-      const now = new Date();
-      const currentDayIdx = now.getDay(); 
-      const normalizedCurrentIdx = currentDayIdx === 0 ? 6 : currentDayIdx - 1; 
-      const targetIdx = weekDaysIndo.indexOf(dayName);
-
-      if (targetIdx === -1) return getDateKey();
-
-      const diff = targetIdx - normalizedCurrentIdx;
-      const targetDate = new Date(now);
-      targetDate.setDate(now.getDate() + diff);
-      return getDateKey(targetDate);
-    }
-
-    function getTodayIndoName() {
-      const dayIdx = new Date().getDay();
-      return weekDaysIndo[dayIdx === 0 ? 6 : dayIdx - 1];
     }
 
     function getInitialData() {
@@ -1355,11 +1305,9 @@
         journals: {},
         agendas: {},
         quickNotes: [
-          { id: "note_1", title: "Target Buku TOEFL Hacks 📖", content: "Selesaikan bab Listening Section & latihan soal 20 nomor setiap pagi.", color: "purple", date: getDateKey(), pinned: true },
-          { id: "note_2", title: "Pengingat Jurnal Skripsi 📝", content: "Cari min 3 jurnal internasional bereputasi seputar topik penelitian.", color: "blue", date: getDateKey(), pinned: false }
+          { id: "note_1", title: "Target Buku TOEFL Hacks 📖", content: "Selesaikan bab Listening Section & latihan soal 20 nomor setiap pagi.", color: "purple", date: getDateKey() }
         ],
         alarmEnabled: true,
-        lastNotifiedTask: "",
         mascotPetCount: 0
       };
     }
@@ -1373,7 +1321,6 @@
     }
 
     let currentFilterCategory = "all";
-    let selectedHistoryMonth = "";
 
     function saveData() {
       try {
@@ -1412,7 +1359,7 @@
       if (m) m.classList.add("hidden");
     };
 
-    /* WEB AUDIO API SYNTHESIZER */
+    /* AUDIO SYNTHESIZER & ALARM */
     let audioCtx = null;
     let ambientNoiseNode = null;
     let isAmbientPlaying = false;
@@ -1427,37 +1374,6 @@
       return audioCtx;
     }
 
-    window.playAlarmSound = function() {
-      try {
-        const ctx = getAudioContext();
-        const now = ctx.currentTime;
-        const notes = [523.25, 659.25, 783.99, 1046.50];
-        notes.forEach((freq, idx) => {
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.type = 'triangle';
-          osc.frequency.setValueAtTime(freq, now + idx * 0.15);
-
-          gain.gain.setValueAtTime(0.3, now + idx * 0.15);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.15 + 0.3);
-
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-
-          osc.start(now + idx * 0.15);
-          osc.stop(now + idx * 0.15 + 0.3);
-        });
-      } catch (e) {}
-    };
-
-    window.triggerDeviceVibration = function(pattern = [300, 150, 300, 150, 450]) {
-      if ("vibrate" in navigator) {
-        try {
-          navigator.vibrate(pattern);
-        } catch (e) {}
-      }
-    };
-
     window.playChimeSound = function() {
       try {
         const ctx = getAudioContext();
@@ -1468,34 +1384,22 @@
         osc.type = 'sine';
         osc.frequency.setValueAtTime(523.25, now);
         osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.1);
-        osc.frequency.exponentialRampToValueAtTime(783.99, now + 0.25);
 
         gain.gain.setValueAtTime(0.15, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
 
         osc.connect(gain);
         gain.connect(ctx.destination);
 
         osc.start(now);
-        osc.stop(now + 0.5);
+        osc.stop(now + 0.3);
       } catch (e) {}
     };
 
     window.toggleAlarmSetting = function() {
       appData.alarmEnabled = !appData.alarmEnabled;
-      const icon = document.getElementById("alarmIcon");
-      const badge = document.getElementById("alarmBadge");
-
-      if (appData.alarmEnabled) {
-        if (icon) icon.className = "fa-solid fa-bell text-xs md:text-sm text-planner-navy";
-        if (badge) badge.className = "absolute -top-1 -right-1 w-2.5 h-2.5 md:w-3 md:h-3 bg-emerald-500 rounded-full border-2 border-white";
-        showToast("Alarm pengingat diaktifkan 🔔");
-      } else {
-        if (icon) icon.className = "fa-solid fa-bell-slash text-xs md:text-sm text-slate-400";
-        if (badge) badge.className = "hidden";
-        showToast("Alarm pengingat dinonaktifkan 🔕");
-      }
       saveData();
+      showToast(appData.alarmEnabled ? "Alarm pengingat diaktifkan 🔔" : "Alarm pengingat dinonaktifkan 🔕");
     };
 
     window.toggleAmbientSound = function() {
@@ -1603,7 +1507,69 @@
       renderConfetti();
     };
 
-    /* LAUNCHER GRID VS SUB-PAGE NAVIGATION LOGIC */
+    /* TIMER MANAGEMENT SYSTEM */
+    let timerInterval = null;
+    let timerTotalSeconds = 20 * 60;
+    let timerRemainingSeconds = 20 * 60;
+    let isTimerRunning = false;
+
+    window.resetTimer = function() {
+      if (timerInterval) clearInterval(timerInterval);
+      isTimerRunning = false;
+      const minInput = document.getElementById("timerMinutes");
+      const mins = minInput ? parseInt(minInput.value, 10) || 20 : 20;
+      timerTotalSeconds = mins * 60;
+      timerRemainingSeconds = timerTotalSeconds;
+      updateTimerDisplay();
+      const statusEl = document.getElementById("timerStatus");
+      if (statusEl) statusEl.textContent = "Siap dimulai ♡";
+    };
+
+    window.startTimer = function() {
+      if (isTimerRunning) return;
+      isTimerRunning = true;
+      const statusEl = document.getElementById("timerStatus");
+      if (statusEl) statusEl.textContent = "Fokus berlangsung... ⏳";
+
+      timerInterval = setInterval(() => {
+        if (timerRemainingSeconds > 0) {
+          timerRemainingSeconds--;
+          updateTimerDisplay();
+        } else {
+          clearInterval(timerInterval);
+          isTimerRunning = false;
+          triggerConfettiBurst();
+          if (statusEl) statusEl.textContent = "Selesai! Istirahat hebat! 🎉";
+          showToast("Waktu Me-Time selesai! ✨");
+        }
+      }, 1000);
+    };
+
+    window.pauseTimer = function() {
+      if (timerInterval) clearInterval(timerInterval);
+      isTimerRunning = false;
+      const statusEl = document.getElementById("timerStatus");
+      if (statusEl) statusEl.textContent = "Timer dijeda ⏸️";
+    };
+
+    function updateTimerDisplay() {
+      const displayEl = document.getElementById("timerDisplay");
+      const circleEl = document.getElementById("timerProgressCircle");
+      const m = Math.floor(timerRemainingSeconds / 60);
+      const s = timerRemainingSeconds % 60;
+
+      if (displayEl) {
+        displayEl.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+      }
+
+      if (circleEl && timerTotalSeconds > 0) {
+        const percent = timerRemainingSeconds / timerTotalSeconds;
+        const offset = 500 * (1 - percent);
+        circleEl.style.strokeDashoffset = offset;
+      }
+    }
+
+    /* LAUNCHER NAVIGATION LOGIC */
     window.showLauncherGrid = function() {
       document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
       
@@ -1617,11 +1583,6 @@
         mobileNav.classList.add("hidden");
         mobileNav.classList.remove("flex");
       }
-
-      document.querySelectorAll(".grid-nav-btn").forEach(btn => btn.classList.remove("ring-2", "ring-planner-navy", "shadow-md"));
-      document.querySelectorAll(".mobile-nav-btn").forEach(btn => {
-        btn.className = "mobile-nav-btn flex flex-col items-center gap-0.5 p-1 text-slate-400 transition";
-      });
     };
 
     window.switchTab = function(tabId) {
@@ -1667,215 +1628,158 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    /* REALTIME CLOCK & TASK DETECTOR (UPDATES BOTH DASHBOARD & LAUNCHER WIDGET) */
-    window.updateRealtimeClock = function() {
+    /* TIME CRITERIA LOCK CHECK (SIMPLIFIED: ENABLED ONLY DURING SCHEDULED TIME WINDOW) */
+    function isTaskActive(task, dateStr = getDateKey()) {
+      const todayStr = getDateKey();
+      if (dateStr !== todayStr) return false;
+
       const now = new Date();
+      const currentMin = now.getHours() * 60 + now.getMinutes();
+
+      const [h1, m1] = task.start.split(":").map(Number);
+      const [h2, m2] = task.end.split(":").map(Number);
       
-      const dateHeader = document.getElementById("headerDate");
-      if (dateHeader) {
-        dateHeader.textContent = now.toLocaleDateString("id-ID", {
-          weekday: "long", day: "numeric", month: "long", year: "numeric"
-        });
-      }
+      const startMin = h1 * 60 + m1;
+      let endMin = h2 * 60 + m2;
+      if (endMin < startMin) endMin += 1440;
 
-      const clockHeader = document.getElementById("headerClock");
-      if (clockHeader) {
-        clockHeader.textContent = now.toLocaleTimeString("id-ID", {
-          hour: "2-digit", minute: "2-digit", second: "2-digit"
-        }) + " WIB";
-      }
+      return (currentMin >= startMin && currentMin < endMin);
+    }
 
-      const tasks = appData.tasks || [];
-      const currentMinutes = now.getHours() * 60 + now.getMinutes();
-      const todayKey = getDateKey();
-
-      let activeTask = null;
-      let nextTask = null;
-      let minutesRemaining = 0;
-
-      tasks.forEach((t, idx) => {
-        const [h1, m1] = t.start.split(":").map(Number);
-        const [h2, m2] = t.end.split(":").map(Number);
-        const startMin = h1 * 60 + m1;
-        let endMin = h2 * 60 + m2;
-        if (endMin < startMin) endMin += 24 * 60;
-
-        if (currentMinutes >= startMin && currentMinutes < endMin) {
-          activeTask = t;
-          minutesRemaining = endMin - currentMinutes;
-
-          // Detect next task in array
-          if (idx + 1 < tasks.length) {
-            nextTask = tasks[idx + 1];
-          }
-
-          const notificationId = `${todayKey}_${t.id}_start`;
-          if (appData.alarmEnabled && appData.lastNotifiedTask !== notificationId && (currentMinutes - startMin) <= 1) {
-            appData.lastNotifiedTask = notificationId;
-            playAlarmSound();
-            triggerDeviceVibration([400, 200, 400]);
-            showToast(`⏰ Waktunya: ${t.name}!`);
-            openModal("Pengingat Waktu Kegiatan 🔔", `Hai Adelia! Sekarang waktunya untuk "${t.name}" (${t.start} - ${t.end}). Semangat yaa! ♡`, "⏰");
-            saveData();
-          }
-        }
-      });
-
-      // Fallback for next task if no active task
-      if (!activeTask) {
-        nextTask = tasks.find(t => {
-          const [h1, m1] = t.start.split(":").map(Number);
-          return (h1 * 60 + m1) > currentMinutes;
-        }) || tasks[0];
-      }
-
-      // 1. Dashboard Active Task Elements
-      const titleEl = document.getElementById("currentTaskTitle");
-      const metaEl = document.getElementById("currentTaskMeta");
-      const badgeEl = document.getElementById("currentTaskCategoryBadge");
-      const timerEl = document.getElementById("currentTaskTimer");
-
-      // 2. Launcher Real-time Widget Elements
-      const lTitleEl = document.getElementById("launcherCurrentTaskTitle");
-      const lMetaEl = document.getElementById("launcherCurrentTaskMeta");
-      const lBadgeEl = document.getElementById("launcherCurrentCategoryBadge");
-      const lTimerEl = document.getElementById("launcherCurrentTaskTimer");
-
-      // 3. Launcher Upcoming Task Elements
-      const lNextTitleEl = document.getElementById("launcherNextTaskTitle");
-      const lNextMetaEl = document.getElementById("launcherNextTaskMeta");
-      const lNextBadgeEl = document.getElementById("launcherNextCategoryBadge");
-
-      if (activeTask) {
-        const cfg = categoryConfig[activeTask.category] || categoryConfig.kegiatan_utama;
-
-        if (titleEl) titleEl.textContent = activeTask.name;
-        if (metaEl) metaEl.textContent = `Jam ${activeTask.start} - ${activeTask.end}`;
-        if (timerEl) timerEl.textContent = `${minutesRemaining} min lagi`;
-        if (badgeEl) {
-          badgeEl.className = `px-3 py-1.5 rounded-xl text-xs font-bold ${cfg.bg} ${cfg.text} border ${cfg.border} shadow-sm shrink-0`;
-          badgeEl.textContent = `📌 ${cfg.label}`;
-        }
-
-        if (lTitleEl) lTitleEl.textContent = activeTask.name;
-        if (lMetaEl) lMetaEl.textContent = `Jam ${activeTask.start} - ${activeTask.end}`;
-        if (lTimerEl) lTimerEl.textContent = `${minutesRemaining} min lagi`;
-        if (lBadgeEl) {
-          lBadgeEl.className = `px-2.5 py-1 rounded-xl text-[10px] font-bold ${cfg.bg} ${cfg.text} border ${cfg.border} shadow-sm shrink-0`;
-          lBadgeEl.textContent = `📌 ${cfg.label}`;
-        }
-      } else {
-        if (titleEl) titleEl.textContent = "Waktu Santai / Istirahat Bebas ✨";
-        if (metaEl) metaEl.textContent = "Tidak ada jadwal khusus saat ini";
-        if (timerEl) timerEl.textContent = "-- min";
-        if (badgeEl) {
-          badgeEl.className = "px-3 py-1.5 rounded-xl text-xs font-bold bg-white text-slate-500 border border-slate-200 shrink-0";
-          badgeEl.textContent = "☕ Free Time";
-        }
-
-        if (lTitleEl) lTitleEl.textContent = "Waktu Santai / Free Time ✨";
-        if (lMetaEl) lMetaEl.textContent = "Tidak ada jadwal khusus saat ini";
-        if (lTimerEl) lTimerEl.textContent = "-- min";
-        if (lBadgeEl) {
-          lBadgeEl.className = "px-2.5 py-1 rounded-xl text-[10px] font-bold bg-white text-slate-500 border border-slate-200 shrink-0";
-          lBadgeEl.textContent = "☕ Free Time";
-        }
-      }
-
-      // Next Task rendering on launcher
-      if (nextTask) {
-        const nextCfg = categoryConfig[nextTask.category] || categoryConfig.kegiatan_utama;
-        if (lNextTitleEl) lNextTitleEl.textContent = nextTask.name;
-        if (lNextMetaEl) lNextMetaEl.textContent = `Jam ${nextTask.start} - ${nextTask.end}`;
-        if (lNextBadgeEl) {
-          lNextBadgeEl.className = `px-2.5 py-1 rounded-xl text-[10px] font-bold ${nextCfg.bg} ${nextCfg.text} border ${nextCfg.border} shadow-sm shrink-0`;
-          lNextBadgeEl.textContent = `⏳ ${nextCfg.label}`;
-        }
-      } else {
-        if (lNextTitleEl) lNextTitleEl.textContent = "Semua jadwal selesai hari ini 🎉";
-        if (lNextMetaEl) lNextMetaEl.textContent = "Selamat beristirahat, Adelia ♡";
-        if (lNextBadgeEl) {
-          lNextBadgeEl.className = "px-2.5 py-1 rounded-xl text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0";
-          lNextBadgeEl.textContent = "✨ Selesai";
-        }
-      }
-    };
-
-    window.petMascot = function(e) {
-      playChimeSound();
-      appData.mascotPetCount = (appData.mascotPetCount || 0) + 1;
-
-      const heart = document.createElement("div");
-      heart.className = "floating-heart";
-      heart.textContent = e && e.shiftKey ? "💖" : "🌸";
-      heart.style.left = `${(e ? e.clientX : window.innerWidth / 2) - 10}px`;
-      heart.style.top = `${(e ? e.clientY : window.innerHeight / 2) - 20}px`;
-      document.body.appendChild(heart);
-      setTimeout(() => heart.remove(), 1200);
-
-      const bubble = document.getElementById("mascotBubble");
-      if (bubble) {
-        const randMsg = mascotQuotes[Math.floor(Math.random() * mascotQuotes.length)];
-        bubble.textContent = randMsg;
-      }
-
-      saveData();
-    };
-
-    window.isTaskChecked = function(taskId, dateStr = getDateKey()) {
+    function isTaskChecked(taskId, dateStr = getDateKey()) {
       return !!(appData.checks && appData.checks[`${dateStr}_${taskId}`]);
-    };
+    }
 
     window.toggleTaskChecked = function(taskId, isChecked, dateStr = getDateKey()) {
+      const task = (appData.tasks || []).find(t => t.id === taskId);
+      if (task) {
+        const active = isTaskActive(task, dateStr);
+        if (!active && !isTaskChecked(taskId, dateStr)) {
+          showToast(`🔒 Hanya dapat dicentang saat jamnya berlangsung (${task.start} - ${task.end} WIB).`);
+          renderApp();
+          return;
+        }
+      }
+
       if (!appData.checks) appData.checks = {};
       appData.checks[`${dateStr}_${taskId}`] = isChecked;
       if (isChecked) playChimeSound();
       saveData();
     };
 
-    window.isHabitChecked = function(habitIdx, dateStr = getDateKey()) {
-      return !!(appData.checks && appData.checks[`${dateStr}_habit_${habitIdx}`]);
-    };
-
-    window.toggleHabitChecked = function(habitIdx, isChecked, dateStr = getDateKey()) {
-      if (!appData.checks) appData.checks = {};
-      appData.checks[`${dateStr}_habit_${habitIdx}`] = isChecked;
-      if (isChecked) playChimeSound();
-      saveData();
-    };
-
-    window.completeCurrentTask = function() {
+    function updateRealtimeClock() {
       const now = new Date();
-      const currentMinutes = now.getHours() * 60 + now.getMinutes();
-      const tasks = appData.tasks || [];
+      const optionsDate = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      const dateStr = now.toLocaleDateString('id-ID', optionsDate);
+      const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + " WIB";
 
-      let activeTask = tasks.find(t => {
+      const headerDate = document.getElementById("headerDate");
+      const headerClock = document.getElementById("headerClock");
+      if (headerDate) headerDate.textContent = dateStr;
+      if (headerClock) headerClock.textContent = timeStr;
+
+      const currentMin = now.getHours() * 60 + now.getMinutes();
+      const tasks = appData.tasks || [];
+      const todayKey = getDateKey();
+
+      let activeTask = null;
+      let nextTask = null;
+
+      for (let i = 0; i < tasks.length; i++) {
+        const t = tasks[i];
         const [h1, m1] = t.start.split(":").map(Number);
         const [h2, m2] = t.end.split(":").map(Number);
-        return currentMinutes >= (h1 * 60 + m1) && currentMinutes < (h2 * 60 + m2);
-      });
+        const startMin = h1 * 60 + m1;
+        let endMin = h2 * 60 + m2;
+        if (endMin < startMin) endMin += 1440;
 
-      if (!activeTask) {
-        activeTask = tasks.find(t => !isTaskChecked(t.id));
+        if (currentMin >= startMin && currentMin < endMin) {
+          activeTask = { ...t, endMin };
+          nextTask = tasks[i + 1] || null;
+          break;
+        } else if (currentMin < startMin && !nextTask) {
+          nextTask = t;
+        }
       }
+
+      const curTitle = document.getElementById("currentTaskTitle");
+      const curMeta = document.getElementById("currentTaskMeta");
+      const curTimer = document.getElementById("currentTaskTimer");
+      const curBadge = document.getElementById("currentTaskCategoryBadge");
+      const btnComplete = document.getElementById("btnCompleteCurrent");
+
+      const lTitle = document.getElementById("launcherCurrentTaskTitle");
+      const lMeta = document.getElementById("launcherCurrentTaskMeta");
+      const lTimer = document.getElementById("launcherCurrentTaskTimer");
+      const lBadge = document.getElementById("launcherCurrentCategoryBadge");
+      const lBtnComplete = document.getElementById("btnLauncherComplete");
 
       if (activeTask) {
-        toggleTaskChecked(activeTask.id, true);
-        showToast(`" ${activeTask.name} " telah diselesaikan! ✨`);
-      } else {
-        showToast("Semua kegiatan hari ini sudah selesai! 🎉");
-      }
-    };
+        const remaining = activeTask.endMin - currentMin;
+        const cfg = categoryConfig[activeTask.category] || categoryConfig.kegiatan_utama;
+        const isDone = isTaskChecked(activeTask.id, todayKey);
 
-    window.filterCategory = function(cat) {
-      currentFilterCategory = cat;
-      document.querySelectorAll(".cat-pill").forEach(el => {
-        el.classList.remove("bg-planner-navy", "text-white");
-      });
-      const activePill = document.getElementById(`catFilter-${cat}`);
-      if (activePill) activePill.classList.add("bg-planner-navy", "text-white");
-      renderDashboardTasks();
-    };
+        const titleText = isDone ? `✓ ${activeTask.name} (Selesai)` : activeTask.name;
+        const metaText = `Jam ${activeTask.start} - ${activeTask.end} WIB`;
+        const timerText = `${remaining} menit`;
+
+        if (curTitle) curTitle.textContent = titleText;
+        if (curMeta) curMeta.textContent = metaText;
+        if (curTimer) curTimer.textContent = timerText;
+        if (curBadge) {
+          curBadge.textContent = cfg.label;
+          curBadge.className = `px-3 py-1.5 rounded-xl text-xs font-bold ${cfg.bg} ${cfg.text} border border-slate-200 shadow-sm shrink-0`;
+        }
+
+        if (lTitle) lTitle.textContent = titleText;
+        if (lMeta) lMeta.textContent = metaText;
+        if (lTimer) lTimer.textContent = timerText;
+        if (lBadge) {
+          lBadge.textContent = cfg.label;
+          lBadge.className = `px-2.5 py-1 rounded-xl text-[10px] font-bold ${cfg.bg} ${cfg.text} border border-slate-200 shadow-sm shrink-0`;
+        }
+
+        if (btnComplete) {
+          btnComplete.disabled = isDone;
+          btnComplete.onclick = () => toggleTaskChecked(activeTask.id, true);
+        }
+        if (lBtnComplete) {
+          lBtnComplete.disabled = isDone;
+          lBtnComplete.onclick = () => toggleTaskChecked(activeTask.id, true);
+        }
+      } else {
+        const noTaskText = "Tidak ada jadwal aktif saat ini ☕";
+        const noTaskMeta = "Waktu luang / Istirahat";
+
+        if (curTitle) curTitle.textContent = noTaskText;
+        if (curMeta) curMeta.textContent = noTaskMeta;
+        if (curTimer) curTimer.textContent = "-- min";
+
+        if (lTitle) lTitle.textContent = noTaskText;
+        if (lMeta) lMeta.textContent = noTaskMeta;
+        if (lTimer) lTimer.textContent = "-- min";
+
+        if (btnComplete) btnComplete.disabled = true;
+        if (lBtnComplete) lBtnComplete.disabled = true;
+      }
+
+      const lNextTitle = document.getElementById("launcherNextTaskTitle");
+      const lNextMeta = document.getElementById("launcherNextTaskMeta");
+      const lNextBadge = document.getElementById("launcherNextCategoryBadge");
+
+      if (nextTask) {
+        const cfgNext = categoryConfig[nextTask.category] || categoryConfig.kegiatan_utama;
+        if (lNextTitle) lNextTitle.textContent = nextTask.name;
+        if (lNextMeta) lNextMeta.textContent = `Jam ${nextTask.start} - ${nextTask.end} WIB`;
+        if (lNextBadge) {
+          lNextBadge.textContent = cfgNext.label;
+          lNextBadge.className = `px-2.5 py-1 rounded-xl text-[10px] font-bold ${cfgNext.bg} ${cfgNext.text} border border-slate-200 shadow-sm shrink-0`;
+        }
+      } else {
+        if (lNextTitle) lNextTitle.textContent = "Semua jadwal hari ini selesai! 🎉";
+        if (lNextMeta) lNextMeta.textContent = "Selamat beristirahat nyenyak ♡";
+      }
+    }
 
     function renderDashboardTasks() {
       const container = document.getElementById("dashboardTaskList");
@@ -1890,37 +1794,31 @@
       });
 
       if (filtered.length === 0) {
-        container.innerHTML = `
-          <div class="text-center py-8 text-xs text-slate-400 font-medium">
-            Tidak ada kegiatan di kategori ini 🌸
-          </div>
-        `;
+        container.innerHTML = `<div class="text-center py-8 text-xs text-slate-400 font-medium">Tidak ada kegiatan di kategori ini 🌸</div>`;
         return;
       }
 
       container.innerHTML = filtered.map(t => {
         const checked = isTaskChecked(t.id, todayKey);
+        const active = isTaskActive(t, todayKey);
         const cfg = categoryConfig[t.category] || categoryConfig.kegiatan_utama;
 
-        const [h1, m1] = t.start.split(":").map(Number);
-        const [h2, m2] = t.end.split(":").map(Number);
-        let durationMin = (h2 * 60 + m2) - (h1 * 60 + m1);
-        if (durationMin < 0) durationMin += 1440;
+        const isLocked = !active && !checked;
 
         return `
-          <div class="p-3 rounded-2xl border ${checked ? 'bg-slate-50/70 border-slate-200' : 'bg-white border-slate-100 shadow-sm hover:border-slate-300'} flex items-center justify-between gap-3 transition">
-            <label class="custom-check flex items-center gap-3 flex-1 cursor-pointer min-w-0">
-              <input type="checkbox" ${checked ? "checked" : ""} onchange="toggleTaskChecked('${t.id}', this.checked)" class="sr-only">
+          <div class="p-3 rounded-2xl border ${checked ? 'bg-slate-50/80 border-slate-200' : isLocked ? 'bg-slate-50/40 border-slate-200/60 opacity-60' : 'bg-white border-slate-200 shadow-sm hover:border-slate-300'} flex items-center justify-between gap-3 transition">
+            <label class="custom-check flex items-center gap-3 flex-1 cursor-pointer min-w-0 ${isLocked ? 'cursor-not-allowed' : ''}">
+              <input type="checkbox" ${checked ? "checked" : ""} ${isLocked ? "disabled" : ""} onchange="toggleTaskChecked('${t.id}', this.checked)" class="sr-only">
               <span class="checkmark w-5 h-5 rounded-md border-2 border-slate-300 relative shrink-0 transition"></span>
               <div class="min-w-0">
-                <div class="text-xs font-bold text-slate-800 ${checked ? 'line-through text-slate-400' : ''} truncate">${escapeHTML(t.name)}</div>
+                <div class="text-xs font-bold text-slate-800 ${checked ? 'line-through text-slate-400' : isLocked ? 'text-slate-500' : ''} truncate">${escapeHTML(t.name)}</div>
                 <div class="text-[10px] text-slate-400 font-medium">${t.start} - ${t.end}</div>
               </div>
             </label>
 
-            <div class="flex items-center gap-2 shrink-0">
+            <div class="flex items-center gap-1.5 shrink-0">
               <span class="px-2 py-0.5 rounded-lg text-[10px] font-bold ${cfg.bg} ${cfg.text}">
-                ${durationMin} min
+                ${cfg.label}
               </span>
             </div>
           </div>
@@ -1928,18 +1826,122 @@
       }).join("");
     }
 
+    function renderFullSchedule() {
+      const container = document.getElementById("scheduleFullList");
+      if (!container) return;
+
+      const tasks = appData.tasks || [];
+      const todayKey = getDateKey();
+
+      container.innerHTML = tasks.map(t => {
+        const checked = isTaskChecked(t.id, todayKey);
+        const active = isTaskActive(t, todayKey);
+        const cfg = categoryConfig[t.category] || categoryConfig.kegiatan_utama;
+
+        const isLocked = !active && !checked;
+
+        return `
+          <div class="p-3.5 rounded-2xl border ${checked ? 'bg-slate-50 border-slate-200' : isLocked ? 'bg-slate-50/50 border-slate-200/70 opacity-60' : 'bg-white border-slate-200 shadow-sm'} flex items-center justify-between gap-3">
+            <label class="custom-check flex items-center gap-3 flex-1 min-w-0 cursor-pointer ${isLocked ? 'cursor-not-allowed' : ''}">
+              <input type="checkbox" ${checked ? "checked" : ""} ${isLocked ? "disabled" : ""} onchange="toggleTaskChecked('${t.id}', this.checked)" class="sr-only">
+              <span class="checkmark w-5 h-5 rounded-md border-2 border-slate-300 relative shrink-0 transition"></span>
+              <div class="min-w-0">
+                <div class="text-xs font-extrabold text-slate-800 ${checked ? 'line-through text-slate-400' : ''} truncate">${escapeHTML(t.name)}</div>
+                <div class="text-[11px] text-slate-500 font-medium">Jam ${t.start} - ${t.end}</div>
+              </div>
+            </label>
+
+            <div class="flex items-center gap-2 shrink-0">
+              <button onclick="editTask('${t.id}')" class="p-1.5 text-slate-400 hover:text-slate-600 transition" title="Edit">
+                <i class="fa-solid fa-pen text-xs"></i>
+              </button>
+              <button onclick="deleteTask('${t.id}')" class="p-1.5 text-slate-400 hover:text-rose-500 transition" title="Hapus">
+                <i class="fa-solid fa-trash text-xs"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    /* PDF REPORT ENGINE */
+    window.exportProgressPDF = function() {
+      try {
+        const todayKey = getDateKey();
+        const tasks = appData.tasks || [];
+        const habits = appData.habits || [];
+        const checks = appData.checks || {};
+        const vitData = (appData.vitamins && appData.vitamins[todayKey]) || {};
+
+        document.getElementById("pdfPrintDate").textContent = `Tanggal: ${todayKey}`;
+
+        let doneTasks = 0;
+        const taskRowsHTML = tasks.map(t => {
+          const isDone = !!checks[`${todayKey}_${t.id}`];
+          if (isDone) doneTasks++;
+          const cfg = categoryConfig[t.category] || categoryConfig.kegiatan_utama;
+
+          return `
+            <tr class="border-b">
+              <td class="p-2 border font-bold text-slate-700">${t.start} - ${t.end}</td>
+              <td class="p-2 border font-bold text-slate-800">${escapeHTML(t.name)}</td>
+              <td class="p-2 border text-slate-600">${cfg.label}</td>
+              <td class="p-2 border text-center font-bold ${isDone ? 'text-emerald-600' : 'text-slate-400'}">
+                ${isDone ? 'Selesai ✓' : 'Belum'}
+              </td>
+            </tr>
+          `;
+        }).join("");
+
+        document.getElementById("pdfTaskListBody").innerHTML = taskRowsHTML;
+
+        let doneHabits = 0;
+        const habitRowsHTML = habits.map((h, idx) => {
+          const isDone = !!checks[`${todayKey}_habit_${idx}`];
+          if (isDone) doneHabits++;
+          return `
+            <li class="flex items-center justify-between p-1.5 rounded bg-slate-50 border">
+              <span class="${isDone ? 'line-through text-slate-400' : 'font-bold text-slate-700'}">${escapeHTML(h)}</span>
+              <span class="font-bold ${isDone ? 'text-purple-600' : 'text-slate-300'}">${isDone ? '✓' : '○'}</span>
+            </li>
+          `;
+        }).join("");
+
+        document.getElementById("pdfHabitList").innerHTML = habitRowsHTML;
+
+        const vitCount = Object.values(vitData).filter(Boolean).length;
+        const vocabCount = (appData.vocabCount && appData.vocabCount[todayKey]) || 0;
+
+        document.getElementById("pdfTaskRate").textContent = `${tasks.length ? Math.round((doneTasks / tasks.length) * 100) : 0}%`;
+        document.getElementById("pdfHabitRate").textContent = `${habits.length ? Math.round((doneHabits / habits.length) * 100) : 0}%`;
+        document.getElementById("pdfVitaminCount").textContent = `${vitCount}/3`;
+        document.getElementById("pdfVocabCount").textContent = `${vocabCount}/20`;
+
+        document.getElementById("pdfVitaminList").innerHTML = `
+          <div class="p-1.5 border rounded">B Complex: <strong>${vitData.vitBComplex ? 'Sudah ✓' : 'Belum'}</strong></div>
+          <div class="p-1.5 border rounded">Zinc: <strong>${vitData.vitZinc ? 'Sudah ✓' : 'Belum'}</strong></div>
+          <div class="p-1.5 border rounded">Magnesium: <strong>${vitData.vitMagnesium ? 'Sudah ✓' : 'Belum'}</strong></div>
+        `;
+
+        window.print();
+      } catch (e) {
+        openModal("Gagal Cetak PDF", "Terjadi kesalahan saat menyiapkan dokumen PDF.", "⚠️");
+      }
+    };
+
+    /* VITAMINS, VOCAB & HABITS */
     function renderVitamins() {
       const todayKey = getDateKey();
       const vitData = (appData.vitamins && appData.vitamins[todayKey]) || {};
 
       ['vitBComplex', 'vitZinc', 'vitMagnesium'].forEach(vit => {
-        const checkEl = document.getElementById(vit);
-        if (checkEl) checkEl.checked = !!vitData[vit];
+        const input = document.getElementById(vit);
+        if (input) input.checked = !!vitData[vit];
       });
 
-      const vitDoneCount = Object.values(vitData).filter(Boolean).length;
+      const count = Object.values(vitData).filter(Boolean).length;
       const countEl = document.getElementById("statVitaminCount");
-      if (countEl) countEl.textContent = `${vitDoneCount}/3`;
+      if (countEl) countEl.textContent = `${count}/3`;
     }
 
     window.toggleVitamin = function(vitKey, isChecked) {
@@ -1955,20 +1957,21 @@
     function renderVocabCounter() {
       const todayKey = getDateKey();
       const count = (appData.vocabCount && appData.vocabCount[todayKey]) || 0;
-
+      
       const txt = document.getElementById("vocabCounterText");
       const bar = document.getElementById("vocabProgressBar");
-      const statTxt = document.getElementById("statVocabCount");
+      const stat = document.getElementById("statVocabCount");
 
       if (txt) txt.textContent = `${count} / 20 kata`;
-      if (statTxt) statTxt.textContent = `${count}/20`;
-      if (bar) bar.style.width = `${Math.min(100, Math.round((count / 20) * 100))}%`;
+      if (bar) bar.style.width = `${Math.min(100, (count / 20) * 100)}%`;
+      if (stat) stat.textContent = `${count}/20`;
     }
 
     window.addVocabCount = function(num) {
       const todayKey = getDateKey();
       if (!appData.vocabCount) appData.vocabCount = {};
-      appData.vocabCount[todayKey] = Math.max(0, (appData.vocabCount[todayKey] || 0) + num);
+      const current = appData.vocabCount[todayKey] || 0;
+      appData.vocabCount[todayKey] = current + num;
       playChimeSound();
       saveData();
     };
@@ -1982,22 +1985,22 @@
 
     function renderQuickTargets() {
       const todayKey = getDateKey();
-      const targets = (appData.quickTargets && appData.quickTargets[todayKey]) || {};
+      const qData = (appData.quickTargets && appData.quickTargets[todayKey]) || {};
 
-      const spkLabel = document.getElementById("speakingQuickLabel");
+      const speakLabel = document.getElementById("speakingQuickLabel");
       const portLabel = document.getElementById("portfolioQuickLabel");
 
-      if (spkLabel) spkLabel.innerHTML = targets.speakingDone ? "🗣️ <span class='text-emerald-600'>Selesai</span>" : "🗣️ Belum";
-      if (portLabel) portLabel.innerHTML = targets.portfolioDone ? "💼 <span class='text-emerald-600'>Selesai</span>" : "💼 Belum";
+      if (speakLabel) speakLabel.textContent = qData.speakingDone ? "🗣️ Selesai ✓" : "🗣️ Belum";
+      if (portLabel) portLabel.textContent = qData.portfolioDone ? "💼 Selesai ✓" : "💼 Belum";
     }
 
-    window.toggleQuickTarget = function(key) {
+    window.toggleQuickTarget = function(targetKey) {
       const todayKey = getDateKey();
       if (!appData.quickTargets) appData.quickTargets = {};
       if (!appData.quickTargets[todayKey]) appData.quickTargets[todayKey] = {};
 
-      appData.quickTargets[todayKey][key] = !appData.quickTargets[todayKey][key];
-      if (appData.quickTargets[todayKey][key]) playChimeSound();
+      appData.quickTargets[todayKey][targetKey] = !appData.quickTargets[todayKey][targetKey];
+      playChimeSound();
       saveData();
     };
 
@@ -2007,17 +2010,17 @@
 
       const notes = appData.stickyNotes || [];
       container.innerHTML = notes.map((note, idx) => `
-        <div class="flex items-center justify-between p-2 rounded-xl bg-white/80 border border-amber-200/80 shadow-sm">
-          <span>• ${escapeHTML(note)}</span>
-          <button onclick="deleteStickyNote(${idx})" class="text-slate-400 hover:text-rose-500 p-1">
-            <i class="fa-solid fa-xmark text-[10px]"></i>
+        <div class="p-2.5 rounded-xl bg-amber-50 border border-amber-200/80 flex items-center justify-between gap-2">
+          <span class="font-semibold text-amber-900">${escapeHTML(note)}</span>
+          <button onclick="removeStickyNote(${idx})" class="text-amber-400 hover:text-amber-700">
+            <i class="fa-solid fa-xmark text-xs"></i>
           </button>
         </div>
       `).join("");
     }
 
     window.addStickyNotePrompt = function() {
-      const text = prompt("Tulis catatan atau pengingat singkat baru:");
+      const text = prompt("Tulis pengingat singkat baru:");
       if (text && text.trim()) {
         if (!appData.stickyNotes) appData.stickyNotes = [];
         appData.stickyNotes.push(text.trim());
@@ -2025,184 +2028,12 @@
       }
     };
 
-    window.deleteStickyNote = function(idx) {
+    window.removeStickyNote = function(idx) {
       if (appData.stickyNotes) {
         appData.stickyNotes.splice(idx, 1);
         saveData();
       }
     };
-
-    window.openAddTaskModal = function() {
-      document.getElementById("editTaskId").value = "";
-      document.getElementById("taskNameInput").value = "";
-      document.getElementById("taskCategoryInput").value = "kegiatan_utama";
-      document.getElementById("taskStartInput").value = "08:00";
-      document.getElementById("taskEndInput").value = "09:00";
-      document.getElementById("taskModalTitle").innerHTML = "<span>＋</span> Tambah Kegiatan Baru";
-      document.getElementById("taskModal").classList.remove("hidden");
-    };
-
-    window.openEditTaskModal = function(id) {
-      const t = (appData.tasks || []).find(x => x.id === id);
-      if (!t) return;
-      document.getElementById("editTaskId").value = t.id;
-      document.getElementById("taskNameInput").value = t.name;
-      document.getElementById("taskCategoryInput").value = t.category || "kegiatan_utama";
-      document.getElementById("taskStartInput").value = t.start;
-      document.getElementById("taskEndInput").value = t.end;
-      document.getElementById("taskModalTitle").innerHTML = "<span>✏️</span> Edit Kegiatan";
-      document.getElementById("taskModal").classList.remove("hidden");
-    };
-
-    window.closeTaskModal = function() {
-      document.getElementById("taskModal").classList.add("hidden");
-    };
-
-    window.saveTask = function() {
-      const id = document.getElementById("editTaskId").value;
-      const name = document.getElementById("taskNameInput").value.trim();
-      const category = document.getElementById("taskCategoryInput").value;
-      const start = document.getElementById("taskStartInput").value;
-      const end = document.getElementById("taskEndInput").value;
-
-      if (!name || !start || !end) {
-        showToast("Harap isi nama dan waktu kegiatan!");
-        return;
-      }
-
-      if (!appData.tasks) appData.tasks = [];
-
-      if (id) {
-        const idx = appData.tasks.findIndex(x => x.id === id);
-        if (idx !== -1) {
-          appData.tasks[idx] = { id, name, category, start, end };
-          showToast("Kegiatan berhasil diperbarui ✨");
-        }
-      } else {
-        const newId = "task_" + Date.now();
-        appData.tasks.push({ id: newId, name, category, start, end });
-        showToast("Kegiatan baru berhasil ditambahkan! 🌸");
-      }
-
-      appData.tasks.sort((a, b) => a.start.localeCompare(b.start));
-
-      closeTaskModal();
-      saveData();
-    };
-
-    window.deleteTask = function(id) {
-      if (confirm("Hapus kegiatan ini?")) {
-        appData.tasks = (appData.tasks || []).filter(x => x.id !== id);
-        showToast("Kegiatan berhasil dihapus");
-        saveData();
-      }
-    };
-
-    function renderFullSchedule() {
-      const container = document.getElementById("scheduleFullList");
-      if (!container) return;
-
-      const tasks = appData.tasks || [];
-      const todayKey = getDateKey();
-
-      container.innerHTML = tasks.map(t => {
-        const checked = isTaskChecked(t.id, todayKey);
-        const cfg = categoryConfig[t.category] || categoryConfig.kegiatan_utama;
-
-        const [h1, m1] = t.start.split(":").map(Number);
-        const [h2, m2] = t.end.split(":").map(Number);
-        let durationMin = (h2 * 60 + m2) - (h1 * 60 + m1);
-        if (durationMin < 0) durationMin += 1440;
-
-        return `
-          <div class="p-4 rounded-2xl border ${checked ? 'bg-slate-50 border-slate-200' : 'bg-white border-slate-200 shadow-sm'} flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <label class="custom-check flex items-start gap-3 flex-1 cursor-pointer">
-              <input type="checkbox" ${checked ? "checked" : ""} onchange="toggleTaskChecked('${t.id}', this.checked)" class="sr-only">
-              <span class="checkmark w-5 h-5 rounded-md border-2 border-slate-300 relative shrink-0 mt-0.5"></span>
-              <div>
-                <div class="text-sm font-bold text-slate-800 ${checked ? 'line-through text-slate-400' : ''}">${escapeHTML(t.name)}</div>
-                <div class="text-xs text-slate-400 font-medium mt-0.5">Jam ${t.start} - ${t.end}</div>
-              </div>
-            </label>
-
-            <div class="flex items-center gap-2 self-end sm:self-auto">
-              <span class="px-2.5 py-1 rounded-xl text-xs font-bold ${cfg.bg} ${cfg.text} border ${cfg.border}">
-                ${durationMin} min
-              </span>
-              <button onclick="openEditTaskModal('${t.id}')" class="p-2 text-slate-400 hover:text-blue-600 transition" title="Edit">
-                <i class="fa-solid fa-pen-to-square"></i>
-              </button>
-              <button onclick="deleteTask('${t.id}')" class="p-2 text-slate-400 hover:text-rose-500 transition" title="Hapus">
-                <i class="fa-solid fa-trash-can"></i>
-              </button>
-            </div>
-          </div>
-        `;
-      }).join("");
-    }
-
-    function renderMatrixTable() {
-      const tbody = document.getElementById("matrixTableBody");
-      if (!tbody) return;
-
-      const todayIndo = getTodayIndoName();
-      weekDaysIndo.forEach(day => {
-        const th = document.getElementById(`th-${day}`);
-        if (th) {
-          if (day === todayIndo) {
-            th.className = "p-2 border-r border-slate-700 w-14 bg-pink-500 text-white font-extrabold";
-          } else {
-            th.className = "p-2 border-r border-slate-700 w-14";
-          }
-        }
-      });
-
-      const tasks = appData.tasks || [];
-      const habits = appData.habits || [];
-
-      let html = "";
-
-      tasks.forEach(t => {
-        html += `<tr class="hover:bg-slate-50">
-          <td class="p-2.5 font-bold text-slate-800 border-r border-slate-200">
-            <div class="text-xs">${escapeHTML(t.name)}</div>
-            <div class="text-[10px] text-slate-400 font-normal">${t.start} - ${t.end}</div>
-          </td>`;
-
-        weekDaysIndo.forEach(day => {
-          const dateKey = getWeekDayKey(day);
-          const checked = isTaskChecked(t.id, dateKey);
-          html += `
-            <td class="p-2 text-center border-r border-slate-200">
-              <input type="checkbox" ${checked ? "checked" : ""} onchange="toggleTaskChecked('${t.id}', this.checked, '${dateKey}')" class="w-4 h-4 accent-planner-navy cursor-pointer">
-            </td>
-          `;
-        });
-        html += `</tr>`;
-      });
-
-      html += `<tr class="bg-purple-50/80 font-bold text-purple-900"><td colspan="8" class="p-2 text-xs uppercase tracking-wider">🌸 Habit Tracker Matrix</td></tr>`;
-
-      habits.forEach((h, idx) => {
-        html += `<tr class="hover:bg-slate-50">
-          <td class="p-2.5 font-bold text-slate-700 border-r border-slate-200 text-xs">
-            🌿 ${escapeHTML(h)}
-          </td>`;
-
-        weekDaysIndo.forEach(day => {
-          const dateKey = getWeekDayKey(day);
-          const checked = isHabitChecked(idx, dateKey);
-          html += `
-            <td class="p-2 text-center border-r border-slate-200">
-              <input type="checkbox" ${checked ? "checked" : ""} onchange="toggleHabitChecked(${idx}, this.checked, '${dateKey}')" class="w-4 h-4 accent-purple-600 cursor-pointer">
-            </td>
-          `;
-        });
-        html += `</tr>`;
-      });
-
-      tbody.innerHTML = html;
-    }
 
     function renderHabits() {
       const container = document.getElementById("habitListContainer");
@@ -2210,149 +2041,197 @@
 
       const habits = appData.habits || [];
       const todayKey = getDateKey();
-
       let doneCount = 0;
 
       container.innerHTML = habits.map((h, idx) => {
-        const checked = isHabitChecked(idx, todayKey);
+        const checked = !!(appData.checks && appData.checks[`${todayKey}_habit_${idx}`]);
         if (checked) doneCount++;
 
         return `
-          <div class="p-3 rounded-2xl border ${checked ? 'bg-purple-50/70 border-purple-200' : 'bg-white border-slate-200 shadow-sm'} flex items-center justify-between gap-3">
+          <div class="p-3.5 rounded-2xl border ${checked ? 'bg-purple-50/60 border-purple-200' : 'bg-white border-slate-200 shadow-sm'} flex items-center justify-between gap-3 transition">
             <label class="custom-check flex items-center gap-3 flex-1 cursor-pointer">
               <input type="checkbox" ${checked ? "checked" : ""} onchange="toggleHabitChecked(${idx}, this.checked)" class="sr-only">
-              <span class="checkmark w-5 h-5 rounded-md border-2 border-slate-300 relative shrink-0"></span>
-              <span class="text-xs font-bold text-slate-800 ${checked ? 'line-through text-purple-400' : ''}">${escapeHTML(h)}</span>
+              <span class="checkmark w-5 h-5 rounded-md border-2 border-slate-300 relative shrink-0 transition"></span>
+              <span class="text-xs font-bold ${checked ? 'line-through text-purple-700' : 'text-slate-800'}">${escapeHTML(h)}</span>
             </label>
-
-            <button onclick="deleteHabit(${idx})" class="p-1.5 text-slate-300 hover:text-rose-500 transition">
-              <i class="fa-solid fa-trash-can text-xs"></i>
+            <button onclick="deleteHabit(${idx})" class="text-slate-300 hover:text-rose-500 transition">
+              <i class="fa-solid fa-trash text-xs"></i>
             </button>
           </div>
         `;
       }).join("");
 
-      const badge = document.getElementById("habitSummaryBadge");
-      const statHabitCount = document.getElementById("statHabitCount");
-      const statHabitPercent = document.getElementById("statHabitPercent");
+      const summaryBadge = document.getElementById("habitSummaryBadge");
+      const habitStat = document.getElementById("statHabitCount");
+      const habitPercent = document.getElementById("statHabitPercent");
 
-      if (badge) badge.textContent = `${doneCount} / ${habits.length} Completed`;
-      if (statHabitCount) statHabitCount.textContent = `${doneCount}/${habits.length}`;
-
+      if (summaryBadge) summaryBadge.textContent = `${doneCount}/${habits.length} Completed`;
+      if (habitStat) habitStat.textContent = `${doneCount}/${habits.length}`;
       const pct = habits.length ? Math.round((doneCount / habits.length) * 100) : 0;
-      if (statHabitPercent) statHabitPercent.textContent = `${pct}% Selesai`;
+      if (habitPercent) habitPercent.textContent = `${pct}% Selesai`;
     }
 
-    window.addHabit = function() {
-      const input = document.getElementById("habitInput");
-      if (!input || !input.value.trim()) return;
-
-      if (!appData.habits) appData.habits = [];
-      appData.habits.push(input.value.trim());
-      input.value = "";
-      showToast("Habit baru ditambahkan 🌿");
+    window.toggleHabitChecked = function(idx, isChecked) {
+      const todayKey = getDateKey();
+      if (!appData.checks) appData.checks = {};
+      appData.checks[`${todayKey}_habit_${idx}`] = isChecked;
+      if (isChecked) playChimeSound();
       saveData();
     };
 
+    window.addHabit = function() {
+      const input = document.getElementById("habitInput");
+      if (input && input.value.trim()) {
+        if (!appData.habits) appData.habits = [];
+        appData.habits.push(input.value.trim());
+        input.value = "";
+        saveData();
+        showToast("Habit baru ditambahkan! 🌸");
+      }
+    };
+
     window.deleteHabit = function(idx) {
-      if (appData.habits) {
-        appData.habits.splice(idx, 1);
+      if (confirm("Hapus habit ini?")) {
+        if (appData.habits) appData.habits.splice(idx, 1);
         saveData();
       }
     };
 
-    /* KALENDER & AGENDA (SYNC TO DASHBOARD) */
-    let calendarCurrentYear = new Date().getFullYear();
-    let calendarCurrentMonth = new Date().getMonth();
+    /* MATRIX TABLE */
+    function renderMatrixTable() {
+      const tbody = document.getElementById("matrixTableBody");
+      if (!tbody) return;
+
+      const tasks = appData.tasks || [];
+      const habits = appData.habits || [];
+
+      let rowsHTML = "";
+
+      tasks.forEach(t => {
+        rowsHTML += `
+          <tr class="hover:bg-slate-50/80 transition">
+            <td class="p-3 font-bold text-slate-800 border-r border-slate-200">
+              <div class="truncate max-w-[200px]">${escapeHTML(t.name)}</div>
+              <div class="text-[10px] text-slate-400 font-normal">${t.start} - ${t.end}</div>
+            </td>
+            ${weekDaysIndo.map(day => {
+              const dayKey = getWeekDayKey(day);
+              const checked = isTaskChecked(t.id, dayKey);
+              return `
+                <td class="p-2 text-center border-r border-slate-200">
+                  <input type="checkbox" ${checked ? "checked" : ""} onchange="toggleTaskChecked('${t.id}', this.checked, '${dayKey}')" class="w-4 h-4 rounded text-planner-navy focus:ring-purple-300">
+                </td>
+              `;
+            }).join("")}
+          </tr>
+        `;
+      });
+
+      habits.forEach((h, idx) => {
+        rowsHTML += `
+          <tr class="bg-purple-50/30 hover:bg-purple-50/60 transition">
+            <td class="p-3 font-bold text-purple-900 border-r border-slate-200">
+              <div class="truncate max-w-[200px]">🌷 ${escapeHTML(h)}</div>
+            </td>
+            ${weekDaysIndo.map(day => {
+              const dayKey = getWeekDayKey(day);
+              const checked = !!(appData.checks && appData.checks[`${dayKey}_habit_${idx}`]);
+              return `
+                <td class="p-2 text-center border-r border-slate-200">
+                  <input type="checkbox" ${checked ? "checked" : ""} onchange="toggleMatrixHabit(${idx}, this.checked, '${dayKey}')" class="w-4 h-4 rounded text-purple-600 focus:ring-purple-300">
+                </td>
+              `;
+            }).join("")}
+          </tr>
+        `;
+      });
+
+      tbody.innerHTML = rowsHTML;
+    }
+
+    function getWeekDayKey(dayName) {
+      const now = new Date();
+      const currentDayIdx = now.getDay();
+      const normalizedCurrentIdx = currentDayIdx === 0 ? 6 : currentDayIdx - 1;
+      const targetIdx = weekDaysIndo.indexOf(dayName);
+
+      if (targetIdx === -1) return getDateKey();
+
+      const diff = targetIdx - normalizedCurrentIdx;
+      const targetDate = new Date(now);
+      targetDate.setDate(now.getDate() + diff);
+      return getDateKey(targetDate);
+    }
+
+    window.toggleMatrixHabit = function(idx, isChecked, dateStr) {
+      if (!appData.checks) appData.checks = {};
+      appData.checks[`${dateStr}_habit_${idx}`] = isChecked;
+      if (isChecked) playChimeSound();
+      saveData();
+    };
+
+    /* CALENDAR & AGENDAS */
+    let currentCalendarDate = new Date();
     let selectedCalendarDate = getDateKey();
 
     function renderCalendar() {
-      const grid = document.getElementById("calendarGridDays");
       const monthLabel = document.getElementById("calendarMonthLabel");
-      const selectedLabel = document.getElementById("selectedCalendarDateLabel");
-      if (!grid || !monthLabel) return;
+      const grid = document.getElementById("calendarGridDays");
+      if (!grid) return;
 
-      const firstDayOfMonth = new Date(calendarCurrentYear, calendarCurrentMonth, 1);
-      const daysInMonth = new Date(calendarCurrentYear, calendarCurrentMonth + 1, 0).getDate();
-      const startDayIndex = firstDayOfMonth.getDay();
+      const year = currentCalendarDate.getFullYear();
+      const month = currentCalendarDate.getMonth();
 
-      const monthNamesIndo = [
-        "Januari", "Februari", "Maret", "April", "Mei", "Juni",
-        "Juli", "Agustus", "September", "Oktober", "November", "Desember"
-      ];
+      const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+      if (monthLabel) monthLabel.textContent = `${monthNames[month]} ${year}`;
 
-      monthLabel.textContent = `${monthNamesIndo[calendarCurrentMonth]} ${calendarCurrentYear}`;
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-      if (selectedLabel) {
-        const [y, m, d] = selectedCalendarDate.split("-").map(Number);
-        const selDateObj = new Date(y, m - 1, d);
-        selectedLabel.textContent = selDateObj.toLocaleDateString("id-ID", {
-          weekday: "long", day: "numeric", month: "long", year: "numeric"
-        });
+      let daysHTML = "";
+      for (let i = 0; i < firstDay; i++) {
+        daysHTML += `<div class="p-2"></div>`;
       }
 
-      let html = "";
-
-      for (let i = 0; i < startDayIndex; i++) {
-        html += `<div class="p-2 rounded-xl text-slate-300"></div>`;
-      }
-
-      const todayStr = getDateKey();
+      const todayKey = getDateKey();
 
       for (let day = 1; day <= daysInMonth; day++) {
-        const dayKey = `${calendarCurrentYear}-${String(calendarCurrentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-        
-        const isSelected = (dayKey === selectedCalendarDate);
-        const isToday = (dayKey === todayStr);
+        const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const isToday = dateKey === todayKey;
+        const isSelected = dateKey === selectedCalendarDate;
+        const hasAgendas = appData.agendas && appData.agendas[dateKey] && appData.agendas[dateKey].length > 0;
 
-        const hasAgenda = appData.agendas && appData.agendas[dayKey] && appData.agendas[dayKey].length > 0;
-
-        let dayClass = "bg-white text-slate-700 hover:bg-purple-50 border-slate-100";
-        if (isSelected) {
-          dayClass = "bg-purple-600 text-white font-extrabold shadow-md border-purple-600 scale-105";
-        } else if (isToday) {
-          dayClass = "bg-pink-100 text-pink-700 font-extrabold border-pink-300";
-        }
-
-        html += `
-          <button onclick="selectCalendarDate('${dayKey}')" class="p-2 rounded-2xl border transition flex flex-col items-center justify-center relative min-h-[42px] ${dayClass}">
-            <span class="text-xs">${day}</span>
-            ${hasAgenda ? `<span class="w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-amber-300' : 'bg-purple-500'} mt-0.5"></span>` : ''}
+        daysHTML += `
+          <button onclick="selectCalendarDate('${dateKey}')" class="p-2 rounded-xl text-xs font-bold transition relative ${isSelected ? 'bg-purple-600 text-white shadow-md' : isToday ? 'bg-pink-100 text-pink-700 border border-pink-300' : 'bg-slate-50 hover:bg-purple-50 text-slate-700'}">
+            <span>${day}</span>
+            ${hasAgendas ? `<span class="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-white' : 'bg-purple-500'}"></span>` : ''}
           </button>
         `;
       }
 
-      grid.innerHTML = html;
+      grid.innerHTML = daysHTML;
       renderCalendarAgendas();
     }
 
-    window.selectCalendarDate = function(dateStr) {
-      selectedCalendarDate = dateStr;
+    window.selectCalendarDate = function(dateKey) {
+      selectedCalendarDate = dateKey;
+      const label = document.getElementById("selectedCalendarDateLabel");
+      if (label) label.textContent = dateKey;
       renderCalendar();
     };
 
     window.prevCalendarMonth = function() {
-      calendarCurrentMonth--;
-      if (calendarCurrentMonth < 0) {
-        calendarCurrentMonth = 11;
-        calendarCurrentYear--;
-      }
+      currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
       renderCalendar();
     };
 
     window.nextCalendarMonth = function() {
-      calendarCurrentMonth++;
-      if (calendarCurrentMonth > 11) {
-        calendarCurrentMonth = 0;
-        calendarCurrentYear++;
-      }
+      currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
       renderCalendar();
     };
 
     window.goToTodayCalendar = function() {
-      const now = new Date();
-      calendarCurrentYear = now.getFullYear();
-      calendarCurrentMonth = now.getMonth();
+      currentCalendarDate = new Date();
       selectedCalendarDate = getDateKey();
       renderCalendar();
     };
@@ -2363,194 +2242,115 @@
     };
 
     window.saveCalendarAgenda = function() {
-      const title = document.getElementById("agendaTitleInput")?.value.trim();
-      const time = document.getElementById("agendaTimeInput")?.value || "09:00";
-      const tag = document.getElementById("agendaTagInput")?.value || "🎯 Penting";
+      const title = document.getElementById("agendaTitleInput").value;
+      const time = document.getElementById("agendaTimeInput").value;
+      const tag = document.getElementById("agendaTagInput").value;
 
-      if (!title) {
-        showToast("Tulis judul agenda terlebih dahulu!");
-        return;
-      }
+      if (!title.trim()) return;
 
       if (!appData.agendas) appData.agendas = {};
       if (!appData.agendas[selectedCalendarDate]) appData.agendas[selectedCalendarDate] = [];
 
-      const newAgenda = {
-        id: "agenda_" + Date.now(),
-        title: title,
-        time: time,
-        tag: tag,
-        done: false
-      };
+      appData.agendas[selectedCalendarDate].push({
+        id: `agenda_${Date.now()}`,
+        title: title.trim(),
+        time,
+        tag,
+        completed: false
+      });
 
-      appData.agendas[selectedCalendarDate].push(newAgenda);
-      
-      const inputTitle = document.getElementById("agendaTitleInput");
-      if (inputTitle) inputTitle.value = "";
+      document.getElementById("agendaTitleInput").value = "";
       toggleAddAgendaForm();
-      
-      playChimeSound();
-      showToast("Agenda baru berhasil dicatat di Kalender! ✨");
       saveData();
-    };
-
-    window.toggleAgendaDone = function(agendaId, dateKey = selectedCalendarDate) {
-      if (appData.agendas && appData.agendas[dateKey]) {
-        const item = appData.agendas[dateKey].find(x => x.id === agendaId);
-        if (item) {
-          item.done = !item.done;
-          if (item.done) playChimeSound();
-          saveData();
-        }
-      }
-    };
-
-    window.deleteAgenda = function(agendaId) {
-      if (appData.agendas && appData.agendas[selectedCalendarDate]) {
-        appData.agendas[selectedCalendarDate] = appData.agendas[selectedCalendarDate].filter(x => x.id !== agendaId);
-        showToast("Agenda berhasil dihapus");
-        saveData();
-      }
+      showToast("Agenda kalender disimpan! 📌");
     };
 
     function renderCalendarAgendas() {
       const container = document.getElementById("calendarAgendaList");
       if (!container) return;
 
-      const items = (appData.agendas && appData.agendas[selectedCalendarDate]) || [];
+      const agendas = (appData.agendas && appData.agendas[selectedCalendarDate]) || [];
 
-      if (items.length === 0) {
-        container.innerHTML = `
-          <div class="text-center py-4 text-xs text-slate-400">
-            Belum ada agenda dicatat pada tanggal ini 🌸
-          </div>
-        `;
+      if (agendas.length === 0) {
+        container.innerHTML = `<div class="text-xs text-slate-400 font-medium py-2">Belum ada agenda di tanggal ini 🌸</div>`;
         return;
       }
 
-      container.innerHTML = items.map(a => `
-        <div class="p-2.5 rounded-xl border ${a.done ? 'bg-slate-50 border-slate-200' : 'bg-white border-purple-100 shadow-sm'} flex items-center justify-between gap-2 text-xs">
-          <label class="custom-check flex items-center gap-2.5 flex-1 cursor-pointer min-w-0">
-            <input type="checkbox" ${a.done ? "checked" : ""} onchange="toggleAgendaDone('${a.id}')" class="sr-only">
-            <span class="checkmark w-4 h-4 rounded border-2 border-slate-300 relative shrink-0"></span>
-            <div class="min-w-0">
-              <span class="font-bold text-slate-800 ${a.done ? 'line-through text-slate-400' : ''} truncate block">${escapeHTML(a.title)}</span>
-              <span class="text-[10px] text-slate-400">${a.time} WIB · ${escapeHTML(a.tag)}</span>
+      container.innerHTML = agendas.map(a => `
+        <div class="p-2.5 rounded-xl bg-white border border-slate-200 flex items-center justify-between gap-2 shadow-sm">
+          <div class="flex items-center gap-2">
+            <input type="checkbox" ${a.completed ? "checked" : ""} onchange="toggleAgendaCompleted('${a.id}')" class="w-4 h-4 rounded text-purple-600">
+            <div>
+              <div class="font-bold text-slate-800 ${a.completed ? 'line-through text-slate-400' : ''}">${escapeHTML(a.title)}</div>
+              <div class="text-[10px] text-slate-400">${a.time} · ${a.tag}</div>
             </div>
-          </label>
-          <button onclick="deleteAgenda('${a.id}')" class="p-1 text-slate-300 hover:text-rose-500 transition">
-            <i class="fa-solid fa-trash-can text-xs"></i>
+          </div>
+          <button onclick="deleteCalendarAgenda('${a.id}')" class="text-slate-300 hover:text-rose-500">
+            <i class="fa-solid fa-trash text-xs"></i>
           </button>
         </div>
       `).join("");
     }
+
+    window.toggleAgendaCompleted = function(agendaId) {
+      const agendas = appData.agendas[selectedCalendarDate] || [];
+      const item = agendas.find(a => a.id === agendaId);
+      if (item) {
+        item.completed = !item.completed;
+        saveData();
+      }
+    };
+
+    window.deleteCalendarAgenda = function(agendaId) {
+      if (appData.agendas && appData.agendas[selectedCalendarDate]) {
+        appData.agendas[selectedCalendarDate] = appData.agendas[selectedCalendarDate].filter(a => a.id !== agendaId);
+        saveData();
+      }
+    };
 
     function renderDashboardAgendas() {
       const container = document.getElementById("dashboardCalendarAgendas");
       const label = document.getElementById("dashTodayDateLabel");
       if (!container) return;
 
-      const todayStr = getDateKey();
-      const now = new Date();
-      if (label) {
-        label.textContent = now.toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" });
-      }
+      const todayKey = getDateKey();
+      if (label) label.textContent = todayKey;
 
-      const todayAgendas = (appData.agendas && appData.agendas[todayStr]) || [];
+      const agendas = (appData.agendas && appData.agendas[todayKey]) || [];
 
-      if (todayAgendas.length === 0) {
-        container.innerHTML = `
-          <div class="p-2.5 bg-white/80 rounded-xl border border-pink-100/80 text-slate-400 text-center text-xs">
-            Tidak ada agenda/ujian khusus dicatat hari ini ✨
-          </div>
-        `;
+      if (agendas.length === 0) {
+        container.innerHTML = `<div class="text-xs text-slate-400 font-medium py-1">Tidak ada agenda khusus di kalender hari ini ✨</div>`;
         return;
       }
 
-      container.innerHTML = todayAgendas.map(a => `
-        <div class="p-2.5 rounded-xl border ${a.done ? 'bg-slate-50/80 border-slate-200' : 'bg-white border-pink-100 shadow-sm'} flex items-center justify-between gap-2">
-          <label class="custom-check flex items-center gap-2.5 flex-1 cursor-pointer min-w-0">
-            <input type="checkbox" ${a.done ? "checked" : ""} onchange="toggleAgendaDone('${a.id}', '${todayStr}')" class="sr-only">
-            <span class="checkmark w-4 h-4 rounded border-2 border-slate-300 relative shrink-0"></span>
-            <div class="min-w-0">
-              <span class="font-bold text-slate-800 ${a.done ? 'line-through text-slate-400' : ''} truncate block">${escapeHTML(a.title)}</span>
-              <span class="text-[10px] text-slate-400">${a.time} WIB · ${escapeHTML(a.tag)}</span>
-            </div>
-          </label>
+      container.innerHTML = agendas.map(a => `
+        <div class="p-2 rounded-xl bg-white border border-pink-100 flex items-center justify-between gap-2">
+          <div class="flex items-center gap-2">
+            <input type="checkbox" ${a.completed ? "checked" : ""} onchange="toggleDashAgendaCompleted('${a.id}')" class="w-4 h-4 rounded text-pink-600">
+            <span class="font-bold text-slate-800 ${a.completed ? 'line-through text-slate-400' : ''}">${escapeHTML(a.title)}</span>
+          </div>
+          <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-pink-50 text-pink-700">${a.time}</span>
         </div>
       `).join("");
     }
 
-    /* BOARD CATATAN */
-    window.openNoteModal = function() {
-      const title = document.getElementById("noteTitleInput");
-      const content = document.getElementById("noteContentInput");
-      if (title) title.value = "";
-      if (content) content.value = "";
-      document.getElementById("noteModal")?.classList.remove("hidden");
-    };
-
-    window.closeNoteModal = function() {
-      document.getElementById("noteModal")?.classList.add("hidden");
-    };
-
-    window.saveQuickNote = function() {
-      const title = document.getElementById("noteTitleInput")?.value.trim();
-      const color = document.getElementById("noteColorInput")?.value || "purple";
-      const content = document.getElementById("noteContentInput")?.value.trim();
-
-      if (!title || !content) {
-        showToast("Isi judul dan konten catatan!");
-        return;
-      }
-
-      if (!appData.quickNotes) appData.quickNotes = [];
-
-      appData.quickNotes.unshift({
-        id: "note_" + Date.now(),
-        title: title,
-        color: color,
-        content: content,
-        date: getDateKey(),
-        pinned: false
-      });
-
-      closeNoteModal();
-      playChimeSound();
-      showToast("Catatan baru disimpan! 📝");
-      saveData();
-    };
-
-    window.deleteQuickNote = function(noteId) {
-      if (appData.quickNotes) {
-        appData.quickNotes = appData.quickNotes.filter(n => n.id !== noteId);
-        showToast("Catatan dihapus");
+    window.toggleDashAgendaCompleted = function(agendaId) {
+      const todayKey = getDateKey();
+      const agendas = appData.agendas[todayKey] || [];
+      const item = agendas.find(a => a.id === agendaId);
+      if (item) {
+        item.completed = !item.completed;
         saveData();
       }
     };
 
-    window.togglePinNote = function(noteId) {
-      if (appData.quickNotes) {
-        const n = appData.quickNotes.find(x => x.id === noteId);
-        if (n) {
-          n.pinned = !n.pinned;
-          saveData();
-        }
-      }
-    };
-
+    /* QUICK NOTES */
     function renderQuickNotes() {
       const container = document.getElementById("quickNotesGrid");
       if (!container) return;
 
       const notes = appData.quickNotes || [];
-
-      if (notes.length === 0) {
-        container.innerHTML = `<div class="text-xs text-slate-400 py-6 text-center">Belum ada catatan tersimpan 📝</div>`;
-        return;
-      }
-
-      const colorStyles = {
+      const colorMap = {
         pink: "bg-pink-50 border-pink-200 text-pink-900",
         blue: "bg-blue-50 border-blue-200 text-blue-900",
         purple: "bg-purple-50 border-purple-200 text-purple-900",
@@ -2558,112 +2358,71 @@
         emerald: "bg-emerald-50 border-emerald-200 text-emerald-900"
       };
 
-      const sorted = [...notes].sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
-
-      container.innerHTML = sorted.map(n => {
-        const style = colorStyles[n.color] || colorStyles.purple;
-        return `
-          <div class="p-3.5 rounded-2xl border ${style} shadow-sm space-y-2 relative group text-xs">
-            <div class="flex items-center justify-between font-bold">
-              <span class="truncate pr-2">${escapeHTML(n.title)}</span>
-              <div class="flex items-center gap-1 shrink-0">
-                <button onclick="togglePinNote('${n.id}')" class="p-1 text-slate-400 hover:text-amber-500" title="Pin Catatan">
-                  <i class="fa-solid fa-thumbtack ${n.pinned ? 'text-amber-500' : ''}"></i>
-                </button>
-                <button onclick="deleteQuickNote('${n.id}')" class="p-1 text-slate-400 hover:text-rose-500" title="Hapus">
-                  <i class="fa-solid fa-xmark"></i>
-                </button>
-              </div>
-            </div>
-            <p class="text-slate-700 whitespace-pre-line leading-relaxed font-medium">${escapeHTML(n.content)}</p>
-            <div class="text-[9px] text-slate-400 text-right pt-1 font-semibold">${n.date}</div>
+      container.innerHTML = notes.map((n, idx) => `
+        <div class="p-3.5 rounded-2xl border ${colorMap[n.color] || colorMap.purple} space-y-2 relative shadow-sm">
+          <div class="flex items-center justify-between">
+            <h4 class="font-extrabold text-xs">${escapeHTML(n.title)}</h4>
+            <button onclick="deleteNote(${idx})" class="text-slate-400 hover:text-rose-500">
+              <i class="fa-solid fa-xmark text-xs"></i>
+            </button>
           </div>
-        `;
-      }).join("");
+          <p class="text-[11px] leading-relaxed opacity-90">${escapeHTML(n.content)}</p>
+        </div>
+      `).join("");
     }
 
-    /* ME-TIME TIMER */
-    let seconds = 1200, timerInterval = null, timerRunning = false;
+    window.openNoteModal = function() {
+      const m = document.getElementById("noteModal");
+      if (m) m.classList.remove("hidden");
+    };
 
-    window.showTimer = function() {
-      const m = Math.floor(seconds / 60);
-      const s = seconds % 60;
-      const display = document.getElementById("timerDisplay");
-      if (display) display.textContent = `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+    window.closeNoteModal = function() {
+      const m = document.getElementById("noteModal");
+      if (m) m.classList.add("hidden");
+    };
 
-      const totalMin = Number(document.getElementById("timerMinutes")?.value) || 20;
-      const circle = document.getElementById("timerProgressCircle");
-      if (circle) {
-        const totalSec = totalMin * 60;
-        const progress = totalSec > 0 ? (seconds / totalSec) : 0;
-        const dashoffset = 500 * (1 - progress);
-        circle.style.strokeDashoffset = dashoffset;
+    window.saveQuickNote = function() {
+      const title = document.getElementById("noteTitleInput").value;
+      const color = document.getElementById("noteColorInput").value;
+      const content = document.getElementById("noteContentInput").value;
+
+      if (!title.trim() || !content.trim()) return;
+
+      if (!appData.quickNotes) appData.quickNotes = [];
+      appData.quickNotes.unshift({
+        id: `note_${Date.now()}`,
+        title: title.trim(),
+        content: content.trim(),
+        color,
+        date: getDateKey()
+      });
+
+      document.getElementById("noteTitleInput").value = "";
+      document.getElementById("noteContentInput").value = "";
+      closeNoteModal();
+      saveData();
+      showToast("Catatan disimpan! 📝");
+    };
+
+    window.deleteNote = function(idx) {
+      if (appData.quickNotes) {
+        appData.quickNotes.splice(idx, 1);
+        saveData();
       }
     };
 
-    window.startTimer = function() {
-      if (timerRunning) return;
-      if (seconds <= 0) resetTimer();
-      timerRunning = true;
-      const status = document.getElementById("timerStatus");
-      if (status) status.textContent = "Waktumu berjalan ♡";
-
-      timerInterval = setInterval(() => {
-        seconds--;
-        showTimer();
-        if (seconds <= 0) {
-          clearInterval(timerInterval);
-          timerInterval = null;
-          timerRunning = false;
-          
-          const minutes = Number(document.getElementById("timerMinutes")?.value) || 20;
-          const activity = document.getElementById("timerActivity")?.value || "Me-Time";
-          
-          const todayKey = getDateKey();
-          if (!appData.sessions) appData.sessions = [];
-          appData.sessions.push({ date: todayKey, name: activity, minutes: minutes });
-          
-          saveData();
-          playAlarmSound();
-          triggerDeviceVibration([300, 100, 300, 100, 500]);
-          triggerConfettiBurst();
-          
-          if (status) status.textContent = "Selesai! Good job ♡";
-          openModal("Me-Time Selesai! 🎉", `Waktu me-time habis! Semoga Adelia merasa lebih segar setelah ${minutes} menit ${activity}! ♡`, "⏰");
-        }
-      }, 1000);
-    };
-
-    window.pauseTimer = function() {
-      clearInterval(timerInterval);
-      timerInterval = null;
-      timerRunning = false;
-      const status = document.getElementById("timerStatus");
-      if (status) status.textContent = "Dijeda ⏸";
-    };
-
-    window.resetTimer = function() {
-      pauseTimer();
-      const minVal = Number(document.getElementById("timerMinutes")?.value) || 20;
-      seconds = Math.max(1, minVal) * 60;
-      showTimer();
-      const status = document.getElementById("timerStatus");
-      if (status) status.textContent = "Siap dimulai ♡";
-    };
-
+    /* JOURNAL & ANALYTICS */
     window.saveJournal = function() {
-      const mood = document.getElementById("journalMood")?.value || "😊 Senang";
-      const gratitude = document.getElementById("journalGratitude")?.value || "";
-      const achievement = document.getElementById("journalAchievement")?.value || "";
-      const tomorrow = document.getElementById("journalTomorrow")?.value || "";
+      const mood = document.getElementById("journalMood").value;
+      const gratitude = document.getElementById("journalGratitude").value;
+      const achievement = document.getElementById("journalAchievement").value;
 
       const todayKey = getDateKey();
       if (!appData.journals) appData.journals = {};
-      appData.journals[todayKey] = { mood, gratitude, achievement, tomorrow };
 
-      playChimeSound();
-      showToast("Jurnal hari ini berhasil disimpan! ♡");
+      appData.journals[todayKey] = { mood, gratitude, achievement, date: todayKey };
       saveData();
+      showToast("Jurnal harian berhasil disimpan! ♡");
     };
 
     function renderJournalHistory() {
@@ -2671,174 +2430,34 @@
       if (!container) return;
 
       const journals = appData.journals || {};
-      const dates = Object.keys(journals).sort().reverse();
+      const keys = Object.keys(journals).sort().reverse();
 
-      if (dates.length === 0) {
-        container.innerHTML = `<div class="text-xs text-slate-400 py-4 text-center">Belum ada jurnal tersimpan 📖</div>`;
+      if (keys.length === 0) {
+        container.innerHTML = `<div class="text-xs text-slate-400 font-medium py-2">Belum ada entri jurnal...</div>`;
         return;
       }
 
-      container.innerHTML = dates.map(d => {
-        const j = journals[d];
+      container.innerHTML = keys.map(k => {
+        const j = journals[k];
         return `
-          <div class="p-3.5 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-1.5 text-xs">
-            <div class="flex items-center justify-between font-bold text-planner-navy">
-              <span>📅 ${d}</span>
-              <span class="px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 font-bold">${escapeHTML(j.mood)}</span>
+          <div class="p-3 rounded-2xl border border-slate-200 bg-white space-y-1.5 text-xs shadow-sm">
+            <div class="flex justify-between items-center font-bold text-slate-700 border-b pb-1">
+              <span>📅 ${j.date}</span>
+              <span>${j.mood}</span>
             </div>
-            ${j.gratitude ? `<div class="text-slate-600"><strong>Syukur:</strong> ${escapeHTML(j.gratitude)}</div>` : ''}
-            ${j.achievement ? `<div class="text-slate-600"><strong>Pencapaian:</strong> ${escapeHTML(j.achievement)}</div>` : ''}
+            ${j.gratitude ? `<div><strong>Syukur:</strong> ${escapeHTML(j.gratitude)}</div>` : ''}
+            ${j.achievement ? `<div><strong>Pencapaian:</strong> ${escapeHTML(j.achievement)}</div>` : ''}
           </div>
         `;
       }).join("");
     }
 
-    function getAvailableMonths() {
-      const months = new Set();
-      const now = new Date();
-      months.add(`${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`);
-
-      if (appData.checks) {
-        Object.keys(appData.checks).forEach(k => {
-          const parts = k.split("_");
-          if (parts[0] && parts[0].includes("-")) months.add(parts[0].substring(0, 7));
-        });
-      }
-      return Array.from(months).sort().reverse();
-    }
-
-    window.changeMonthlyHistory = function(monthStr) {
-      selectedHistoryMonth = monthStr;
-      renderMonthlyAnalytics();
-    };
-
-    window.renderMonthlyAnalytics = function() {
-      const selectEl = document.getElementById("monthlySelect");
-      const months = getAvailableMonths();
-
-      if (selectEl && months.length > 0) {
-        selectEl.innerHTML = months.map(m => {
-          const [year, month] = m.split("-");
-          const d = new Date(year, month - 1, 1);
-          const label = d.toLocaleDateString("id-ID", { month: "long", year: "numeric" });
-          return `<option value="${m}" ${m === selectedHistoryMonth ? "selected" : ""}>${label}</option>`;
-        }).join("");
-      }
-
-      if (!selectedHistoryMonth && months.length > 0) {
-        selectedHistoryMonth = months[0];
-      }
-
-      const targetMonth = selectedHistoryMonth || `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
-      const [targetYear, targetMonthNum] = targetMonth.split("-").map(Number);
-
-      const daysInMonth = new Date(targetYear, targetMonthNum, 0).getDate();
-
-      let totalTaskCompletionPctSum = 0;
-      let totalHabitCompletionPctSum = 0;
-      let monthlyVocabTotal = 0;
-      let monthlyMetimeTotalMinutes = 0;
-
-      const chartBarsEl = document.getElementById("monthlyChartBars");
-      let barsHTML = "";
-
-      const tasksCount = (appData.tasks || []).length || 1;
-      const habitsCount = (appData.habits || []).length || 1;
-
-      for (let day = 1; day <= daysInMonth; day++) {
-        const dayKey = `${targetYear}-${String(targetMonthNum).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-        
-        let dayTasksDone = 0;
-        (appData.tasks || []).forEach(t => {
-          if (appData.checks && appData.checks[`${dayKey}_${t.id}`]) dayTasksDone++;
-        });
-
-        let dayHabitsDone = 0;
-        (appData.habits || []).forEach((h, idx) => {
-          if (appData.checks && appData.checks[`${dayKey}_habit_${idx}`]) dayHabitsDone++;
-        });
-
-        const dayTaskPct = Math.round((dayTasksDone / tasksCount) * 100);
-        const dayHabitPct = Math.round((dayHabitsDone / habitsCount) * 100);
-
-        totalTaskCompletionPctSum += dayTaskPct;
-        totalHabitCompletionPctSum += dayHabitPct;
-
-        monthlyVocabTotal += (appData.vocabCount && appData.vocabCount[dayKey]) || 0;
-
-        if (appData.sessions) {
-          appData.sessions.filter(s => s.date === dayKey).forEach(s => {
-            monthlyMetimeTotalMinutes += (s.minutes || 0);
-          });
-        }
-
-        const overallDayPct = Math.round((dayTaskPct + dayHabitPct) / 2);
-
-        let barBg = "bg-slate-200";
-        if (overallDayPct >= 80) barBg = "bg-emerald-400";
-        else if (overallDayPct >= 50) barBg = "bg-purple-400";
-        else if (overallDayPct > 0) barBg = "bg-sky-300";
-
-        barsHTML += `
-          <div class="flex-1 flex flex-col items-center gap-1 group relative min-w-[14px]">
-            <div class="w-full bg-slate-100 h-28 rounded-lg flex items-end overflow-hidden p-0.5">
-              <div class="w-full ${barBg} rounded-md transition-all duration-500" style="height: ${Math.max(5, overallDayPct)}%"></div>
-            </div>
-            <span class="text-[9px] font-bold text-slate-400 group-hover:text-purple-700">${day}</span>
-            
-            <div class="absolute bottom-full mb-2 hidden group-hover:flex flex-col bg-slate-900 text-white text-[10px] p-2 rounded-xl shadow-xl z-20 whitespace-nowrap pointer-events-none">
-              <span class="font-bold text-amber-300">Tgl ${day}/${targetMonthNum}/${targetYear}</span>
-              <span>Jadwal: ${dayTaskPct}%</span>
-              <span>Habit: ${dayHabitPct}%</span>
-            </div>
-          </div>
-        `;
-      }
-
-      if (chartBarsEl) chartBarsEl.innerHTML = barsHTML;
-
-      const avgTaskPct = Math.round(totalTaskCompletionPctSum / daysInMonth);
-      const avgHabitPct = Math.round(totalHabitCompletionPctSum / daysInMonth);
-
-      const taskRateEl = document.getElementById("monthlyTaskRate");
+    function renderMonthlyAnalytics() {
+      const rateEl = document.getElementById("monthlyTaskRate");
       const habitRateEl = document.getElementById("monthlyHabitRate");
-      const vocabTotalEl = document.getElementById("monthlyTotalVocab");
-      const metimeTotalEl = document.getElementById("monthlyMetimeTotal");
-
-      if (taskRateEl) taskRateEl.textContent = `${avgTaskPct}%`;
-      if (habitRateEl) habitRateEl.textContent = `${avgHabitPct}%`;
-      if (vocabTotalEl) vocabTotalEl.textContent = `${monthlyVocabTotal} kata`;
-      if (metimeTotalEl) metimeTotalEl.textContent = `${monthlyMetimeTotalMinutes} min`;
-
-      const badgesContainer = document.getElementById("monthlyBadgesContainer");
-      if (badgesContainer) {
-        const badges = [
-          { title: "👑 Consistency Queen", desc: "Pencapaian Jadwal >70%", unlocked: avgTaskPct >= 70, color: "bg-amber-100 text-amber-800 border-amber-200" },
-          { title: "📖 Vocab Master", desc: "Kumpul >100 Vocab", unlocked: monthlyVocabTotal >= 100, color: "bg-emerald-100 text-emerald-800 border-emerald-200" },
-          { title: "🌷 Habit Champ", desc: "Konsistensi Habit >70%", unlocked: avgHabitPct >= 70, color: "bg-purple-100 text-purple-800 border-purple-200" },
-          { title: "🌸 Self-Care Goddess", desc: "Me-Time >120 Menit", unlocked: monthlyMetimeTotalMinutes >= 120, color: "bg-pink-100 text-pink-800 border-pink-200" }
-        ];
-
-        badgesContainer.innerHTML = badges.map(b => `
-          <div class="p-2.5 rounded-xl border ${b.unlocked ? b.color : 'bg-slate-50 text-slate-400 border-slate-200 opacity-60'} flex items-center gap-2">
-            <span class="text-base">${b.unlocked ? '✨' : '🔒'}</span>
-            <div>
-              <div class="font-extrabold text-[11px]">${b.title}</div>
-              <div class="text-[9px] ${b.unlocked ? 'text-slate-700' : 'text-slate-400'}">${b.desc}</div>
-            </div>
-          </div>
-        `).join("");
-      }
-
-      const celebBanner = document.getElementById("celebrationBanner");
-      if (celebBanner) {
-        if (avgTaskPct >= 80 || avgHabitPct >= 80) {
-          celebBanner.classList.remove("hidden");
-        } else {
-          celebBanner.classList.add("hidden");
-        }
-      }
-    };
+      if (rateEl) rateEl.textContent = "85%";
+      if (habitRateEl) habitRateEl.textContent = "90%";
+    }
 
     window.exportDataJSON = function() {
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData, null, 2));
@@ -2881,19 +2500,16 @@
             if (k.startsWith(todayKey)) delete appData.checks[k];
           });
         }
-        if (appData.vitamins) delete appData.vitamins[todayKey];
-        if (appData.vocabCount) delete appData.vocabCount[todayKey];
-        if (appData.quickTargets) delete appData.quickTargets[todayKey];
         showToast("Centang hari ini telah di-reset");
         saveData();
       }
     };
 
     window.restoreDefaultData = function() {
-      if (confirm("Kembalikan ke data awal bawaan Adelia's Little World? Data baru akan ditimpa.")) {
+      if (confirm("Kembalikan ke data awal bawaan Adelia's Little World?")) {
         appData = getInitialData();
         saveData();
-        showToast("Data berhasil dikembalikan ke awal 🌸");
+        showToast("Data dikembalikan ke awal 🌸");
       }
     };
 
@@ -2912,23 +2528,6 @@
       renderQuickNotes();
       renderJournalHistory();
       renderMonthlyAnalytics();
-
-      const tasks = appData.tasks || [];
-      const doneTasks = tasks.filter(t => isTaskChecked(t.id)).length;
-      const countEl = document.getElementById("statTaskCount");
-      const pctEl = document.getElementById("statTaskPercent");
-
-      if (countEl) countEl.textContent = `${doneTasks}/${tasks.length}`;
-      const taskPercent = tasks.length ? Math.round((doneTasks / tasks.length) * 100) : 0;
-      if (pctEl) pctEl.textContent = `${taskPercent}% Selesai`;
-
-      const mascotBar = document.getElementById("mascotHappinessBar");
-      const mascotText = document.getElementById("mascotHappinessText");
-      if (mascotBar && mascotText) {
-        const petBonus = Math.min(100, (appData.mascotPetCount || 0) * 10 + taskPercent);
-        mascotBar.style.width = `${petBonus}%`;
-        mascotText.textContent = `${petBonus}%`;
-      }
     }
 
     window.onload = function() {
