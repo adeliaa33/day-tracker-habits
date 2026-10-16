@@ -1039,7 +1039,7 @@
         <span class="text-4xl">🐱</span>
         <div>
           <h1 class="text-2xl font-black text-slate-800 font-cute">Adelia's Little World ♡</h1>
-          <p class="text-xs text-pink-600 font-bold">Laporan Progress & Rekapitulasi Harian</p>
+          <p class="text-xs text-pink-600 font-bold">Laporan Progress & Rekapitulasi Harian Lengkap</p>
         </div>
       </div>
       <div class="text-right text-xs">
@@ -1048,6 +1048,7 @@
       </div>
     </div>
 
+    <!-- Ringkasan Performa & Progress -->
     <div class="grid grid-cols-4 gap-3 text-center text-xs">
       <div class="p-3 rounded-xl bg-sky-50 border border-sky-200">
         <div class="text-slate-400 font-bold uppercase text-[9px]">Jadwal Selesai</div>
@@ -1067,6 +1068,7 @@
       </div>
     </div>
 
+    <!-- Tabel Daily Schedule Log -->
     <div class="space-y-2">
       <h3 class="font-extrabold text-slate-800 text-sm border-b pb-1 font-cute">🗓️ Log Daily Schedule Checklist</h3>
       <table class="w-full text-xs border-collapse">
@@ -1083,6 +1085,7 @@
       </table>
     </div>
 
+    <!-- Rekapan Habits, Vitamin & Target -->
     <div class="grid grid-cols-2 gap-4">
       <div class="space-y-2">
         <h3 class="font-extrabold text-slate-800 text-sm border-b pb-1 font-cute">🌷 Habit Tracker</h3>
@@ -1090,9 +1093,21 @@
       </div>
 
       <div class="space-y-2">
-        <h3 class="font-extrabold text-slate-800 text-sm border-b pb-1 font-cute">💊 Vitamin & Target</h3>
+        <h3 class="font-extrabold text-slate-800 text-sm border-b pb-1 font-cute">💊 Vitamin & Target Refleksi</h3>
         <div id="pdfVitaminList" class="text-xs space-y-1"></div>
       </div>
+    </div>
+
+    <!-- Agenda Kalender Hari Ini -->
+    <div class="space-y-2">
+      <h3 class="font-extrabold text-slate-800 text-sm border-b pb-1 font-cute">📌 Agenda Kalender</h3>
+      <div id="pdfAgendaList" class="text-xs space-y-1"></div>
+    </div>
+
+    <!-- Catatan Tambahan -->
+    <div class="space-y-2">
+      <h3 class="font-extrabold text-slate-800 text-sm border-b pb-1 font-cute">📝 Catatan & Pengingat</h3>
+      <div id="pdfNotesList" class="text-xs space-y-1"></div>
     </div>
 
     <div class="pt-4 border-t text-center text-[10px] text-slate-400 font-medium">
@@ -1864,7 +1879,7 @@
       }).join("");
     }
 
-    /* PDF REPORT ENGINE */
+    /* PDF REPORT ENGINE WITH COMPLETE PROGRESS DATA & SUMMARIES */
     window.exportProgressPDF = function() {
       try {
         const todayKey = getDateKey();
@@ -1872,6 +1887,8 @@
         const habits = appData.habits || [];
         const checks = appData.checks || {};
         const vitData = (appData.vitamins && appData.vitamins[todayKey]) || {};
+        const agendas = (appData.agendas && appData.agendas[todayKey]) || [];
+        const quickNotes = appData.quickNotes || [];
 
         document.getElementById("pdfPrintDate").textContent = `Tanggal: ${todayKey}`;
 
@@ -1918,10 +1935,33 @@
         document.getElementById("pdfVocabCount").textContent = `${vocabCount}/20`;
 
         document.getElementById("pdfVitaminList").innerHTML = `
-          <div class="p-1.5 border rounded">B Complex: <strong>${vitData.vitBComplex ? 'Sudah ✓' : 'Belum'}</strong></div>
-          <div class="p-1.5 border rounded">Zinc: <strong>${vitData.vitZinc ? 'Sudah ✓' : 'Belum'}</strong></div>
-          <div class="p-1.5 border rounded">Magnesium: <strong>${vitData.vitMagnesium ? 'Sudah ✓' : 'Belum'}</strong></div>
+          <div class="p-1.5 border rounded flex justify-between"><span>B Complex (Sarapan):</span> <strong>${vitData.vitBComplex ? 'Sudah ✓' : 'Belum'}</strong></div>
+          <div class="p-1.5 border rounded flex justify-between"><span>Zinc (Makan Siang):</span> <strong>${vitData.vitZinc ? 'Sudah ✓' : 'Belum'}</strong></div>
+          <div class="p-1.5 border rounded flex justify-between"><span>Magnesium (Sebelum Tidur):</span> <strong>${vitData.vitMagnesium ? 'Sudah ✓' : 'Belum'}</strong></div>
+          <div class="p-1.5 border rounded flex justify-between"><span>Hafalan Vocab TOEFL:</span> <strong>${vocabCount} / 20 kata</strong></div>
         `;
+
+        if (agendas.length === 0) {
+          document.getElementById("pdfAgendaList").innerHTML = `<div class="p-2 border rounded text-slate-400 italic">Tidak ada agenda kalender khusus hari ini.</div>`;
+        } else {
+          document.getElementById("pdfAgendaList").innerHTML = agendas.map(a => `
+            <div class="p-1.5 border rounded flex justify-between font-bold">
+              <span>📌 ${escapeHTML(a.title)} (${a.tag})</span>
+              <span class="${a.completed ? 'text-purple-600' : 'text-slate-400'}">${a.time} - ${a.completed ? 'Selesai ✓' : 'Agenda'}</span>
+            </div>
+          `).join("");
+        }
+
+        if (quickNotes.length === 0) {
+          document.getElementById("pdfNotesList").innerHTML = `<div class="p-2 border rounded text-slate-400 italic">Tidak ada catatan pengingat.</div>`;
+        } else {
+          document.getElementById("pdfNotesList").innerHTML = quickNotes.slice(0, 3).map(n => `
+            <div class="p-2 border rounded space-y-0.5">
+              <div class="font-bold text-slate-800">${escapeHTML(n.title)}</div>
+              <div class="text-[10px] text-slate-600">${escapeHTML(n.content)}</div>
+            </div>
+          `).join("");
+        }
 
         window.print();
       } catch (e) {
