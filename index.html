@@ -117,19 +117,25 @@
       transform: rotate(45deg);
     }
 
+    /* PRINT & PDF FORMATTING */
     @media print {
       body * {
-        visibility: hidden;
+        visibility: hidden !important;
       }
       #pdfReportContainer, #pdfReportContainer * {
-        visibility: visible;
+        visibility: visible !important;
       }
       #pdfReportContainer {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
         display: block !important;
+        background: white !important;
+        padding: 20px !important;
+      }
+      .page-break {
+        page-break-before: always;
       }
     }
   </style>
@@ -1032,14 +1038,16 @@
 
   </div>
 
-  <!-- PDF REPORT PRINT TEMPLATE (Hidden from web view, formatted for PDF print) -->
-  <div id="pdfReportContainer" class="hidden p-8 bg-white font-sans text-slate-800 space-y-6">
+  <!-- ALL-IN-ONE COMPREHENSIVE PDF REPORT PRINT TEMPLATE (Formatted for Print to PDF) -->
+  <div id="pdfReportContainer" class="hidden p-6 bg-white font-sans text-slate-800 space-y-5">
+    
+    <!-- PDF Header Banner -->
     <div class="border-b-4 border-pink-300 pb-4 flex items-center justify-between">
       <div class="flex items-center gap-3">
         <span class="text-4xl">🐱</span>
         <div>
           <h1 class="text-2xl font-black text-slate-800 font-cute">Adelia's Little World ♡</h1>
-          <p class="text-xs text-pink-600 font-bold">Laporan Progress & Rekapitulasi Harian Lengkap</p>
+          <p class="text-xs text-pink-600 font-bold">Laporan Progress & Rekapitulasi Harian, Mingguan & Bulanan Lengkap</p>
         </div>
       </div>
       <div class="text-right text-xs">
@@ -1048,27 +1056,30 @@
       </div>
     </div>
 
-    <!-- Ringkasan Performa & Progress -->
-    <div class="grid grid-cols-4 gap-3 text-center text-xs">
-      <div class="p-3 rounded-xl bg-sky-50 border border-sky-200">
-        <div class="text-slate-400 font-bold uppercase text-[9px]">Jadwal Selesai</div>
-        <div id="pdfTaskRate" class="text-base font-extrabold text-sky-700">0%</div>
-      </div>
-      <div class="p-3 rounded-xl bg-purple-50 border border-purple-200">
-        <div class="text-slate-400 font-bold uppercase text-[9px]">Habit Completed</div>
-        <div id="pdfHabitRate" class="text-base font-extrabold text-purple-700">0%</div>
-      </div>
-      <div class="p-3 rounded-xl bg-pink-50 border border-pink-200">
-        <div class="text-slate-400 font-bold uppercase text-[9px]">Vitamin Today</div>
-        <div id="pdfVitaminCount" class="text-base font-extrabold text-pink-700">0/3</div>
-      </div>
-      <div class="p-3 rounded-xl bg-emerald-50 border border-emerald-200">
-        <div class="text-slate-400 font-bold uppercase text-[9px]">Target Vocab</div>
-        <div id="pdfVocabCount" class="text-base font-extrabold text-emerald-700">0/20</div>
+    <!-- SEKSI 1: Ringkasan Performa & Skor (Daily, Weekly & Monthly Progress) -->
+    <div class="space-y-2">
+      <h3 class="font-extrabold text-slate-800 text-sm border-b pb-1 font-cute">📈 Ringkasan Performa & Progress Diri</h3>
+      <div class="grid grid-cols-4 gap-2 text-center text-xs">
+        <div class="p-2.5 rounded-xl bg-sky-50 border border-sky-200">
+          <div class="text-slate-400 font-bold uppercase text-[9px]">Jadwal Selesai Hari Ini</div>
+          <div id="pdfTaskRate" class="text-base font-extrabold text-sky-700">0%</div>
+        </div>
+        <div class="p-2.5 rounded-xl bg-purple-50 border border-purple-200">
+          <div class="text-slate-400 font-bold uppercase text-[9px]">Konsistensi Habit</div>
+          <div id="pdfHabitRate" class="text-base font-extrabold text-purple-700">0%</div>
+        </div>
+        <div class="p-2.5 rounded-xl bg-pink-50 border border-pink-200">
+          <div class="text-slate-400 font-bold uppercase text-[9px]">Vitamin Today</div>
+          <div id="pdfVitaminCount" class="text-base font-extrabold text-pink-700">0/3</div>
+        </div>
+        <div class="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200">
+          <div class="text-slate-400 font-bold uppercase text-[9px]">Target Vocab TOEFL</div>
+          <div id="pdfVocabCount" class="text-base font-extrabold text-emerald-700">0/20</div>
+        </div>
       </div>
     </div>
 
-    <!-- Tabel Daily Schedule Log -->
+    <!-- SEKSI 2: Log Daily Schedule Checklist -->
     <div class="space-y-2">
       <h3 class="font-extrabold text-slate-800 text-sm border-b pb-1 font-cute">🗓️ Log Daily Schedule Checklist</h3>
       <table class="w-full text-xs border-collapse">
@@ -1085,10 +1096,10 @@
       </table>
     </div>
 
-    <!-- Rekapan Habits, Vitamin & Target -->
+    <!-- SEKSI 3: Habit Tracker & Rekap Vitamin -->
     <div class="grid grid-cols-2 gap-4">
       <div class="space-y-2">
-        <h3 class="font-extrabold text-slate-800 text-sm border-b pb-1 font-cute">🌷 Habit Tracker</h3>
+        <h3 class="font-extrabold text-slate-800 text-sm border-b pb-1 font-cute">🌷 Habit Tracker Harian</h3>
         <ul id="pdfHabitList" class="text-xs space-y-1"></ul>
       </div>
 
@@ -1098,16 +1109,22 @@
       </div>
     </div>
 
-    <!-- Agenda Kalender Hari Ini -->
+    <!-- SEKSI 4: Rekap Agenda Kalender Bulanan -->
     <div class="space-y-2">
-      <h3 class="font-extrabold text-slate-800 text-sm border-b pb-1 font-cute">📌 Agenda Kalender</h3>
+      <h3 class="font-extrabold text-slate-800 text-sm border-b pb-1 font-cute">🗓️ Rekap Agenda Kalender & Target Ujian</h3>
       <div id="pdfAgendaList" class="text-xs space-y-1"></div>
     </div>
 
-    <!-- Catatan Tambahan -->
+    <!-- SEKSI 5: Rekap Jurnal & Refleksi Harian -->
     <div class="space-y-2">
-      <h3 class="font-extrabold text-slate-800 text-sm border-b pb-1 font-cute">📝 Catatan & Pengingat</h3>
-      <div id="pdfNotesList" class="text-xs space-y-1"></div>
+      <h3 class="font-extrabold text-slate-800 text-sm border-b pb-1 font-cute">📝 Log Jurnal & Refleksi Harian</h3>
+      <div id="pdfJournalList" class="text-xs space-y-1.5"></div>
+    </div>
+
+    <!-- SEKSI 6: Catatan Tambahan & Sticky Notes -->
+    <div class="space-y-2">
+      <h3 class="font-extrabold text-slate-800 text-sm border-b pb-1 font-cute">📌 Catatan Tambahan & Pengingat Manis</h3>
+      <div id="pdfNotesList" class="text-xs grid grid-cols-2 gap-2"></div>
     </div>
 
     <div class="pt-4 border-t text-center text-[10px] text-slate-400 font-medium">
@@ -1879,7 +1896,7 @@
       }).join("");
     }
 
-    /* PDF REPORT ENGINE WITH COMPLETE PROGRESS DATA & SUMMARIES */
+    /* ALL-IN-ONE COMPREHENSIVE PDF REPORT GENERATOR */
     window.exportProgressPDF = function() {
       try {
         const todayKey = getDateKey();
@@ -1887,11 +1904,13 @@
         const habits = appData.habits || [];
         const checks = appData.checks || {};
         const vitData = (appData.vitamins && appData.vitamins[todayKey]) || {};
-        const agendas = (appData.agendas && appData.agendas[todayKey]) || [];
+        const agendas = appData.agendas || {};
+        const journals = appData.journals || {};
         const quickNotes = appData.quickNotes || [];
 
         document.getElementById("pdfPrintDate").textContent = `Tanggal: ${todayKey}`;
 
+        // 1. Log Daily Schedule Checklist
         let doneTasks = 0;
         const taskRowsHTML = tasks.map(t => {
           const isDone = !!checks[`${todayKey}_${t.id}`];
@@ -1912,6 +1931,7 @@
 
         document.getElementById("pdfTaskListBody").innerHTML = taskRowsHTML;
 
+        // 2. Habit Tracker List
         let doneHabits = 0;
         const habitRowsHTML = habits.map((h, idx) => {
           const isDone = !!checks[`${todayKey}_habit_${idx}`];
@@ -1926,6 +1946,7 @@
 
         document.getElementById("pdfHabitList").innerHTML = habitRowsHTML;
 
+        // 3. Stats & Vitamin List
         const vitCount = Object.values(vitData).filter(Boolean).length;
         const vocabCount = (appData.vocabCount && appData.vocabCount[todayKey]) || 0;
 
@@ -1941,28 +1962,59 @@
           <div class="p-1.5 border rounded flex justify-between"><span>Hafalan Vocab TOEFL:</span> <strong>${vocabCount} / 20 kata</strong></div>
         `;
 
-        if (agendas.length === 0) {
-          document.getElementById("pdfAgendaList").innerHTML = `<div class="p-2 border rounded text-slate-400 italic">Tidak ada agenda kalender khusus hari ini.</div>`;
+        // 4. Rekap Seluruh Agenda Kalender (Bulanan)
+        const allAgendaKeys = Object.keys(agendas).sort().reverse();
+        if (allAgendaKeys.length === 0) {
+          document.getElementById("pdfAgendaList").innerHTML = `<div class="p-2 border rounded text-slate-400 italic">Belum ada agenda kalender terdaftar.</div>`;
         } else {
-          document.getElementById("pdfAgendaList").innerHTML = agendas.map(a => `
-            <div class="p-1.5 border rounded flex justify-between font-bold">
-              <span>📌 ${escapeHTML(a.title)} (${a.tag})</span>
-              <span class="${a.completed ? 'text-purple-600' : 'text-slate-400'}">${a.time} - ${a.completed ? 'Selesai ✓' : 'Agenda'}</span>
-            </div>
-          `).join("");
+          let agendaHTML = "";
+          allAgendaKeys.forEach(dateStr => {
+            const dateAgendas = agendas[dateStr] || [];
+            dateAgendas.forEach(a => {
+              agendaHTML += `
+                <div class="p-1.5 border rounded flex justify-between font-bold">
+                  <span>📌 [${dateStr}] ${escapeHTML(a.title)} (${a.tag})</span>
+                  <span class="${a.completed ? 'text-purple-600' : 'text-slate-400'}">${a.time} - ${a.completed ? 'Selesai ✓' : 'Agenda'}</span>
+                </div>
+              `;
+            });
+          });
+          document.getElementById("pdfAgendaList").innerHTML = agendaHTML || `<div class="p-2 border rounded text-slate-400 italic">Belum ada agenda kalender khusus.</div>`;
         }
 
-        if (quickNotes.length === 0) {
-          document.getElementById("pdfNotesList").innerHTML = `<div class="p-2 border rounded text-slate-400 italic">Tidak ada catatan pengingat.</div>`;
+        // 5. Rekap Jurnal & Refleksi Harian
+        const journalKeys = Object.keys(journals).sort().reverse();
+        if (journalKeys.length === 0) {
+          document.getElementById("pdfJournalList").innerHTML = `<div class="p-2 border rounded text-slate-400 italic">Belum ada entri jurnal refleksi harian.</div>`;
         } else {
-          document.getElementById("pdfNotesList").innerHTML = quickNotes.slice(0, 3).map(n => `
-            <div class="p-2 border rounded space-y-0.5">
+          document.getElementById("pdfJournalList").innerHTML = journalKeys.slice(0, 5).map(k => {
+            const j = journals[k];
+            return `
+              <div class="p-2 border rounded space-y-0.5 bg-purple-50/40">
+                <div class="flex justify-between font-bold text-slate-800 border-b pb-0.5">
+                  <span>📅 Tanggal: ${j.date}</span>
+                  <span>Mood: ${j.mood}</span>
+                </div>
+                ${j.gratitude ? `<div class="text-slate-600"><strong>Syukur:</strong> ${escapeHTML(j.gratitude)}</div>` : ''}
+                ${j.achievement ? `<div class="text-slate-600"><strong>Pencapaian:</strong> ${escapeHTML(j.achievement)}</div>` : ''}
+              </div>
+            `;
+          }).join("");
+        }
+
+        // 6. Catatan Tambahan & Sticky Notes
+        if (quickNotes.length === 0) {
+          document.getElementById("pdfNotesList").innerHTML = `<div class="p-2 border rounded text-slate-400 italic col-span-2">Tidak ada catatan pengingat.</div>`;
+        } else {
+          document.getElementById("pdfNotesList").innerHTML = quickNotes.map(n => `
+            <div class="p-2 border rounded space-y-0.5 bg-amber-50/40">
               <div class="font-bold text-slate-800">${escapeHTML(n.title)}</div>
               <div class="text-[10px] text-slate-600">${escapeHTML(n.content)}</div>
             </div>
           `).join("");
         }
 
+        // Trigger Native Browser Print Engine
         window.print();
       } catch (e) {
         openModal("Gagal Cetak PDF", "Terjadi kesalahan saat menyiapkan dokumen PDF.", "⚠️");
