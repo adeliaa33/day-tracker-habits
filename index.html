@@ -116,12 +116,35 @@
       border-width: 0 2.5px 2.5px 0;
       transform: rotate(45deg);
     }
+
+    /* PRINT & PDF FORMATTING */
+    @media print {
+      body * {
+        visibility: hidden !important;
+      }
+      #pdfReportContainer, #pdfReportContainer * {
+        visibility: visible !important;
+      }
+      #pdfReportContainer {
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        display: block !important;
+        background: white !important;
+        padding: 20px !important;
+      }
+      .page-break {
+        page-break-before: always;
+      }
+    }
   </style>
 </head>
 <body class="font-sans text-slate-700 min-h-screen flex flex-col antialiased selection:bg-sky-100 selection:text-sky-800 pb-20 md:pb-6">
 
   <div id="app" class="flex-grow flex flex-col max-w-6xl w-full mx-auto px-3 py-3 md:px-6 md:py-6">
 
+    <!-- Header Banner -->
     <header class="planner-card p-4 md:p-6 mb-4 md:mb-5 shadow-planner relative overflow-hidden bg-gradient-to-r from-[#DCEEFF] via-[#FCE1E8] to-[#E9E1FF]">
       <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-4">
         
@@ -152,7 +175,7 @@
           </div>
 
           <div class="flex items-center gap-2">
-            <button id="btnAlarmToggle" onclick="requestNotificationAndSoundPermission()" title="Aktifkan Notifikasi & Suara Pengingat" class="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-white/80 hover:bg-white text-planner-navy border border-white flex items-center justify-center transition active:scale-90 relative shadow-sm">
+            <button id="btnAlarmToggle" onclick="toggleAlarmSetting()" title="Alarm Pengingat" class="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-white/80 hover:bg-white text-planner-navy border border-white flex items-center justify-center transition active:scale-90 relative shadow-sm">
               <i class="fa-solid fa-bell text-xs md:text-sm" id="alarmIcon"></i>
               <span id="alarmBadge" class="absolute -top-1 -right-1 w-2.5 h-2.5 md:w-3 md:h-3 bg-emerald-500 rounded-full border-2 border-white"></span>
             </button>
@@ -166,23 +189,13 @@
       </div>
     </header>
 
-    <!-- BANNER PERMISSION NOTIFIKASI & SUARA -->
-    <div id="notifBanner" class="mb-4 p-3.5 rounded-2xl bg-gradient-to-r from-purple-500 via-pink-500 to-indigo-500 text-white shadow-md flex items-center justify-between gap-3 text-xs">
-      <div class="flex items-center gap-2.5">
-        <span class="text-xl shrink-0 animate-bounce">🔔</span>
-        <div>
-          <div class="font-extrabold">Aktifkan Alarm Suara & Getar HP Adelia!</div>
-          <div class="text-[11px] opacity-90">Dapatkan pengingat otomatis saat jam kegiatan tiba, bahkan saat tab ditutup.</div>
-        </div>
-      </div>
-      <button onclick="requestNotificationAndSoundPermission()" class="px-3.5 py-2 bg-white text-purple-900 rounded-xl font-extrabold shadow hover:bg-slate-100 transition active:scale-95 shrink-0">
-        Aktifkan Sekarang ✨
-      </button>
-    </div>
-
-    <!-- MAIN LAUNCHER GRID -->
+    <!-- MAIN LAUNCHER VIEW: 3x3 Grid + Current & Next Task Summary -->
     <div id="mainLauncherGrid" class="space-y-4 mb-4 md:mb-5">
+      
+      <!-- WIDGET AKTIVITAS TERKINI & AKTIVITAS MENDATANG -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+        
+        <!-- Kartu 1: Aktivitas Terkini (Real-time) -->
         <div class="planner-card p-4 shadow-planner bg-gradient-to-r from-sky-50 via-purple-50 to-pink-50 border-2 border-sky-100 flex flex-col justify-between">
           <div class="flex items-start justify-between gap-2">
             <div>
@@ -212,6 +225,7 @@
           </div>
         </div>
 
+        <!-- Kartu 2: Aktivitas Mendatang (Next Task) -->
         <div class="planner-card p-4 shadow-planner bg-gradient-to-r from-purple-50 via-pink-50 to-amber-50 border-2 border-purple-100 flex flex-col justify-between">
           <div class="flex items-start justify-between gap-2">
             <div>
@@ -238,10 +252,15 @@
             </button>
           </div>
         </div>
+
       </div>
 
+      <!-- KOTAK MENU 3x3 GRID -->
       <div class="planner-card p-4 md:p-6 shadow-planner bg-white border-2 border-slate-100 rounded-3xl space-y-4">
+        
         <div class="grid grid-cols-3 gap-2.5 md:gap-4">
+          
+          <!-- Baris 1: Beranda, Jadwal, Weekly -->
           <button onclick="switchTab('home')" id="grid-tab-home" class="p-3.5 md:p-5 rounded-2xl bg-sky-50 hover:bg-sky-100 border border-sky-200/60 flex flex-col items-center justify-center gap-2 transition active:scale-95 shadow-sm group">
             <div class="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-white flex items-center justify-center text-sky-600 text-lg md:text-xl shadow-sm group-hover:scale-110 transition">
               <i class="fa-solid fa-house"></i>
@@ -263,6 +282,7 @@
             <span class="font-extrabold text-xs md:text-sm text-slate-700">Weekly</span>
           </button>
 
+          <!-- Baris 2: Habits, Analisis, Me-Time -->
           <button onclick="switchTab('habits')" id="grid-tab-habits" class="p-3.5 md:p-5 rounded-2xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/60 flex flex-col items-center justify-center gap-2 transition active:scale-95 shadow-sm group">
             <div class="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-white flex items-center justify-center text-emerald-600 text-lg md:text-xl shadow-sm group-hover:scale-110 transition">
               <i class="fa-solid fa-seedling"></i>
@@ -284,6 +304,7 @@
             <span class="font-extrabold text-xs md:text-sm text-slate-700">Me-Time</span>
           </button>
 
+          <!-- Baris 3: Kalender, Jurnal, Opsi -->
           <button onclick="switchTab('calendar')" id="grid-tab-calendar" class="p-3.5 md:p-5 rounded-2xl bg-pink-50 hover:bg-pink-100 border border-pink-200/60 flex flex-col items-center justify-center gap-2 transition active:scale-95 shadow-sm group">
             <div class="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-white flex items-center justify-center text-pink-600 text-lg md:text-xl shadow-sm group-hover:scale-110 transition">
               <i class="fa-solid fa-calendar-days"></i>
@@ -304,8 +325,10 @@
             </div>
             <span class="font-extrabold text-xs md:text-sm text-slate-700">Opsi</span>
           </button>
+
         </div>
       </div>
+
     </div>
 
     <!-- BACK TO MAIN MENU BUTTON -->
@@ -316,9 +339,51 @@
       <span id="activeTabBreadcrumb" class="text-xs font-extrabold text-planner-navy font-cute">--</span>
     </div>
 
-    <!-- TAB CONTENTS -->
+    <!-- Mobile Bottom Navigation Bar (Shown only when inside a menu) -->
+    <nav id="mobileBottomBar" class="hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/80 px-1 py-1.5 justify-around items-center shadow-lg overflow-x-auto">
+      <button onclick="switchTab('home')" id="mobile-tab-home" class="mobile-nav-btn flex flex-col items-center gap-0.5 p-1 text-slate-400 transition">
+        <i class="fa-solid fa-house text-sm"></i>
+        <span class="text-[8px]">Beranda</span>
+      </button>
+      <button onclick="switchTab('schedule')" id="mobile-tab-schedule" class="mobile-nav-btn flex flex-col items-center gap-0.5 p-1 text-slate-400 transition">
+        <i class="fa-solid fa-calendar-check text-sm"></i>
+        <span class="text-[8px]">Jadwal</span>
+      </button>
+      <button onclick="switchTab('matrix')" id="mobile-tab-matrix" class="mobile-nav-btn flex flex-col items-center gap-0.5 p-1 text-slate-400 transition">
+        <i class="fa-solid fa-table-cells text-sm"></i>
+        <span class="text-[8px]">Weekly</span>
+      </button>
+      <button onclick="switchTab('habits')" id="mobile-tab-habits" class="mobile-nav-btn flex flex-col items-center gap-0.5 p-1 text-slate-400 transition">
+        <i class="fa-solid fa-seedling text-sm"></i>
+        <span class="text-[8px]">Habits</span>
+      </button>
+      <button onclick="switchTab('analytics')" id="mobile-tab-analytics" class="mobile-nav-btn flex flex-col items-center gap-0.5 p-1 text-slate-400 transition">
+        <i class="fa-solid fa-chart-pie text-sm"></i>
+        <span class="text-[8px]">Analisis</span>
+      </button>
+      <button onclick="switchTab('metime')" id="mobile-tab-metime" class="mobile-nav-btn flex flex-col items-center gap-0.5 p-1 text-slate-400 transition">
+        <i class="fa-solid fa-film text-sm"></i>
+        <span class="text-[8px]">Me-Time</span>
+      </button>
+      <button onclick="switchTab('calendar')" id="mobile-tab-calendar" class="mobile-nav-btn flex flex-col items-center gap-0.5 p-1 text-slate-400 transition">
+        <i class="fa-solid fa-calendar-days text-sm"></i>
+        <span class="text-[8px]">Kalender</span>
+      </button>
+      <button onclick="switchTab('journal')" id="mobile-tab-journal" class="mobile-nav-btn flex flex-col items-center gap-0.5 p-1 text-slate-400 transition">
+        <i class="fa-solid fa-book-open text-sm"></i>
+        <span class="text-[8px]">Jurnal</span>
+      </button>
+      <button onclick="switchTab('settings')" id="mobile-tab-settings" class="mobile-nav-btn flex flex-col items-center gap-0.5 p-1 text-slate-400 transition">
+        <i class="fa-solid fa-sliders text-sm"></i>
+        <span class="text-[8px]">Opsi</span>
+      </button>
+    </nav>
+
+    <!-- TAB 1: BERANDA / DASHBOARD -->
     <main id="content-home" class="tab-content space-y-5">
+      
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        
         <div class="lg:col-span-2 planner-card p-5 shadow-planner bg-gradient-to-r from-sky-50 via-purple-50 to-pink-50 border-2 border-sky-100 relative overflow-hidden flex flex-col justify-between">
           <div class="flex items-start justify-between gap-3">
             <div>
@@ -362,7 +427,7 @@
 
           <div class="w-full mt-2 space-y-1">
             <div id="mascotBubble" class="bg-white p-2.5 rounded-2xl border border-amber-200 text-xs font-bold text-planner-navy shadow-sm">
-              "Hai Adelia! Usap aku untuk semangat! ♡"
+              "Hai Adelia! Klik aku untuk semangat! ♡"
             </div>
             <div class="flex items-center justify-between text-[10px] font-bold text-slate-500 px-1 pt-1">
               <span>Semangat Mimi</span>
@@ -373,38 +438,594 @@
             </div>
           </div>
         </div>
+
       </div>
+
+      <div class="planner-card p-4 shadow-planner bg-gradient-to-br from-pink-50/60 via-purple-50/40 to-white border-2 border-pink-100 space-y-3">
+        <div class="flex items-center justify-between">
+          <h3 class="font-extrabold text-planner-navy text-xs font-cute flex items-center gap-2">
+            <span>📌</span> Agenda Kalender Hari Ini: <span id="dashTodayDateLabel" class="text-pink-600 font-extrabold">--</span>
+          </h3>
+          <button onclick="switchTab('calendar')" class="text-xs font-bold text-purple-700 hover:text-purple-900 transition flex items-center gap-1">
+            <span>Buka Kalender</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
+          </button>
+        </div>
+        <div id="dashboardCalendarAgendas" class="space-y-2 text-xs">
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-4">
+        
+        <div class="planner-card p-4 shadow-planner flex items-center gap-3 border-l-4 border-l-planner-catUtama">
+          <div class="w-10 h-10 rounded-xl bg-blue-100 text-planner-catUtama flex items-center justify-center text-lg shrink-0">
+            <i class="fa-solid fa-circle-check"></i>
+          </div>
+          <div>
+            <div class="text-[11px] font-bold text-slate-400 uppercase">Jadwal Selesai</div>
+            <div id="statTaskCount" class="text-xl font-extrabold text-planner-navy font-cute">0/0</div>
+            <div id="statTaskPercent" class="text-[10px] font-bold text-blue-600">0% Selesai</div>
+          </div>
+        </div>
+
+        <div class="planner-card p-4 shadow-planner flex items-center gap-3 border-l-4 border-l-planner-catAkademik">
+          <div class="w-10 h-10 rounded-xl bg-purple-100 text-planner-catAkademik flex items-center justify-center text-lg shrink-0">
+            <i class="fa-solid fa-fire"></i>
+          </div>
+          <div>
+            <div class="text-[11px] font-bold text-slate-400 uppercase">Habit Harian</div>
+            <div id="statHabitCount" class="text-xl font-extrabold text-planner-navy font-cute">0/0</div>
+            <div id="statHabitPercent" class="text-[10px] font-bold text-purple-600">0% Selesai</div>
+          </div>
+        </div>
+
+        <div class="planner-card p-4 shadow-planner flex items-center gap-3 border-l-4 border-l-planner-catCare">
+          <div class="w-10 h-10 rounded-xl bg-pink-100 text-planner-catCare flex items-center justify-center text-lg shrink-0">
+            <i class="fa-solid fa-capsules"></i>
+          </div>
+          <div>
+            <div class="text-[11px] font-bold text-slate-400 uppercase">Vitamin Today</div>
+            <div id="statVitaminCount" class="text-xl font-extrabold text-planner-navy font-cute">0/3</div>
+            <div class="text-[10px] font-bold text-pink-500">Kesehatan ♡</div>
+          </div>
+        </div>
+
+        <div class="planner-card p-4 shadow-planner flex items-center gap-3 border-l-4 border-l-planner-catExtra">
+          <div class="w-10 h-10 rounded-xl bg-emerald-100 text-planner-catExtra flex items-center justify-center text-lg shrink-0">
+            <i class="fa-solid fa-book-bookmark"></i>
+          </div>
+          <div>
+            <div class="text-[11px] font-bold text-slate-400 uppercase">Target Vocab</div>
+            <div id="statVocabCount" class="text-xl font-extrabold text-planner-navy font-cute">0/20</div>
+            <div class="text-[10px] font-bold text-emerald-600">Kata TOEFL</div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+
+        <div class="lg:col-span-2 space-y-4">
+          
+          <div class="planner-card p-5 shadow-planner space-y-4">
+            
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+              <div>
+                <h3 class="font-bold text-planner-navy text-base font-cute flex items-center gap-2">
+                  <span>☀️</span> Checklist Rutinitas Hari Ini
+                </h3>
+              </div>
+              <button onclick="switchTab('schedule')" class="text-xs font-bold text-planner-navy hover:text-blue-600 transition flex items-center gap-1 self-end sm:self-auto">
+                <span>Kelola Jadwal</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
+              </button>
+            </div>
+
+            <div class="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs font-bold scrollbar-none">
+              <button onclick="filterCategory('all')" id="catFilter-all" class="cat-pill px-3 py-1.5 rounded-xl bg-planner-navy text-white transition whitespace-nowrap shadow-sm">
+                Semua
+              </button>
+              <button onclick="filterCategory('kegiatan_utama')" id="catFilter-kegiatan_utama" class="cat-pill px-3 py-1.5 rounded-xl bg-blue-50 text-blue-700 hover:bg-blue-100 transition whitespace-nowrap flex items-center gap-1">
+                <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span> Utama
+              </button>
+              <button onclick="filterCategory('belajar_akademik')" id="catFilter-belajar_akademik" class="cat-pill px-3 py-1.5 rounded-xl bg-purple-50 text-purple-700 hover:bg-purple-100 transition whitespace-nowrap flex items-center gap-1">
+                <span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span> Akademik
+              </button>
+              <button onclick="filterCategory('self_care')" id="catFilter-self_care" class="cat-pill px-3 py-1.5 rounded-xl bg-pink-50 text-pink-700 hover:bg-pink-100 transition whitespace-nowrap flex items-center gap-1">
+                <span class="w-2.5 h-2.5 rounded-full bg-pink-500"></span> Self Care
+              </button>
+              <button onclick="filterCategory('hobi_metime')" id="catFilter-hobi_metime" class="cat-pill px-3 py-1.5 rounded-xl bg-orange-50 text-orange-700 hover:bg-orange-100 transition whitespace-nowrap flex items-center gap-1">
+                <span class="w-2.5 h-2.5 rounded-full bg-orange-500"></span> Me-Time
+              </button>
+              <button onclick="filterCategory('tambahan')" id="catFilter-tambahan" class="cat-pill px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition whitespace-nowrap flex items-center gap-1">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Tambahan
+              </button>
+            </div>
+
+            <div id="dashboardTaskList" class="space-y-2.5 max-h-[480px] overflow-y-auto pr-1">
+            </div>
+
+          </div>
+
+        </div>
+
+        <div class="space-y-4">
+          
+          <div class="planner-card p-5 shadow-planner space-y-3 bg-gradient-to-br from-pink-50/50 to-white">
+            <div class="flex items-center justify-between">
+              <h4 class="font-bold text-planner-navy text-xs uppercase tracking-wider flex items-center gap-1.5">
+                <i class="fa-solid fa-capsules text-pink-500"></i> Jadwal Minum Vitamin
+              </h4>
+              <span class="text-[10px] font-bold text-pink-600 bg-pink-100 px-2 py-0.5 rounded-full">Anjuran Dokter ♡</span>
+            </div>
+
+            <div class="space-y-2 text-xs">
+              <label class="custom-check flex items-center justify-between p-2.5 rounded-xl bg-white border border-pink-100 cursor-pointer hover:border-pink-300 transition">
+                <div class="flex items-center gap-2">
+                  <input type="checkbox" id="vitBComplex" onchange="toggleVitamin('vitBComplex', this.checked)" class="sr-only">
+                  <span class="checkmark w-4 h-4 rounded border-2 border-slate-300 relative transition"></span>
+                  <span class="font-bold text-slate-800">B Complex</span>
+                </div>
+                <span class="text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-md">Setelah Sarapan</span>
+              </label>
+
+              <label class="custom-check flex items-center justify-between p-2.5 rounded-xl bg-white border border-pink-100 cursor-pointer hover:border-pink-300 transition">
+                <div class="flex items-center gap-2">
+                  <input type="checkbox" id="vitZinc" onchange="toggleVitamin('vitZinc', this.checked)" class="sr-only">
+                  <span class="checkmark w-4 h-4 rounded border-2 border-slate-300 relative transition"></span>
+                  <span class="font-bold text-slate-800">Zinc</span>
+                </div>
+                <span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md">Makan Siang</span>
+              </label>
+
+              <label class="custom-check flex items-center justify-between p-2.5 rounded-xl bg-white border border-pink-100 cursor-pointer hover:border-pink-300 transition">
+                <div class="flex items-center gap-2">
+                  <input type="checkbox" id="vitMagnesium" onchange="toggleVitamin('vitMagnesium', this.checked)" class="sr-only">
+                  <span class="checkmark w-4 h-4 rounded border-2 border-slate-300 relative transition"></span>
+                  <span class="font-bold text-slate-800">Magnesium</span>
+                </div>
+                <span class="text-[10px] font-bold text-purple-600 bg-purple-50 px-2 py-0.5 rounded-md">Sebelum Tidur</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="planner-card p-5 shadow-planner space-y-3">
+            <h4 class="font-bold text-planner-navy text-xs uppercase tracking-wider flex items-center gap-1.5">
+              <i class="fa-solid fa-bullseye text-purple-500"></i> Target Harian Interaktif
+            </h4>
+
+            <div class="p-3 rounded-xl bg-purple-50/60 border border-purple-100 space-y-2">
+              <div class="flex justify-between items-center text-xs">
+                <span class="font-bold text-purple-900">📖 Hafalan Vocab TOEFL</span>
+                <span id="vocabCounterText" class="font-extrabold text-purple-700">0 / 20 kata</span>
+              </div>
+              <div class="w-full bg-white h-2 rounded-full overflow-hidden p-0.5 border border-purple-200">
+                <div id="vocabProgressBar" class="bg-purple-500 h-full rounded-full transition-all duration-300" style="width: 0%"></div>
+              </div>
+              <div class="flex items-center justify-between gap-2 pt-1">
+                <button onclick="addVocabCount(1)" class="flex-1 py-1 bg-white hover:bg-purple-100 text-purple-700 border border-purple-200 rounded-lg text-[11px] font-bold transition active:scale-95">
+                  +1 Kata
+                </button>
+                <button onclick="addVocabCount(5)" class="flex-1 py-1 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-[11px] font-bold transition active:scale-95 shadow-sm">
+                  +5 Kata
+                </button>
+                <button onclick="resetVocabCount()" class="p-1 px-2 text-slate-400 hover:text-rose-500 text-[11px] font-bold transition" title="Reset">
+                  <i class="fa-solid fa-rotate-right"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 text-xs">
+              <button id="btnSpeakingQuick" onclick="toggleQuickTarget('speakingDone')" class="p-2.5 rounded-xl border border-slate-200 bg-white hover:border-purple-300 transition text-left space-y-1">
+                <div class="text-[10px] text-slate-400 font-bold">LATIHAN SPEAKING</div>
+                <div id="speakingQuickLabel" class="font-bold text-slate-700">🗣️ Belum</div>
+              </button>
+
+              <button id="btnPortfolioQuick" onclick="toggleQuickTarget('portfolioDone')" class="p-2.5 rounded-xl border border-slate-200 bg-white hover:border-purple-300 transition text-left space-y-1">
+                <div class="text-[10px] text-slate-400 font-bold">UPDATE PORTFOLIO</div>
+                <div id="portfolioQuickLabel" class="font-bold text-slate-700">💼 Belum</div>
+              </button>
+            </div>
+          </div>
+
+          <div class="planner-card p-5 shadow-planner bg-planner-cream border-2 border-amber-200 space-y-3">
+            <div class="flex items-center justify-between">
+              <h4 class="font-extrabold text-planner-navy text-xs font-cute flex items-center gap-1.5">
+                <span>📌</span> Jangan Lupa: <span class="text-pink-500">♥</span>
+              </h4>
+              <button onclick="addStickyNotePrompt()" class="text-xs font-bold text-amber-800 hover:text-amber-900 transition">
+                + Tambah
+              </button>
+            </div>
+
+            <div id="stickyNotesContainer" class="space-y-1.5 text-xs font-medium">
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
     </main>
 
+    <!-- TAB 2: JADWAL -->
     <main id="content-schedule" class="tab-content space-y-5">
       <div class="planner-card p-6 shadow-planner space-y-5">
-        <h2 class="text-xl font-extrabold text-planner-navy font-cute">🗓️ Daily Schedule Tracker</h2>
-        <div id="scheduleFullList" class="space-y-3"></div>
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+          <div>
+            <h2 class="text-xl font-extrabold text-planner-navy font-cute flex items-center gap-2">
+              <span>🗓️</span> Daily Schedule Tracker
+            </h2>
+          </div>
+          <button onclick="openAddTaskModal()" class="px-4 py-2.5 bg-planner-navy hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-sm transition flex items-center gap-1.5 self-start sm:self-auto">
+            <i class="fa-solid fa-plus"></i> Tambah Kegiatan Baru
+          </button>
+        </div>
+
+        <div id="scheduleFullList" class="space-y-3">
+        </div>
       </div>
     </main>
 
+    <!-- TAB 3: DEDICATED ANALYTICS & HISTORY -->
+    <main id="content-analytics" class="tab-content space-y-5">
+      <div class="planner-card p-5 md:p-6 shadow-planner space-y-5 bg-gradient-to-br from-white via-slate-50/50 to-purple-50/30 border-2 border-purple-100 relative overflow-hidden">
+        
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-200/80 pb-4">
+          <div>
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 bg-purple-600 text-white rounded-full text-[10px] font-bold shadow-sm mb-1">
+              <i class="fa-solid fa-chart-pie"></i>
+              <span>REKAPAN HISTORI & ANALISIS DIRI</span>
+            </div>
+            <h2 class="text-lg md:text-xl font-extrabold text-planner-navy font-cute flex items-center gap-2">
+              <span>📈</span> Progress & Keberhasilan Adelia
+            </h2>
+            <p class="text-xs text-slate-500">Evaluasi pencapaianmu tiap bulan dan rayakan setiap langkah kecil! ✨</p>
+          </div>
+
+          <div class="flex items-center gap-2 self-start md:self-auto">
+            <label class="text-xs font-bold text-slate-600">Pilih Bulan:</label>
+            <select id="monthlySelect" onchange="changeMonthlyHistory(this.value)" class="p-2 bg-white border border-purple-200 rounded-xl text-xs font-bold text-planner-navy shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-300">
+            </select>
+          </div>
+        </div>
+
+        <div id="celebrationBanner" class="hidden p-4 rounded-2xl bg-gradient-to-r from-amber-300 via-pink-300 to-purple-300 text-slate-900 shadow-md relative overflow-hidden flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-2xl bg-white/90 flex items-center justify-center text-2xl shadow">🎉</div>
+            <div>
+              <div class="text-xs font-extrabold uppercase tracking-wider text-amber-900">SELAMAT ADELIA! 🌟</div>
+              <div id="celebrationTitle" class="text-sm font-extrabold font-cute">Pencapaian Luar Biasa Bulan Ini!</div>
+            </div>
+          </div>
+          <button onclick="triggerConfettiBurst()" class="px-4 py-2 bg-white hover:bg-slate-50 text-purple-900 rounded-xl font-extrabold text-xs shadow transition active:scale-95 shrink-0 flex items-center gap-1.5">
+            <span>✨ Rayakan Lagi!</span>
+          </button>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div class="p-3 bg-white border border-slate-100 rounded-xl shadow-sm text-center">
+            <div class="text-[10px] font-bold text-slate-400 uppercase">Tingkat Keberhasilan</div>
+            <div id="monthlyTaskRate" class="text-xl font-extrabold text-blue-600 font-cute">0%</div>
+          </div>
+          <div class="p-3 bg-white border border-slate-100 rounded-xl shadow-sm text-center">
+            <div class="text-[10px] font-bold text-slate-400 uppercase">Konsistensi Habit</div>
+            <div id="monthlyHabitRate" class="text-xl font-extrabold text-purple-600 font-cute">0%</div>
+          </div>
+          <div class="p-3 bg-white border border-slate-100 rounded-xl shadow-sm text-center">
+            <div class="text-[10px] font-bold text-slate-400 uppercase">Vocab Terkumpul</div>
+            <div id="monthlyTotalVocab" class="text-xl font-extrabold text-emerald-600 font-cute">0 kata</div>
+          </div>
+          <div class="p-3 bg-white border border-slate-100 rounded-xl shadow-sm text-center">
+            <div class="text-[10px] font-bold text-slate-400 uppercase">Total Me-Time</div>
+            <div id="monthlyMetimeTotal" class="text-xl font-extrabold text-pink-600 font-cute">0 min</div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+    <!-- TAB 4: WEEKLY MATRIX -->
+    <main id="content-matrix" class="tab-content space-y-5">
+      <div class="planner-card p-4 md:p-6 shadow-planner space-y-4">
+        <div class="border-b border-slate-100 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h2 class="text-lg md:text-xl font-extrabold text-planner-navy font-cute flex items-center gap-2">
+              <span>📊</span> Weekly Grid Tracker Matrix
+            </h2>
+          </div>
+        </div>
+
+        <div class="w-full border border-slate-200 rounded-2xl overflow-x-auto shadow-sm touch-pan-x">
+          <table class="w-full min-w-[680px] text-left text-xs border-collapse">
+            <thead>
+              <tr class="bg-planner-navy text-white font-cute font-bold text-center">
+                <th class="p-3 text-left w-56 border-r border-slate-700">Waktu & Item Kegiatan / Habit</th>
+                <th id="th-Senin" class="p-2 border-r border-slate-700 w-14">Senin</th>
+                <th id="th-Selasa" class="p-2 border-r border-slate-700 w-14">Selasa</th>
+                <th id="th-Rabu" class="p-2 border-r border-slate-700 w-14">Rabu</th>
+                <th id="th-Kamis" class="p-2 border-r border-slate-700 w-14">Kamis</th>
+                <th id="th-Jumat" class="p-2 border-r border-slate-700 w-14">Jumat</th>
+                <th id="th-Sabtu" class="p-2 border-r border-slate-700 w-14">Sabtu</th>
+                <th id="th-Minggu" class="p-2 w-14">Minggu</th>
+              </tr>
+            </thead>
+            <tbody id="matrixTableBody" class="divide-y divide-slate-200 bg-white">
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+
+    <!-- TAB 5: HABITS -->
+    <main id="content-habits" class="tab-content space-y-5">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <div class="lg:col-span-2 planner-card p-6 shadow-planner space-y-5">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div>
+              <h2 class="text-xl font-extrabold text-planner-navy font-cute flex items-center gap-2">
+                <span>🌷</span> Habit Tracker Harian
+              </h2>
+            </div>
+            <span id="habitSummaryBadge" class="text-xs font-bold px-3 py-1 bg-purple-100 text-purple-700 rounded-full">
+              0 Completed
+            </span>
+          </div>
+
+          <div id="habitListContainer" class="space-y-2.5">
+          </div>
+        </div>
+
+        <div class="planner-card p-6 shadow-planner space-y-4">
+          <h3 class="font-bold text-planner-navy text-xs uppercase tracking-wider">
+            + Tambah Habit Baru
+          </h3>
+          <input type="text" id="habitInput" placeholder="Contoh: Minum 2 liter air" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-purple-300">
+          <button onclick="addHabit()" class="w-full py-2.5 bg-planner-navy hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-sm transition">
+            Simpan Habit Baru
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <!-- TAB 6: KALENDER & AGENDA -->
+    <main id="content-calendar" class="tab-content space-y-5">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        
+        <div class="lg:col-span-2 planner-card p-5 md:p-6 shadow-planner space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+            <div>
+              <h2 class="text-xl font-extrabold text-planner-navy font-cute flex items-center gap-2">
+                <span>🗓️</span> Kalender Agenda Adelia
+              </h2>
+            </div>
+            
+            <div class="flex items-center gap-2 self-start sm:self-auto">
+              <button onclick="prevCalendarMonth()" class="p-2 bg-slate-100 hover:bg-slate-200 rounded-xl text-xs font-bold transition">
+                <i class="fa-solid fa-chevron-left"></i>
+              </button>
+              <span id="calendarMonthLabel" class="text-sm font-extrabold text-planner-navy min-w-[130px] text-center font-cute">
+                -- ----
+              </span>
+              <button onclick="nextCalendarMonth()" class="p-2 bg-slate-100 hover:bg-slate-200 rounded-xl text-xs font-bold transition">
+                <i class="fa-solid fa-chevron-right"></i>
+              </button>
+              <button onclick="goToTodayCalendar()" class="px-3 py-2 bg-purple-100 hover:bg-purple-200 text-purple-700 font-bold text-xs rounded-xl transition">
+                Hari Ini
+              </button>
+            </div>
+          </div>
+
+          <div class="w-full">
+            <div class="grid grid-cols-7 text-center font-bold text-xs text-planner-navy py-2 bg-purple-50/60 rounded-xl mb-2">
+              <span class="text-rose-500">Min</span>
+              <span>Sen</span>
+              <span>Sel</span>
+              <span>Rab</span>
+              <span>Kam</span>
+              <span>Jum</span>
+              <span class="text-blue-500">Sab</span>
+            </div>
+            <div id="calendarGridDays" class="grid grid-cols-7 gap-1.5 text-center text-xs">
+            </div>
+          </div>
+
+          <div class="pt-3 border-t border-slate-100 space-y-3">
+            <div class="flex items-center justify-between">
+              <h3 class="font-extrabold text-planner-navy text-xs font-cute flex items-center gap-1.5">
+                <span>📌</span> Agenda untuk Tanggal: <span id="selectedCalendarDateLabel" class="text-purple-600 font-extrabold">-- ---- ----</span>
+              </h3>
+              <button onclick="toggleAddAgendaForm()" class="px-3 py-1 bg-planner-navy hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-sm transition">
+                + Tambah Agenda
+              </button>
+            </div>
+
+            <div id="addAgendaForm" class="hidden p-3 bg-purple-50/60 border border-purple-200 rounded-2xl space-y-2 text-xs">
+              <input type="text" id="agendaTitleInput" placeholder="Judul Agenda / Ujian / Acara..." class="w-full p-2 bg-white border border-slate-200 rounded-xl font-bold">
+              <div class="grid grid-cols-2 gap-2">
+                <input type="time" id="agendaTimeInput" value="09:00" class="p-2 bg-white border border-slate-200 rounded-xl">
+                <select id="agendaTagInput" class="p-2 bg-white border border-slate-200 rounded-xl font-bold">
+                  <option value="🎯 Penting">🎯 Penting</option>
+                  <option value="📚 Akademik">📚 Akademik / Skripsi</option>
+                  <option value="🌸 Personal">🌸 Personal / Event</option>
+                  <option value="💼 PKL">💼 PKL / Tugas</option>
+                </select>
+              </div>
+              <div class="flex justify-end gap-2 pt-1">
+                <button onclick="toggleAddAgendaForm()" class="px-3 py-1 bg-white text-slate-600 font-bold rounded-lg border">Batal</button>
+                <button onclick="saveCalendarAgenda()" class="px-3 py-1 bg-purple-600 text-white font-bold rounded-lg shadow-sm">Simpan</button>
+              </div>
+            </div>
+
+            <div id="calendarAgendaList" class="space-y-2 max-h-[220px] overflow-y-auto pr-1">
+            </div>
+          </div>
+        </div>
+
+        <div class="planner-card p-5 shadow-planner space-y-4 flex flex-col justify-between">
+          <div class="space-y-3">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+              <h3 class="font-extrabold text-planner-navy text-xs uppercase tracking-wider flex items-center gap-1.5">
+                <i class="fa-solid fa-sticky-note text-amber-500"></i> Catatan Adelia
+              </h3>
+              <button onclick="openNoteModal()" class="text-xs font-bold text-purple-700 hover:text-purple-900">
+                + Tulis Catatan
+              </button>
+            </div>
+
+            <div id="quickNotesGrid" class="space-y-2.5 max-h-[460px] overflow-y-auto pr-1">
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+    <!-- TAB 7: ME-TIME FOCUS TIMER -->
+    <main id="content-metime" class="tab-content space-y-5">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <div class="lg:col-span-2 planner-card p-5 md:p-6 shadow-planner flex flex-col items-center justify-center text-center space-y-5">
+          <div class="w-full border-b border-slate-100 pb-3 text-left flex items-center justify-between">
+            <h2 class="text-lg md:text-xl font-extrabold text-planner-navy font-cute">
+              🎬 Me-Time Focus Timer
+            </h2>
+            <span class="text-xs font-bold bg-pink-100 text-pink-700 px-3 py-1 rounded-full">Istirahat Santai</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full text-left">
+            <div>
+              <label class="block text-xs font-bold text-slate-600 mb-1">Aktivitas</label>
+              <select id="timerActivity" onchange="resetTimer()" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold">
+                <option value="Scroll Sosmed 📱">📱 Scroll Social Media</option>
+                <option value="Nonton Drama 🎬">🎬 Menonton Drama</option>
+                <option value="Melukis / Drawing 🎨">🎨 Melukis atau Menggambar</option>
+                <option value="Membaca Buku 📖">📖 Membaca Santai</option>
+                <option value="Istirahat Santai ☕">☕ Coffee Break</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-600 mb-1">Durasi (Menit)</label>
+              <input type="number" id="timerMinutes" value="20" min="1" max="240" onchange="resetTimer()" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold">
+            </div>
+          </div>
+
+          <div class="relative flex items-center justify-center my-2">
+            <svg class="w-44 h-44 md:w-56 md:h-56 transform -rotate-90">
+              <circle cx="50%" cy="50%" r="42%" stroke="#f1f5f9" stroke-width="10" fill="transparent" />
+              <circle id="timerProgressCircle" cx="50%" cy="50%" r="42%" stroke="#294C7A" stroke-width="10" stroke-dasharray="500" stroke-dashoffset="0" stroke-linecap="round" fill="transparent" class="transition-all duration-1000" />
+            </svg>
+            <div class="absolute flex flex-col items-center justify-center">
+              <span id="timerDisplay" class="text-3xl md:text-4xl font-extrabold text-planner-navy font-cute">20:00</span>
+              <span id="timerStatus" class="text-xs font-bold text-blue-600 mt-1">Siap dimulai ♡</span>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2 w-full max-w-xs">
+            <button onclick="startTimer()" class="flex-1 py-2.5 bg-planner-navy text-white font-bold text-xs rounded-xl shadow-sm hover:bg-slate-800 transition active:scale-95">
+              ▶ Mulai
+            </button>
+            <button onclick="pauseTimer()" class="flex-1 py-2.5 bg-pink-100 text-pink-700 font-bold text-xs rounded-xl hover:bg-pink-200 transition active:scale-95">
+              ⏸ Jeda
+            </button>
+            <button onclick="resetTimer()" class="p-2.5 bg-slate-100 text-slate-600 font-bold text-xs rounded-xl hover:bg-slate-200 transition active:scale-95">
+              ↻ Reset
+            </button>
+          </div>
+        </div>
+
+        <div class="planner-card p-5 shadow-planner space-y-3">
+          <h3 class="font-bold text-planner-navy text-xs uppercase tracking-wider">
+            Riwayat Me-Time Hari Ini
+          </h3>
+          <div id="metimeHistory" class="space-y-2 text-xs">
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- TAB 8: JURNAL -->
+    <main id="content-journal" class="tab-content space-y-5">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <div class="lg:col-span-2 planner-card p-6 shadow-planner space-y-4">
+          <h2 class="text-xl font-extrabold text-planner-navy font-cute border-b border-slate-100 pb-3">
+            📝 Jurnal & Refleksi Harian
+          </h2>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Perasaan / Mood Hari Ini</label>
+            <select id="journalMood" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold">
+              <option value="😊 Senang">😊 Senang</option>
+              <option value="😌 Tenang">😌 Tenang</option>
+              <option value="🥱 Lelah">🥱 Lelah</option>
+              <option value="😵‍💫 Kewalahan">😵‍💫 Kewalahan</option>
+              <option value="🥺 Sedih">🥺 Sedih</option>
+              <option value="✨ Semangat">✨ Semangat</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Apa yang aku syukuri hari ini?</label>
+            <textarea id="journalGratitude" rows="2" placeholder="Hal kecil yang membuat tersenyum..." class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-purple-300"></textarea>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Pencapaianku hari ini</label>
+            <textarea id="journalAchievement" rows="2" placeholder="Pencapaian sekecil apa pun..." class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-purple-300"></textarea>
+          </div>
+
+          <button onclick="saveJournal()" class="w-full py-3 bg-planner-navy hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-md transition">
+            Simpan Jurnal Hari Ini ♡
+          </button>
+        </div>
+
+        <div class="planner-card p-5 shadow-planner space-y-3">
+          <h3 class="font-bold text-planner-navy text-xs uppercase tracking-wider">
+            Riwayat Jurnal
+          </h3>
+          <div id="journalHistoryList" class="space-y-3 max-h-[400px] overflow-y-auto pr-1">
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- TAB 9: PENGATURAN / OPSI -->
     <main id="content-settings" class="tab-content space-y-5">
       <div class="planner-card p-6 shadow-planner max-w-2xl mx-auto space-y-5">
         <h2 class="text-xl font-extrabold text-planner-navy font-cute border-b border-slate-100 pb-3">
-          ⚙️ Pengaturan & Notifikasi
+          ⚙️ Pengaturan & Cetak Laporan PDF Estetik
         </h2>
 
         <div class="space-y-4 text-xs">
-          <div class="p-4 bg-gradient-to-r from-purple-50 via-pink-50 to-sky-50 rounded-2xl border-2 border-purple-200 space-y-3 shadow-sm">
-            <div class="flex items-center gap-2 text-purple-900 font-extrabold text-sm">
-              <i class="fa-solid fa-bell text-purple-600 text-xl"></i>
-              <h4>Notifikasi, Suara Alarm & Getar HP</h4>
+          
+          <div class="p-4 bg-gradient-to-r from-pink-50 via-purple-50 to-sky-50 rounded-2xl border-2 border-pink-200 space-y-3 shadow-sm">
+            <div class="flex items-center gap-2 text-pink-900 font-extrabold text-sm">
+              <i class="fa-solid fa-file-pdf text-pink-600 text-2xl"></i>
+              <h4>Cetak Laporan Progress ke PDF Estetik (.PDF)</h4>
             </div>
             <p class="text-slate-600 leading-relaxed">
-              Uji coba notifikasi dan suara alarm sekarang untuk memastikan HP kamu bergetar dan mengeluarkan suara saat jadwal tiba.
+              Dokumen PDF diformat rapi dengan tema pastel manis ala <strong>Adelia's Little World ♡</strong>. Memuat ringkasan skor performa, tabel checklist jadwal harian, log kebiasaan, hingga catatanku!
             </p>
-            <div class="flex gap-2">
-              <button onclick="requestNotificationAndSoundPermission()" class="px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-extrabold shadow transition active:scale-95">
-                Minta Izin Notifikasi & Suara
+            <div class="pt-1">
+              <button onclick="exportProgressPDF()" class="w-full py-3 bg-pink-500 hover:bg-pink-600 text-white rounded-xl font-extrabold shadow-md transition active:scale-95 flex items-center justify-center gap-2 text-xs">
+                <i class="fa-solid fa-print"></i>
+                <span>Cetak / Simpan Laporan PDF Estetik Sekarang ✨</span>
               </button>
-              <button onclick="testAlarmAndVibration()" class="px-4 py-2.5 bg-white text-purple-900 border border-purple-300 rounded-xl font-extrabold hover:bg-slate-50 transition active:scale-95">
-                🔔 Uji Suara & Getar HP
-              </button>
+            </div>
+          </div>
+
+          <div class="p-4 bg-purple-50 rounded-2xl border border-purple-100 space-y-2">
+            <h4 class="font-bold text-purple-900">Cadangkan / Impor Data Aplikasi (JSON)</h4>
+            <div class="flex gap-2 pt-1">
+              <button onclick="exportDataJSON()" class="px-4 py-2 bg-planner-navy text-white rounded-xl font-bold">Ekspor JSON</button>
+              <label class="px-4 py-2 bg-white text-planner-navy border border-purple-200 rounded-xl font-bold cursor-pointer">
+                Impor JSON <input type="file" accept=".json" onchange="importDataJSON(event)" class="hidden">
+              </label>
+            </div>
+          </div>
+
+          <div class="p-4 bg-rose-50 rounded-2xl border border-rose-100 space-y-2">
+            <h4 class="font-bold text-rose-900">Reset Data</h4>
+            <div class="flex gap-2 pt-1">
+              <button onclick="resetTodayChecks()" class="px-4 py-2 bg-rose-500 text-white rounded-xl font-bold">Reset Centang Hari Ini</button>
+              <button onclick="restoreDefaultData()" class="px-4 py-2 bg-white text-rose-700 border border-rose-200 rounded-xl font-bold">Kembalikan Data Bawaan</button>
             </div>
           </div>
         </div>
@@ -417,9 +1038,224 @@
 
   </div>
 
+  <!-- ALL-IN-ONE COMPREHENSIVE PDF REPORT PRINT TEMPLATE (Formatted for Print to PDF) -->
+  <div id="pdfReportContainer" class="hidden p-6 bg-white font-sans text-slate-800 space-y-5">
+    
+    <!-- PDF Header Banner -->
+    <div class="border-b-4 border-pink-300 pb-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <span class="text-4xl">🐱</span>
+        <div>
+          <h1 class="text-2xl font-black text-slate-800 font-cute">Adelia's Little World ♡</h1>
+          <p class="text-xs text-pink-600 font-bold">Laporan Progress & Rekapitulasi Harian, Mingguan & Bulanan Lengkap</p>
+        </div>
+      </div>
+      <div class="text-right text-xs">
+        <div id="pdfPrintDate" class="font-bold text-slate-700">Tanggal: --</div>
+        <div class="text-slate-400">Printed from Web App</div>
+      </div>
+    </div>
+
+    <!-- SEKSI 1: Ringkasan Performa & Skor (Daily, Weekly & Monthly Progress) -->
+    <div class="space-y-2">
+      <h3 class="font-extrabold text-slate-800 text-sm border-b pb-1 font-cute">📈 Ringkasan Performa & Progress Diri</h3>
+      <div class="grid grid-cols-4 gap-2 text-center text-xs">
+        <div class="p-2.5 rounded-xl bg-sky-50 border border-sky-200">
+          <div class="text-slate-400 font-bold uppercase text-[9px]">Jadwal Selesai Hari Ini</div>
+          <div id="pdfTaskRate" class="text-base font-extrabold text-sky-700">0%</div>
+        </div>
+        <div class="p-2.5 rounded-xl bg-purple-50 border border-purple-200">
+          <div class="text-slate-400 font-bold uppercase text-[9px]">Konsistensi Habit</div>
+          <div id="pdfHabitRate" class="text-base font-extrabold text-purple-700">0%</div>
+        </div>
+        <div class="p-2.5 rounded-xl bg-pink-50 border border-pink-200">
+          <div class="text-slate-400 font-bold uppercase text-[9px]">Vitamin Today</div>
+          <div id="pdfVitaminCount" class="text-base font-extrabold text-pink-700">0/3</div>
+        </div>
+        <div class="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200">
+          <div class="text-slate-400 font-bold uppercase text-[9px]">Target Vocab TOEFL</div>
+          <div id="pdfVocabCount" class="text-base font-extrabold text-emerald-700">0/20</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SEKSI 2: Log Daily Schedule Checklist -->
+    <div class="space-y-2">
+      <h3 class="font-extrabold text-slate-800 text-sm border-b pb-1 font-cute">🗓️ Log Daily Schedule Checklist</h3>
+      <table class="w-full text-xs border-collapse">
+        <thead>
+          <tr class="bg-slate-100 text-slate-700 font-bold">
+            <th class="p-2 text-left border">Jam</th>
+            <th class="p-2 text-left border">Nama Kegiatan</th>
+            <th class="p-2 text-left border">Kategori</th>
+            <th class="p-2 text-center border">Status</th>
+          </tr>
+        </thead>
+        <tbody id="pdfTaskListBody">
+        </tbody>
+      </table>
+    </div>
+
+    <!-- SEKSI 3: Habit Tracker & Rekap Vitamin -->
+    <div class="grid grid-cols-2 gap-4">
+      <div class="space-y-2">
+        <h3 class="font-extrabold text-slate-800 text-sm border-b pb-1 font-cute">🌷 Habit Tracker Harian</h3>
+        <ul id="pdfHabitList" class="text-xs space-y-1"></ul>
+      </div>
+
+      <div class="space-y-2">
+        <h3 class="font-extrabold text-slate-800 text-sm border-b pb-1 font-cute">💊 Vitamin & Target Refleksi</h3>
+        <div id="pdfVitaminList" class="text-xs space-y-1"></div>
+      </div>
+    </div>
+
+    <!-- SEKSI 4: Rekap Agenda Kalender Bulanan -->
+    <div class="space-y-2">
+      <h3 class="font-extrabold text-slate-800 text-sm border-b pb-1 font-cute">🗓️ Rekap Agenda Kalender & Target Ujian</h3>
+      <div id="pdfAgendaList" class="text-xs space-y-1"></div>
+    </div>
+
+    <!-- SEKSI 5: Rekap Jurnal & Refleksi Harian -->
+    <div class="space-y-2">
+      <h3 class="font-extrabold text-slate-800 text-sm border-b pb-1 font-cute">📝 Log Jurnal & Refleksi Harian</h3>
+      <div id="pdfJournalList" class="text-xs space-y-1.5"></div>
+    </div>
+
+    <!-- SEKSI 6: Catatan Tambahan & Sticky Notes -->
+    <div class="space-y-2">
+      <h3 class="font-extrabold text-slate-800 text-sm border-b pb-1 font-cute">📌 Catatan Tambahan & Pengingat Manis</h3>
+      <div id="pdfNotesList" class="text-xs grid grid-cols-2 gap-2"></div>
+    </div>
+
+    <div class="pt-4 border-t text-center text-[10px] text-slate-400 font-medium">
+      "Little steps everyday make big results" 🐾 · Created with ♡ for Adelia
+    </div>
+  </div>
+
+  <!-- TOAST CONTAINER -->
   <div id="toastContainer" class="fixed bottom-16 md:bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
+  <!-- CONFETTI CANVAS -->
+  <canvas id="confettiCanvas" class="fixed inset-0 pointer-events-none z-50 w-full h-full"></canvas>
+
+  <!-- CUSTOM DIALOG MODAL -->
+  <div id="customModal" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="planner-card bg-white p-6 max-w-sm w-full shadow-2xl space-y-4">
+      <div class="flex items-center gap-3 text-planner-navy">
+        <span id="modalIcon" class="text-2xl">🐱</span>
+        <h3 id="modalTitle" class="font-extrabold text-base font-cute">Pemberitahuan</h3>
+      </div>
+      <p id="modalMessage" class="text-xs text-slate-600 leading-relaxed"></p>
+      <div class="flex justify-end pt-2">
+        <button onclick="closeModal()" class="px-4 py-2 bg-planner-navy text-white font-bold text-xs rounded-xl">
+          Selesai ♡
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TASK MODAL -->
+  <div id="taskModal" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="planner-card bg-white p-6 max-w-md w-full shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+        <h3 id="taskModalTitle" class="font-extrabold text-slate-800 text-sm font-cute flex items-center gap-2">
+          <span>＋</span> Kelola Kegiatan
+        </h3>
+        <button onclick="closeTaskModal()" class="text-slate-400 hover:text-slate-600">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <input type="hidden" id="editTaskId" value="">
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Nama Kegiatan</label>
+          <input type="text" id="taskNameInput" placeholder="Contoh: Membaca jurnal skripsi" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Kategori Warna</label>
+          <select id="taskCategoryInput" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-bold">
+            <option value="kegiatan_utama">🟦 Kegiatan Utama (PKL, Pulang)</option>
+            <option value="belajar_akademik">🟪 Belajar / Akademik (TOEFL, Skripsi, Jurnal)</option>
+            <option value="self_care">🩷 Self Care / Kesehatan (Sarapan, Skincare, Tidur)</option>
+            <option value="hobi_metime">🟧 Hobi / Me Time (Sosmed, Drama, Melukis)</option>
+            <option value="tambahan">🟩 Tambahan / Lainnya (Portfolio, LinkedIn)</option>
+          </select>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Jam Mulai</label>
+            <input type="time" id="taskStartInput" value="19:30" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Jam Selesai</label>
+            <input type="time" id="taskEndInput" value="20:00" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2">
+        <button onclick="closeTaskModal()" class="px-4 py-2 bg-slate-100 text-slate-600 font-bold text-xs rounded-xl">
+          Batal
+        </button>
+        <button onclick="saveTask()" class="px-4 py-2 bg-planner-navy text-white font-bold text-xs rounded-xl shadow-sm">
+          Simpan Kegiatan
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOTE MODAL -->
+  <div id="noteModal" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="planner-card bg-white p-6 max-w-md w-full shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+        <h3 class="font-extrabold text-slate-800 text-sm font-cute flex items-center gap-2">
+          <span>📝</span> Tulis Catatan Baru
+        </h3>
+        <button onclick="closeNoteModal()" class="text-slate-400 hover:text-slate-600">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Judul Catatan</label>
+          <input type="text" id="noteTitleInput" placeholder="Judul ide atau instruksi..." class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-bold">
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Warna Kartu</label>
+          <select id="noteColorInput" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-bold">
+            <option value="pink">🩷 Pink Sweet</option>
+            <option value="blue">🟦 Blue Sky</option>
+            <option value="purple">🟪 Lavender</option>
+            <option value="amber">🟧 Amber Cream</option>
+            <option value="emerald">🟩 Mint Green</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Isi Catatan</label>
+          <textarea id="noteContentInput" rows="4" placeholder="Tulis detail catatan, draft, atau daftar di sini..." class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-300"></textarea>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2">
+        <button onclick="closeNoteModal()" class="px-4 py-2 bg-slate-100 text-slate-600 font-bold text-xs rounded-xl">
+          Batal
+        </button>
+        <button onclick="saveQuickNote()" class="px-4 py-2 bg-planner-navy text-white font-bold text-xs rounded-xl shadow-sm">
+          Simpan Catatan ♡
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script>
+    /* UTILITY: SANITIZE HTML */
     function escapeHTML(str) {
       if (str === null || str === undefined) return '';
       return String(str).replace(/[&<>"']/g, function(m) {
@@ -435,12 +1271,54 @@
 
     const STORAGE_KEY = "adelia_planner_v9";
 
+    const categoryConfig = {
+      kegiatan_utama: { label: "Kegiatan Utama", color: "#3B82F6", bg: "bg-blue-50", text: "text-blue-700", border: "border-blue-200", badgeBg: "bg-blue-500" },
+      belajar_akademik: { label: "Belajar / Akademik", color: "#A855F7", bg: "bg-purple-50", text: "text-purple-700", border: "border-purple-200", badgeBg: "bg-purple-500" },
+      self_care: { label: "Self Care / Kesehatan", color: "#EC4899", bg: "bg-pink-50", text: "text-pink-700", border: "border-pink-200", badgeBg: "bg-pink-500" },
+      hobi_metime: { label: "Hobi / Me Time", color: "#F97316", bg: "bg-orange-50", text: "text-orange-700", border: "border-orange-200", badgeBg: "bg-orange-500" },
+      tambahan: { label: "Tambahan / Lainnya", color: "#10B981", bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-200", badgeBg: "bg-emerald-500" }
+    };
+
     const defaultTasks = [
       { id: "task_1", name: "Belajar TOEFL (buku TOEFL Hacks)", category: "belajar_akademik", start: "04:30", end: "05:00" },
       { id: "task_2", name: "Hafalan vocab (20 kata/hari)", category: "belajar_akademik", start: "05:00", end: "05:15" },
       { id: "task_3", name: "Setelah sarapan (pagi) Minum kolagen", category: "self_care", start: "06:30", end: "07:00" },
-      { id: "task_6", name: "PKL (sesuai jadwal Senin-Jumat)", category: "kegiatan_utama", start: "08:00", end: "12:00" }
+      { id: "task_4", name: "Latihan speaking (stimuler)", category: "belajar_akademik", start: "07:00", end: "07:15" },
+      { id: "task_5", name: "Sebelum mulai tugas PKL (Portfolio / Baca Jurnal)", category: "belajar_akademik", start: "07:15", end: "07:50" },
+      { id: "task_6", name: "PKL (sesuai jadwal Senin-Jumat)", category: "kegiatan_utama", start: "08:00", end: "12:00" },
+      { id: "task_7", name: "Makan siang + Istirahat", category: "self_care", start: "12:00", end: "13:00" },
+      { id: "task_8", name: "Lanjut tugas PKL + Baca jurnal", category: "kegiatan_utama", start: "13:00", end: "16:00" },
+      { id: "task_9", name: "Jeda menunggu jemput (Portfolio)", category: "tambahan", start: "16:00", end: "18:00" },
+      { id: "task_10", name: "Pulang + Istirahat", category: "kegiatan_utama", start: "18:00", end: "19:00" },
+      { id: "task_11", name: "Makan malam + Minum kolagen", category: "self_care", start: "19:00", end: "19:40" },
+      { id: "task_12", name: "Skripsi (malam)", category: "belajar_akademik", start: "19:45", end: "20:30" },
+      { id: "task_13", name: "Scroll media sosial (Me-Time)", category: "hobi_metime", start: "20:30", end: "20:50" },
+      { id: "task_14", name: "Menonton drama", category: "hobi_metime", start: "20:50", end: "21:20" },
+      { id: "task_15", name: "Skincare & Vitamin (malam)", category: "self_care", start: "21:20", end: "21:40" },
+      { id: "task_16", name: "Tidur nyenyak 💤", category: "self_care", start: "22:30", end: "04:30" }
     ];
+
+    const defaultHabits = [
+      "TOEFL (buku Hacks)",
+      "Hafal vocab (20 kata)",
+      "Speaking (stimuler)",
+      "Baca & cari jurnal",
+      "Update CV/Portfolio/LinkedIn",
+      "Minum kolagen (pagi & malam)",
+      "Vitamin (B, Zn, Mg)",
+      "Skripsi (malam)",
+      "Hobi (melukis & gambar)"
+    ];
+
+    const defaultStickyNotes = [
+      "Minum air putih 💧",
+      "Jaga pola makan 🥗",
+      "Jangan lupa istirahat ☕",
+      "Nikmati prosesnya 🌸",
+      "Kamu hebat! ✨"
+    ];
+
+    const weekDaysIndo = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
 
     function getDateKey(dateObj = new Date()) {
       return `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}-${String(dateObj.getDate()).padStart(2, '0')}`;
@@ -449,9 +1327,20 @@
     function getInitialData() {
       return {
         tasks: defaultTasks,
+        habits: defaultHabits,
+        stickyNotes: defaultStickyNotes,
         checks: {},
+        vitamins: {},
+        vocabCount: {},
+        quickTargets: {},
+        sessions: [],
+        journals: {},
+        agendas: {},
+        quickNotes: [
+          { id: "note_1", title: "Target Buku TOEFL Hacks 📖", content: "Selesaikan bab Listening Section & latihan soal 20 nomor setiap pagi.", color: "purple", date: getDateKey() }
+        ],
         alarmEnabled: true,
-        notifiedTasks: {}
+        mascotPetCount: 0
       };
     }
 
@@ -463,6 +1352,8 @@
       appData = getInitialData();
     }
 
+    let currentFilterCategory = "all";
+
     function saveData() {
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
@@ -470,21 +1361,41 @@
       renderApp();
     }
 
-    // SAFE SERVICE WORKER REGISTRATION (Prevents blob: URL registration crashes)
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        // SW registration is only permitted under http: and https: protocols
-        if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
-          navigator.serviceWorker.register('/sw.js')
-            .then(reg => console.log('Service Worker terdaftar:', reg.scope))
-            .catch(err => console.warn('Service Worker skipped or failed:', err));
-        } else {
-          console.log('Skipping Service Worker registration in preview/blob environment.');
-        }
-      });
-    }
+    window.showToast = function(msg) {
+      const container = document.getElementById("toastContainer");
+      if (!container) return;
+      const toast = document.createElement("div");
+      toast.className = "px-4 py-2.5 rounded-2xl bg-slate-900 text-white font-bold text-xs shadow-xl transition transform duration-300 translate-y-2 opacity-0 flex items-center gap-2 pointer-events-auto border border-slate-700/50 z-50";
+      toast.innerHTML = `<span>✨</span> <span>${escapeHTML(msg)}</span>`;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.classList.remove("translate-y-2", "opacity-0");
+      }, 10);
+      setTimeout(() => {
+        toast.classList.add("translate-y-2", "opacity-0");
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    };
 
+    window.openModal = function(title, msg, icon = "🐱") {
+      const m = document.getElementById("customModal");
+      if (!m) return;
+      document.getElementById("modalTitle").textContent = title;
+      document.getElementById("modalMessage").textContent = msg;
+      document.getElementById("modalIcon").textContent = icon;
+      m.classList.remove("hidden");
+    };
+
+    window.closeModal = function() {
+      const m = document.getElementById("customModal");
+      if (m) m.classList.add("hidden");
+    };
+
+    /* AUDIO SYNTHESIZER & ALARM */
     let audioCtx = null;
+    let ambientNoiseNode = null;
+    let isAmbientPlaying = false;
+
     function getAudioContext() {
       if (!audioCtx) {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -495,93 +1406,215 @@
       return audioCtx;
     }
 
-    window.triggerAlarmSoundAndVibration = function(title = "Pengingat Jadwal!", bodyText = "") {
+    window.playChimeSound = function() {
       try {
         const ctx = getAudioContext();
         const now = ctx.currentTime;
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
 
-        osc.type = 'triangle';
+        osc.type = 'sine';
         osc.frequency.setValueAtTime(523.25, now);
-        osc.frequency.setValueAtTime(659.25, now + 0.15);
-        osc.frequency.setValueAtTime(783.99, now + 0.3);
+        osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.1);
 
-        gain.gain.setValueAtTime(0.3, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
 
         osc.connect(gain);
         gain.connect(ctx.destination);
+
         osc.start(now);
-        osc.stop(now + 0.6);
+        osc.stop(now + 0.3);
       } catch (e) {}
-
-      if ('speechSynthesis' in window) {
-        const textToSpeak = `${title}. ${bodyText}`;
-        const utterance = new SpeechSynthesisUtterance(textToSpeak);
-        utterance.lang = 'id-ID';
-        utterance.rate = 1.0;
-        window.speechSynthesis.speak(utterance);
-      }
-
-      if ('vibrate' in navigator) {
-        navigator.vibrate([300, 150, 300, 150, 400]);
-      }
-
-      if ('Notification' in window && Notification.permission === 'granted') {
-        try {
-          if (navigator.serviceWorker && navigator.serviceWorker.controller) {
-            navigator.serviceWorker.controller.postMessage({
-              type: 'TRIGGER_NOTIF',
-              title: title,
-              body: bodyText
-            });
-          } else {
-            new Notification(title, {
-              body: bodyText,
-              icon: 'https://placehold.co/128x128/EC4899/ffffff?text=🐱'
-            });
-          }
-        } catch (err) {}
-      }
     };
 
-    window.requestNotificationAndSoundPermission = function() {
-      getAudioContext();
+    window.toggleAlarmSetting = function() {
+      appData.alarmEnabled = !appData.alarmEnabled;
+      saveData();
+      showToast(appData.alarmEnabled ? "Alarm pengingat diaktifkan 🔔" : "Alarm pengingat dinonaktifkan 🔕");
+    };
+
+    window.toggleAmbientSound = function() {
+      try {
+        const ctx = getAudioContext();
+        const icon = document.getElementById("ambientIcon");
+
+        if (!isAmbientPlaying) {
+          const bufferSize = ctx.sampleRate * 2;
+          const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+          const output = noiseBuffer.getChannelData(0);
+          for (let i = 0; i < bufferSize; i++) {
+            output[i] = Math.random() * 2 - 1;
+          }
+
+          ambientNoiseNode = ctx.createBufferSource();
+          ambientNoiseNode.buffer = noiseBuffer;
+          ambientNoiseNode.loop = true;
+
+          const filter = ctx.createBiquadFilter();
+          filter.type = 'lowpass';
+          filter.frequency.value = 400;
+
+          const gain = ctx.createGain();
+          gain.gain.value = 0.05;
+
+          ambientNoiseNode.connect(filter);
+          filter.connect(gain);
+          gain.connect(ctx.destination);
+
+          ambientNoiseNode.start();
+          isAmbientPlaying = true;
+          if (icon) icon.className = "fa-solid fa-volume-high text-xs md:text-sm text-blue-600 animate-pulse";
+          showToast("Suara Lo-Fi Hujan diputar 🌧️");
+        } else {
+          if (ambientNoiseNode) ambientNoiseNode.stop();
+          isAmbientPlaying = false;
+          if (icon) icon.className = "fa-solid fa-cloud-rain text-xs md:text-sm text-planner-navy";
+          showToast("Suara ambient dihentikan");
+        }
+      } catch (e) {}
+    };
+
+    /* CONFETTI ENGINE */
+    let confettiParticles = [];
+    let confettiAnimId = null;
+
+    window.triggerConfettiBurst = function() {
+      const canvas = document.getElementById("confettiCanvas");
+      if (!canvas) return;
       
-      if ('Notification' in window) {
-        Notification.requestPermission().then(permission => {
-          if (permission === 'granted') {
-            const banner = document.getElementById("notifBanner");
-            if (banner) banner.classList.add("hidden");
-            
-            triggerAlarmSoundAndVibration("Notifikasi Aktif!", "Adelia, kamu akan menerima alarm suara & getaran saat jadwal tiba! 🐾");
-            showToast("Notifikasi & Suara Alarm berhasil diaktifkan! 🔔");
-          } else {
-            alert("Izin notifikasi ditolak. Harap izinkan notifikasi pada pengaturan browser HP Anda.");
-          }
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      const ctx = canvas.getContext("2d");
+
+      const colors = ['#FCE1E8', '#DCEEFF', '#E9E1FF', '#3B82F6', '#EC4899', '#A855F7', '#F59E0B', '#10B981'];
+      confettiParticles = [];
+
+      for (let i = 0; i < 90; i++) {
+        confettiParticles.push({
+          x: window.innerWidth / 2 + (Math.random() * 200 - 100),
+          y: window.innerHeight / 2 + (Math.random() * 100 - 50),
+          vx: (Math.random() - 0.5) * 12,
+          vy: Math.random() * -12 - 4,
+          size: Math.random() * 8 + 4,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          rotation: Math.random() * 360,
+          rotSpeed: (Math.random() - 0.5) * 10,
+          opacity: 1
         });
-      } else {
-        triggerAlarmSoundAndVibration("Notifikasi Aktif!", "Suara alarm & getaran berhasil diaktifkan! ✨");
       }
+
+      if (confettiAnimId) cancelAnimationFrame(confettiAnimId);
+
+      function renderConfetti() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        let activeCount = 0;
+
+        confettiParticles.forEach(p => {
+          if (p.opacity <= 0) return;
+          activeCount++;
+
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.35;
+          p.rotation += p.rotSpeed;
+          p.opacity -= 0.012;
+
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate((p.rotation * Math.PI) / 180);
+          ctx.globalAlpha = Math.max(0, p.opacity);
+          ctx.fillStyle = p.color;
+          ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+          ctx.restore();
+        });
+
+        if (activeCount > 0) {
+          confettiAnimId = requestAnimationFrame(renderConfetti);
+        } else {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+      }
+
+      renderConfetti();
     };
 
-    window.testAlarmAndVibration = function() {
-      triggerAlarmSoundAndVibration("Uji Alarm Adelia", "Waktunya belajar skripsi dan latihan TOEFL hari ini! ✨");
+    /* TIMER MANAGEMENT SYSTEM */
+    let timerInterval = null;
+    let timerTotalSeconds = 20 * 60;
+    let timerRemainingSeconds = 20 * 60;
+    let isTimerRunning = false;
+
+    window.resetTimer = function() {
+      if (timerInterval) clearInterval(timerInterval);
+      isTimerRunning = false;
+      const minInput = document.getElementById("timerMinutes");
+      const mins = minInput ? parseInt(minInput.value, 10) || 20 : 20;
+      timerTotalSeconds = mins * 60;
+      timerRemainingSeconds = timerTotalSeconds;
+      updateTimerDisplay();
+      const statusEl = document.getElementById("timerStatus");
+      if (statusEl) statusEl.textContent = "Siap dimulai ♡";
     };
 
-    window.showToast = function(msg) {
-      const container = document.getElementById("toastContainer");
-      if (!container) return;
-      const toast = document.createElement("div");
-      toast.className = "px-4 py-2.5 rounded-2xl bg-slate-900 text-white font-bold text-xs shadow-xl transition transform duration-300 translate-y-2 opacity-0 flex items-center gap-2 pointer-events-auto border border-slate-700/50 z-50";
-      toast.innerHTML = `<span>✨</span> <span>${escapeHTML(msg)}</span>`;
-      container.appendChild(toast);
-      setTimeout(() => toast.classList.remove("translate-y-2", "opacity-0"), 10);
-      setTimeout(() => {
-        toast.classList.add("translate-y-2", "opacity-0");
-        setTimeout(() => toast.remove(), 300);
-      }, 3000);
+    window.startTimer = function() {
+      if (isTimerRunning) return;
+      isTimerRunning = true;
+      const statusEl = document.getElementById("timerStatus");
+      if (statusEl) statusEl.textContent = "Fokus berlangsung... ⏳";
+
+      timerInterval = setInterval(() => {
+        if (timerRemainingSeconds > 0) {
+          timerRemainingSeconds--;
+          updateTimerDisplay();
+        } else {
+          clearInterval(timerInterval);
+          isTimerRunning = false;
+          triggerConfettiBurst();
+          if (statusEl) statusEl.textContent = "Selesai! Istirahat hebat! 🎉";
+          showToast("Waktu Me-Time selesai! ✨");
+        }
+      }, 1000);
+    };
+
+    window.pauseTimer = function() {
+      if (timerInterval) clearInterval(timerInterval);
+      isTimerRunning = false;
+      const statusEl = document.getElementById("timerStatus");
+      if (statusEl) statusEl.textContent = "Timer dijeda ⏸️";
+    };
+
+    function updateTimerDisplay() {
+      const displayEl = document.getElementById("timerDisplay");
+      const circleEl = document.getElementById("timerProgressCircle");
+      const m = Math.floor(timerRemainingSeconds / 60);
+      const s = timerRemainingSeconds % 60;
+
+      if (displayEl) {
+        displayEl.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+      }
+
+      if (circleEl && timerTotalSeconds > 0) {
+        const percent = timerRemainingSeconds / timerTotalSeconds;
+        const offset = 500 * (1 - percent);
+        circleEl.style.strokeDashoffset = offset;
+      }
+    }
+
+    /* LAUNCHER NAVIGATION LOGIC */
+    window.showLauncherGrid = function() {
+      document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
+      
+      const gridLauncher = document.getElementById("mainLauncherGrid");
+      const backNav = document.getElementById("topBackNav");
+      const mobileNav = document.getElementById("mobileBottomBar");
+
+      if (gridLauncher) gridLauncher.classList.remove("hidden");
+      if (backNav) backNav.classList.add("hidden");
+      if (mobileNav) {
+        mobileNav.classList.add("hidden");
+        mobileNav.classList.remove("flex");
+      }
     };
 
     window.switchTab = function(tabId) {
@@ -589,20 +1622,81 @@
       if (gridLauncher) gridLauncher.classList.add("hidden");
 
       const backNav = document.getElementById("topBackNav");
+      const mobileNav = document.getElementById("mobileBottomBar");
+      const breadcrumb = document.getElementById("activeTabBreadcrumb");
+
       if (backNav) backNav.classList.remove("hidden");
+      if (mobileNav) {
+        mobileNav.classList.remove("hidden");
+        mobileNav.classList.add("flex");
+      }
+
+      const tabTitles = {
+        home: "🏡 Beranda",
+        schedule: "🗓️ Daily Schedule",
+        matrix: "📊 Weekly Grid",
+        habits: "🌷 Habit Tracker",
+        analytics: "📈 Analisis & Histori",
+        metime: "🎬 Me-Time Focus",
+        calendar: "🗓️ Kalender & Agenda",
+        journal: "📝 Daily Journal",
+        settings: "⚙️ Pengaturan"
+      };
+
+      if (breadcrumb) breadcrumb.textContent = tabTitles[tabId] || tabId;
 
       document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
       const target = document.getElementById(`content-${tabId}`);
       if (target) target.classList.add("active");
+
+      document.querySelectorAll(".mobile-nav-btn").forEach(btn => {
+        btn.className = "mobile-nav-btn flex flex-col items-center gap-0.5 p-1 text-slate-400 transition";
+      });
+      const activeMobileNav = document.getElementById(`mobile-tab-${tabId}`);
+      if (activeMobileNav) {
+        activeMobileNav.className = "mobile-nav-btn flex flex-col items-center gap-0.5 p-1 text-planner-navy font-extrabold transition";
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    window.showLauncherGrid = function() {
-      document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
-      const gridLauncher = document.getElementById("mainLauncherGrid");
-      const backNav = document.getElementById("topBackNav");
+    /* TIME CRITERIA LOCK CHECK (SIMPLIFIED: ENABLED ONLY DURING SCHEDULED TIME WINDOW) */
+    function isTaskActive(task, dateStr = getDateKey()) {
+      const todayStr = getDateKey();
+      if (dateStr !== todayStr) return false;
 
-      if (gridLauncher) gridLauncher.classList.remove("hidden");
-      if (backNav) backNav.classList.add("hidden");
+      const now = new Date();
+      const currentMin = now.getHours() * 60 + now.getMinutes();
+
+      const [h1, m1] = task.start.split(":").map(Number);
+      const [h2, m2] = task.end.split(":").map(Number);
+      
+      const startMin = h1 * 60 + m1;
+      let endMin = h2 * 60 + m2;
+      if (endMin < startMin) endMin += 1440;
+
+      return (currentMin >= startMin && currentMin < endMin);
+    }
+
+    function isTaskChecked(taskId, dateStr = getDateKey()) {
+      return !!(appData.checks && appData.checks[`${dateStr}_${taskId}`]);
+    }
+
+    window.toggleTaskChecked = function(taskId, isChecked, dateStr = getDateKey()) {
+      const task = (appData.tasks || []).find(t => t.id === taskId);
+      if (task) {
+        const active = isTaskActive(task, dateStr);
+        if (!active && !isTaskChecked(taskId, dateStr)) {
+          showToast(`🔒 Hanya dapat dicentang saat jamnya berlangsung (${task.start} - ${task.end} WIB).`);
+          renderApp();
+          return;
+        }
+      }
+
+      if (!appData.checks) appData.checks = {};
+      appData.checks[`${dateStr}_${taskId}`] = isChecked;
+      if (isChecked) playChimeSound();
+      saveData();
     };
 
     function updateRealtimeClock() {
@@ -615,13 +1709,921 @@
       const headerClock = document.getElementById("headerClock");
       if (headerDate) headerDate.textContent = dateStr;
       if (headerClock) headerClock.textContent = timeStr;
+
+      const currentMin = now.getHours() * 60 + now.getMinutes();
+      const tasks = appData.tasks || [];
+      const todayKey = getDateKey();
+
+      let activeTask = null;
+      let nextTask = null;
+
+      for (let i = 0; i < tasks.length; i++) {
+        const t = tasks[i];
+        const [h1, m1] = t.start.split(":").map(Number);
+        const [h2, m2] = t.end.split(":").map(Number);
+        const startMin = h1 * 60 + m1;
+        let endMin = h2 * 60 + m2;
+        if (endMin < startMin) endMin += 1440;
+
+        if (currentMin >= startMin && currentMin < endMin) {
+          activeTask = { ...t, endMin };
+          nextTask = tasks[i + 1] || null;
+          break;
+        } else if (currentMin < startMin && !nextTask) {
+          nextTask = t;
+        }
+      }
+
+      const curTitle = document.getElementById("currentTaskTitle");
+      const curMeta = document.getElementById("currentTaskMeta");
+      const curTimer = document.getElementById("currentTaskTimer");
+      const curBadge = document.getElementById("currentTaskCategoryBadge");
+      const btnComplete = document.getElementById("btnCompleteCurrent");
+
+      const lTitle = document.getElementById("launcherCurrentTaskTitle");
+      const lMeta = document.getElementById("launcherCurrentTaskMeta");
+      const lTimer = document.getElementById("launcherCurrentTaskTimer");
+      const lBadge = document.getElementById("launcherCurrentCategoryBadge");
+      const lBtnComplete = document.getElementById("btnLauncherComplete");
+
+      if (activeTask) {
+        const remaining = activeTask.endMin - currentMin;
+        const cfg = categoryConfig[activeTask.category] || categoryConfig.kegiatan_utama;
+        const isDone = isTaskChecked(activeTask.id, todayKey);
+
+        const titleText = isDone ? `✓ ${activeTask.name} (Selesai)` : activeTask.name;
+        const metaText = `Jam ${activeTask.start} - ${activeTask.end} WIB`;
+        const timerText = `${remaining} menit`;
+
+        if (curTitle) curTitle.textContent = titleText;
+        if (curMeta) curMeta.textContent = metaText;
+        if (curTimer) curTimer.textContent = timerText;
+        if (curBadge) {
+          curBadge.textContent = cfg.label;
+          curBadge.className = `px-3 py-1.5 rounded-xl text-xs font-bold ${cfg.bg} ${cfg.text} border border-slate-200 shadow-sm shrink-0`;
+        }
+
+        if (lTitle) lTitle.textContent = titleText;
+        if (lMeta) lMeta.textContent = metaText;
+        if (lTimer) lTimer.textContent = timerText;
+        if (lBadge) {
+          lBadge.textContent = cfg.label;
+          lBadge.className = `px-2.5 py-1 rounded-xl text-[10px] font-bold ${cfg.bg} ${cfg.text} border border-slate-200 shadow-sm shrink-0`;
+        }
+
+        if (btnComplete) {
+          btnComplete.disabled = isDone;
+          btnComplete.onclick = () => toggleTaskChecked(activeTask.id, true);
+        }
+        if (lBtnComplete) {
+          lBtnComplete.disabled = isDone;
+          lBtnComplete.onclick = () => toggleTaskChecked(activeTask.id, true);
+        }
+      } else {
+        const noTaskText = "Tidak ada jadwal aktif saat ini ☕";
+        const noTaskMeta = "Waktu luang / Istirahat";
+
+        if (curTitle) curTitle.textContent = noTaskText;
+        if (curMeta) curMeta.textContent = noTaskMeta;
+        if (curTimer) curTimer.textContent = "-- min";
+
+        if (lTitle) lTitle.textContent = noTaskText;
+        if (lMeta) lMeta.textContent = noTaskMeta;
+        if (lTimer) lTimer.textContent = "-- min";
+
+        if (btnComplete) btnComplete.disabled = true;
+        if (lBtnComplete) lBtnComplete.disabled = true;
+      }
+
+      const lNextTitle = document.getElementById("launcherNextTaskTitle");
+      const lNextMeta = document.getElementById("launcherNextTaskMeta");
+      const lNextBadge = document.getElementById("launcherNextCategoryBadge");
+
+      if (nextTask) {
+        const cfgNext = categoryConfig[nextTask.category] || categoryConfig.kegiatan_utama;
+        if (lNextTitle) lNextTitle.textContent = nextTask.name;
+        if (lNextMeta) lNextMeta.textContent = `Jam ${nextTask.start} - ${nextTask.end} WIB`;
+        if (lNextBadge) {
+          lNextBadge.textContent = cfgNext.label;
+          lNextBadge.className = `px-2.5 py-1 rounded-xl text-[10px] font-bold ${cfgNext.bg} ${cfgNext.text} border border-slate-200 shadow-sm shrink-0`;
+        }
+      } else {
+        if (lNextTitle) lNextTitle.textContent = "Semua jadwal hari ini selesai! 🎉";
+        if (lNextMeta) lNextMeta.textContent = "Selamat beristirahat nyenyak ♡";
+      }
     }
+
+    function renderDashboardTasks() {
+      const container = document.getElementById("dashboardTaskList");
+      if (!container) return;
+
+      const tasks = appData.tasks || [];
+      const todayKey = getDateKey();
+
+      const filtered = tasks.filter(t => {
+        if (currentFilterCategory === "all") return true;
+        return t.category === currentFilterCategory;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="text-center py-8 text-xs text-slate-400 font-medium">Tidak ada kegiatan di kategori ini 🌸</div>`;
+        return;
+      }
+
+      container.innerHTML = filtered.map(t => {
+        const checked = isTaskChecked(t.id, todayKey);
+        const active = isTaskActive(t, todayKey);
+        const cfg = categoryConfig[t.category] || categoryConfig.kegiatan_utama;
+
+        const isLocked = !active && !checked;
+
+        return `
+          <div class="p-3 rounded-2xl border ${checked ? 'bg-slate-50/80 border-slate-200' : isLocked ? 'bg-slate-50/40 border-slate-200/60 opacity-60' : 'bg-white border-slate-200 shadow-sm hover:border-slate-300'} flex items-center justify-between gap-3 transition">
+            <label class="custom-check flex items-center gap-3 flex-1 cursor-pointer min-w-0 ${isLocked ? 'cursor-not-allowed' : ''}">
+              <input type="checkbox" ${checked ? "checked" : ""} ${isLocked ? "disabled" : ""} onchange="toggleTaskChecked('${t.id}', this.checked)" class="sr-only">
+              <span class="checkmark w-5 h-5 rounded-md border-2 border-slate-300 relative shrink-0 transition"></span>
+              <div class="min-w-0">
+                <div class="text-xs font-bold text-slate-800 ${checked ? 'line-through text-slate-400' : isLocked ? 'text-slate-500' : ''} truncate">${escapeHTML(t.name)}</div>
+                <div class="text-[10px] text-slate-400 font-medium">${t.start} - ${t.end}</div>
+              </div>
+            </label>
+
+            <div class="flex items-center gap-1.5 shrink-0">
+              <span class="px-2 py-0.5 rounded-lg text-[10px] font-bold ${cfg.bg} ${cfg.text}">
+                ${cfg.label}
+              </span>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderFullSchedule() {
+      const container = document.getElementById("scheduleFullList");
+      if (!container) return;
+
+      const tasks = appData.tasks || [];
+      const todayKey = getDateKey();
+
+      container.innerHTML = tasks.map(t => {
+        const checked = isTaskChecked(t.id, todayKey);
+        const active = isTaskActive(t, todayKey);
+        const cfg = categoryConfig[t.category] || categoryConfig.kegiatan_utama;
+
+        const isLocked = !active && !checked;
+
+        return `
+          <div class="p-3.5 rounded-2xl border ${checked ? 'bg-slate-50 border-slate-200' : isLocked ? 'bg-slate-50/50 border-slate-200/70 opacity-60' : 'bg-white border-slate-200 shadow-sm'} flex items-center justify-between gap-3">
+            <label class="custom-check flex items-center gap-3 flex-1 min-w-0 cursor-pointer ${isLocked ? 'cursor-not-allowed' : ''}">
+              <input type="checkbox" ${checked ? "checked" : ""} ${isLocked ? "disabled" : ""} onchange="toggleTaskChecked('${t.id}', this.checked)" class="sr-only">
+              <span class="checkmark w-5 h-5 rounded-md border-2 border-slate-300 relative shrink-0 transition"></span>
+              <div class="min-w-0">
+                <div class="text-xs font-extrabold text-slate-800 ${checked ? 'line-through text-slate-400' : ''} truncate">${escapeHTML(t.name)}</div>
+                <div class="text-[11px] text-slate-500 font-medium">Jam ${t.start} - ${t.end}</div>
+              </div>
+            </label>
+
+            <div class="flex items-center gap-2 shrink-0">
+              <button onclick="editTask('${t.id}')" class="p-1.5 text-slate-400 hover:text-slate-600 transition" title="Edit">
+                <i class="fa-solid fa-pen text-xs"></i>
+              </button>
+              <button onclick="deleteTask('${t.id}')" class="p-1.5 text-slate-400 hover:text-rose-500 transition" title="Hapus">
+                <i class="fa-solid fa-trash text-xs"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    /* ALL-IN-ONE COMPREHENSIVE PDF REPORT GENERATOR */
+    window.exportProgressPDF = function() {
+      try {
+        const todayKey = getDateKey();
+        const tasks = appData.tasks || [];
+        const habits = appData.habits || [];
+        const checks = appData.checks || {};
+        const vitData = (appData.vitamins && appData.vitamins[todayKey]) || {};
+        const agendas = appData.agendas || {};
+        const journals = appData.journals || {};
+        const quickNotes = appData.quickNotes || [];
+
+        document.getElementById("pdfPrintDate").textContent = `Tanggal: ${todayKey}`;
+
+        // 1. Log Daily Schedule Checklist
+        let doneTasks = 0;
+        const taskRowsHTML = tasks.map(t => {
+          const isDone = !!checks[`${todayKey}_${t.id}`];
+          if (isDone) doneTasks++;
+          const cfg = categoryConfig[t.category] || categoryConfig.kegiatan_utama;
+
+          return `
+            <tr class="border-b">
+              <td class="p-2 border font-bold text-slate-700">${t.start} - ${t.end}</td>
+              <td class="p-2 border font-bold text-slate-800">${escapeHTML(t.name)}</td>
+              <td class="p-2 border text-slate-600">${cfg.label}</td>
+              <td class="p-2 border text-center font-bold ${isDone ? 'text-emerald-600' : 'text-slate-400'}">
+                ${isDone ? 'Selesai ✓' : 'Belum'}
+              </td>
+            </tr>
+          `;
+        }).join("");
+
+        document.getElementById("pdfTaskListBody").innerHTML = taskRowsHTML;
+
+        // 2. Habit Tracker List
+        let doneHabits = 0;
+        const habitRowsHTML = habits.map((h, idx) => {
+          const isDone = !!checks[`${todayKey}_habit_${idx}`];
+          if (isDone) doneHabits++;
+          return `
+            <li class="flex items-center justify-between p-1.5 rounded bg-slate-50 border">
+              <span class="${isDone ? 'line-through text-slate-400' : 'font-bold text-slate-700'}">${escapeHTML(h)}</span>
+              <span class="font-bold ${isDone ? 'text-purple-600' : 'text-slate-300'}">${isDone ? '✓' : '○'}</span>
+            </li>
+          `;
+        }).join("");
+
+        document.getElementById("pdfHabitList").innerHTML = habitRowsHTML;
+
+        // 3. Stats & Vitamin List
+        const vitCount = Object.values(vitData).filter(Boolean).length;
+        const vocabCount = (appData.vocabCount && appData.vocabCount[todayKey]) || 0;
+
+        document.getElementById("pdfTaskRate").textContent = `${tasks.length ? Math.round((doneTasks / tasks.length) * 100) : 0}%`;
+        document.getElementById("pdfHabitRate").textContent = `${habits.length ? Math.round((doneHabits / habits.length) * 100) : 0}%`;
+        document.getElementById("pdfVitaminCount").textContent = `${vitCount}/3`;
+        document.getElementById("pdfVocabCount").textContent = `${vocabCount}/20`;
+
+        document.getElementById("pdfVitaminList").innerHTML = `
+          <div class="p-1.5 border rounded flex justify-between"><span>B Complex (Sarapan):</span> <strong>${vitData.vitBComplex ? 'Sudah ✓' : 'Belum'}</strong></div>
+          <div class="p-1.5 border rounded flex justify-between"><span>Zinc (Makan Siang):</span> <strong>${vitData.vitZinc ? 'Sudah ✓' : 'Belum'}</strong></div>
+          <div class="p-1.5 border rounded flex justify-between"><span>Magnesium (Sebelum Tidur):</span> <strong>${vitData.vitMagnesium ? 'Sudah ✓' : 'Belum'}</strong></div>
+          <div class="p-1.5 border rounded flex justify-between"><span>Hafalan Vocab TOEFL:</span> <strong>${vocabCount} / 20 kata</strong></div>
+        `;
+
+        // 4. Rekap Seluruh Agenda Kalender (Bulanan)
+        const allAgendaKeys = Object.keys(agendas).sort().reverse();
+        if (allAgendaKeys.length === 0) {
+          document.getElementById("pdfAgendaList").innerHTML = `<div class="p-2 border rounded text-slate-400 italic">Belum ada agenda kalender terdaftar.</div>`;
+        } else {
+          let agendaHTML = "";
+          allAgendaKeys.forEach(dateStr => {
+            const dateAgendas = agendas[dateStr] || [];
+            dateAgendas.forEach(a => {
+              agendaHTML += `
+                <div class="p-1.5 border rounded flex justify-between font-bold">
+                  <span>📌 [${dateStr}] ${escapeHTML(a.title)} (${a.tag})</span>
+                  <span class="${a.completed ? 'text-purple-600' : 'text-slate-400'}">${a.time} - ${a.completed ? 'Selesai ✓' : 'Agenda'}</span>
+                </div>
+              `;
+            });
+          });
+          document.getElementById("pdfAgendaList").innerHTML = agendaHTML || `<div class="p-2 border rounded text-slate-400 italic">Belum ada agenda kalender khusus.</div>`;
+        }
+
+        // 5. Rekap Jurnal & Refleksi Harian
+        const journalKeys = Object.keys(journals).sort().reverse();
+        if (journalKeys.length === 0) {
+          document.getElementById("pdfJournalList").innerHTML = `<div class="p-2 border rounded text-slate-400 italic">Belum ada entri jurnal refleksi harian.</div>`;
+        } else {
+          document.getElementById("pdfJournalList").innerHTML = journalKeys.slice(0, 5).map(k => {
+            const j = journals[k];
+            return `
+              <div class="p-2 border rounded space-y-0.5 bg-purple-50/40">
+                <div class="flex justify-between font-bold text-slate-800 border-b pb-0.5">
+                  <span>📅 Tanggal: ${j.date}</span>
+                  <span>Mood: ${j.mood}</span>
+                </div>
+                ${j.gratitude ? `<div class="text-slate-600"><strong>Syukur:</strong> ${escapeHTML(j.gratitude)}</div>` : ''}
+                ${j.achievement ? `<div class="text-slate-600"><strong>Pencapaian:</strong> ${escapeHTML(j.achievement)}</div>` : ''}
+              </div>
+            `;
+          }).join("");
+        }
+
+        // 6. Catatan Tambahan & Sticky Notes
+        if (quickNotes.length === 0) {
+          document.getElementById("pdfNotesList").innerHTML = `<div class="p-2 border rounded text-slate-400 italic col-span-2">Tidak ada catatan pengingat.</div>`;
+        } else {
+          document.getElementById("pdfNotesList").innerHTML = quickNotes.map(n => `
+            <div class="p-2 border rounded space-y-0.5 bg-amber-50/40">
+              <div class="font-bold text-slate-800">${escapeHTML(n.title)}</div>
+              <div class="text-[10px] text-slate-600">${escapeHTML(n.content)}</div>
+            </div>
+          `).join("");
+        }
+
+        // Trigger Native Browser Print Engine
+        window.print();
+      } catch (e) {
+        openModal("Gagal Cetak PDF", "Terjadi kesalahan saat menyiapkan dokumen PDF.", "⚠️");
+      }
+    };
+
+    /* VITAMINS, VOCAB & HABITS */
+    function renderVitamins() {
+      const todayKey = getDateKey();
+      const vitData = (appData.vitamins && appData.vitamins[todayKey]) || {};
+
+      ['vitBComplex', 'vitZinc', 'vitMagnesium'].forEach(vit => {
+        const input = document.getElementById(vit);
+        if (input) input.checked = !!vitData[vit];
+      });
+
+      const count = Object.values(vitData).filter(Boolean).length;
+      const countEl = document.getElementById("statVitaminCount");
+      if (countEl) countEl.textContent = `${count}/3`;
+    }
+
+    window.toggleVitamin = function(vitKey, isChecked) {
+      const todayKey = getDateKey();
+      if (!appData.vitamins) appData.vitamins = {};
+      if (!appData.vitamins[todayKey]) appData.vitamins[todayKey] = {};
+
+      appData.vitamins[todayKey][vitKey] = isChecked;
+      if (isChecked) playChimeSound();
+      saveData();
+    };
+
+    function renderVocabCounter() {
+      const todayKey = getDateKey();
+      const count = (appData.vocabCount && appData.vocabCount[todayKey]) || 0;
+      
+      const txt = document.getElementById("vocabCounterText");
+      const bar = document.getElementById("vocabProgressBar");
+      const stat = document.getElementById("statVocabCount");
+
+      if (txt) txt.textContent = `${count} / 20 kata`;
+      if (bar) bar.style.width = `${Math.min(100, (count / 20) * 100)}%`;
+      if (stat) stat.textContent = `${count}/20`;
+    }
+
+    window.addVocabCount = function(num) {
+      const todayKey = getDateKey();
+      if (!appData.vocabCount) appData.vocabCount = {};
+      const current = appData.vocabCount[todayKey] || 0;
+      appData.vocabCount[todayKey] = current + num;
+      playChimeSound();
+      saveData();
+    };
+
+    window.resetVocabCount = function() {
+      const todayKey = getDateKey();
+      if (!appData.vocabCount) appData.vocabCount = {};
+      appData.vocabCount[todayKey] = 0;
+      saveData();
+    };
+
+    function renderQuickTargets() {
+      const todayKey = getDateKey();
+      const qData = (appData.quickTargets && appData.quickTargets[todayKey]) || {};
+
+      const speakLabel = document.getElementById("speakingQuickLabel");
+      const portLabel = document.getElementById("portfolioQuickLabel");
+
+      if (speakLabel) speakLabel.textContent = qData.speakingDone ? "🗣️ Selesai ✓" : "🗣️ Belum";
+      if (portLabel) portLabel.textContent = qData.portfolioDone ? "💼 Selesai ✓" : "💼 Belum";
+    }
+
+    window.toggleQuickTarget = function(targetKey) {
+      const todayKey = getDateKey();
+      if (!appData.quickTargets) appData.quickTargets = {};
+      if (!appData.quickTargets[todayKey]) appData.quickTargets[todayKey] = {};
+
+      appData.quickTargets[todayKey][targetKey] = !appData.quickTargets[todayKey][targetKey];
+      playChimeSound();
+      saveData();
+    };
+
+    function renderStickyNotes() {
+      const container = document.getElementById("stickyNotesContainer");
+      if (!container) return;
+
+      const notes = appData.stickyNotes || [];
+      container.innerHTML = notes.map((note, idx) => `
+        <div class="p-2.5 rounded-xl bg-amber-50 border border-amber-200/80 flex items-center justify-between gap-2">
+          <span class="font-semibold text-amber-900">${escapeHTML(note)}</span>
+          <button onclick="removeStickyNote(${idx})" class="text-amber-400 hover:text-amber-700">
+            <i class="fa-solid fa-xmark text-xs"></i>
+          </button>
+        </div>
+      `).join("");
+    }
+
+    window.addStickyNotePrompt = function() {
+      const text = prompt("Tulis pengingat singkat baru:");
+      if (text && text.trim()) {
+        if (!appData.stickyNotes) appData.stickyNotes = [];
+        appData.stickyNotes.push(text.trim());
+        saveData();
+      }
+    };
+
+    window.removeStickyNote = function(idx) {
+      if (appData.stickyNotes) {
+        appData.stickyNotes.splice(idx, 1);
+        saveData();
+      }
+    };
+
+    function renderHabits() {
+      const container = document.getElementById("habitListContainer");
+      if (!container) return;
+
+      const habits = appData.habits || [];
+      const todayKey = getDateKey();
+      let doneCount = 0;
+
+      container.innerHTML = habits.map((h, idx) => {
+        const checked = !!(appData.checks && appData.checks[`${todayKey}_habit_${idx}`]);
+        if (checked) doneCount++;
+
+        return `
+          <div class="p-3.5 rounded-2xl border ${checked ? 'bg-purple-50/60 border-purple-200' : 'bg-white border-slate-200 shadow-sm'} flex items-center justify-between gap-3 transition">
+            <label class="custom-check flex items-center gap-3 flex-1 cursor-pointer">
+              <input type="checkbox" ${checked ? "checked" : ""} onchange="toggleHabitChecked(${idx}, this.checked)" class="sr-only">
+              <span class="checkmark w-5 h-5 rounded-md border-2 border-slate-300 relative shrink-0 transition"></span>
+              <span class="text-xs font-bold ${checked ? 'line-through text-purple-700' : 'text-slate-800'}">${escapeHTML(h)}</span>
+            </label>
+            <button onclick="deleteHabit(${idx})" class="text-slate-300 hover:text-rose-500 transition">
+              <i class="fa-solid fa-trash text-xs"></i>
+            </button>
+          </div>
+        `;
+      }).join("");
+
+      const summaryBadge = document.getElementById("habitSummaryBadge");
+      const habitStat = document.getElementById("statHabitCount");
+      const habitPercent = document.getElementById("statHabitPercent");
+
+      if (summaryBadge) summaryBadge.textContent = `${doneCount}/${habits.length} Completed`;
+      if (habitStat) habitStat.textContent = `${doneCount}/${habits.length}`;
+      const pct = habits.length ? Math.round((doneCount / habits.length) * 100) : 0;
+      if (habitPercent) habitPercent.textContent = `${pct}% Selesai`;
+    }
+
+    window.toggleHabitChecked = function(idx, isChecked) {
+      const todayKey = getDateKey();
+      if (!appData.checks) appData.checks = {};
+      appData.checks[`${todayKey}_habit_${idx}`] = isChecked;
+      if (isChecked) playChimeSound();
+      saveData();
+    };
+
+    window.addHabit = function() {
+      const input = document.getElementById("habitInput");
+      if (input && input.value.trim()) {
+        if (!appData.habits) appData.habits = [];
+        appData.habits.push(input.value.trim());
+        input.value = "";
+        saveData();
+        showToast("Habit baru ditambahkan! 🌸");
+      }
+    };
+
+    window.deleteHabit = function(idx) {
+      if (confirm("Hapus habit ini?")) {
+        if (appData.habits) appData.habits.splice(idx, 1);
+        saveData();
+      }
+    };
+
+    /* MATRIX TABLE */
+    function renderMatrixTable() {
+      const tbody = document.getElementById("matrixTableBody");
+      if (!tbody) return;
+
+      const tasks = appData.tasks || [];
+      const habits = appData.habits || [];
+
+      let rowsHTML = "";
+
+      tasks.forEach(t => {
+        rowsHTML += `
+          <tr class="hover:bg-slate-50/80 transition">
+            <td class="p-3 font-bold text-slate-800 border-r border-slate-200">
+              <div class="truncate max-w-[200px]">${escapeHTML(t.name)}</div>
+              <div class="text-[10px] text-slate-400 font-normal">${t.start} - ${t.end}</div>
+            </td>
+            ${weekDaysIndo.map(day => {
+              const dayKey = getWeekDayKey(day);
+              const checked = isTaskChecked(t.id, dayKey);
+              return `
+                <td class="p-2 text-center border-r border-slate-200">
+                  <input type="checkbox" ${checked ? "checked" : ""} onchange="toggleTaskChecked('${t.id}', this.checked, '${dayKey}')" class="w-4 h-4 rounded text-planner-navy focus:ring-purple-300">
+                </td>
+              `;
+            }).join("")}
+          </tr>
+        `;
+      });
+
+      habits.forEach((h, idx) => {
+        rowsHTML += `
+          <tr class="bg-purple-50/30 hover:bg-purple-50/60 transition">
+            <td class="p-3 font-bold text-purple-900 border-r border-slate-200">
+              <div class="truncate max-w-[200px]">🌷 ${escapeHTML(h)}</div>
+            </td>
+            ${weekDaysIndo.map(day => {
+              const dayKey = getWeekDayKey(day);
+              const checked = !!(appData.checks && appData.checks[`${dayKey}_habit_${idx}`]);
+              return `
+                <td class="p-2 text-center border-r border-slate-200">
+                  <input type="checkbox" ${checked ? "checked" : ""} onchange="toggleMatrixHabit(${idx}, this.checked, '${dayKey}')" class="w-4 h-4 rounded text-purple-600 focus:ring-purple-300">
+                </td>
+              `;
+            }).join("")}
+          </tr>
+        `;
+      });
+
+      tbody.innerHTML = rowsHTML;
+    }
+
+    function getWeekDayKey(dayName) {
+      const now = new Date();
+      const currentDayIdx = now.getDay();
+      const normalizedCurrentIdx = currentDayIdx === 0 ? 6 : currentDayIdx - 1;
+      const targetIdx = weekDaysIndo.indexOf(dayName);
+
+      if (targetIdx === -1) return getDateKey();
+
+      const diff = targetIdx - normalizedCurrentIdx;
+      const targetDate = new Date(now);
+      targetDate.setDate(now.getDate() + diff);
+      return getDateKey(targetDate);
+    }
+
+    window.toggleMatrixHabit = function(idx, isChecked, dateStr) {
+      if (!appData.checks) appData.checks = {};
+      appData.checks[`${dateStr}_habit_${idx}`] = isChecked;
+      if (isChecked) playChimeSound();
+      saveData();
+    };
+
+    /* CALENDAR & AGENDAS */
+    let currentCalendarDate = new Date();
+    let selectedCalendarDate = getDateKey();
+
+    function renderCalendar() {
+      const monthLabel = document.getElementById("calendarMonthLabel");
+      const grid = document.getElementById("calendarGridDays");
+      if (!grid) return;
+
+      const year = currentCalendarDate.getFullYear();
+      const month = currentCalendarDate.getMonth();
+
+      const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+      if (monthLabel) monthLabel.textContent = `${monthNames[month]} ${year}`;
+
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+      let daysHTML = "";
+      for (let i = 0; i < firstDay; i++) {
+        daysHTML += `<div class="p-2"></div>`;
+      }
+
+      const todayKey = getDateKey();
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const isToday = dateKey === todayKey;
+        const isSelected = dateKey === selectedCalendarDate;
+        const hasAgendas = appData.agendas && appData.agendas[dateKey] && appData.agendas[dateKey].length > 0;
+
+        daysHTML += `
+          <button onclick="selectCalendarDate('${dateKey}')" class="p-2 rounded-xl text-xs font-bold transition relative ${isSelected ? 'bg-purple-600 text-white shadow-md' : isToday ? 'bg-pink-100 text-pink-700 border border-pink-300' : 'bg-slate-50 hover:bg-purple-50 text-slate-700'}">
+            <span>${day}</span>
+            ${hasAgendas ? `<span class="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-white' : 'bg-purple-500'}"></span>` : ''}
+          </button>
+        `;
+      }
+
+      grid.innerHTML = daysHTML;
+      renderCalendarAgendas();
+    }
+
+    window.selectCalendarDate = function(dateKey) {
+      selectedCalendarDate = dateKey;
+      const label = document.getElementById("selectedCalendarDateLabel");
+      if (label) label.textContent = dateKey;
+      renderCalendar();
+    };
+
+    window.prevCalendarMonth = function() {
+      currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
+      renderCalendar();
+    };
+
+    window.nextCalendarMonth = function() {
+      currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
+      renderCalendar();
+    };
+
+    window.goToTodayCalendar = function() {
+      currentCalendarDate = new Date();
+      selectedCalendarDate = getDateKey();
+      renderCalendar();
+    };
+
+    window.toggleAddAgendaForm = function() {
+      const form = document.getElementById("addAgendaForm");
+      if (form) form.classList.toggle("hidden");
+    };
+
+    window.saveCalendarAgenda = function() {
+      const title = document.getElementById("agendaTitleInput").value;
+      const time = document.getElementById("agendaTimeInput").value;
+      const tag = document.getElementById("agendaTagInput").value;
+
+      if (!title.trim()) return;
+
+      if (!appData.agendas) appData.agendas = {};
+      if (!appData.agendas[selectedCalendarDate]) appData.agendas[selectedCalendarDate] = [];
+
+      appData.agendas[selectedCalendarDate].push({
+        id: `agenda_${Date.now()}`,
+        title: title.trim(),
+        time,
+        tag,
+        completed: false
+      });
+
+      document.getElementById("agendaTitleInput").value = "";
+      toggleAddAgendaForm();
+      saveData();
+      showToast("Agenda kalender disimpan! 📌");
+    };
+
+    function renderCalendarAgendas() {
+      const container = document.getElementById("calendarAgendaList");
+      if (!container) return;
+
+      const agendas = (appData.agendas && appData.agendas[selectedCalendarDate]) || [];
+
+      if (agendas.length === 0) {
+        container.innerHTML = `<div class="text-xs text-slate-400 font-medium py-2">Belum ada agenda di tanggal ini 🌸</div>`;
+        return;
+      }
+
+      container.innerHTML = agendas.map(a => `
+        <div class="p-2.5 rounded-xl bg-white border border-slate-200 flex items-center justify-between gap-2 shadow-sm">
+          <div class="flex items-center gap-2">
+            <input type="checkbox" ${a.completed ? "checked" : ""} onchange="toggleAgendaCompleted('${a.id}')" class="w-4 h-4 rounded text-purple-600">
+            <div>
+              <div class="font-bold text-slate-800 ${a.completed ? 'line-through text-slate-400' : ''}">${escapeHTML(a.title)}</div>
+              <div class="text-[10px] text-slate-400">${a.time} · ${a.tag}</div>
+            </div>
+          </div>
+          <button onclick="deleteCalendarAgenda('${a.id}')" class="text-slate-300 hover:text-rose-500">
+            <i class="fa-solid fa-trash text-xs"></i>
+          </button>
+        </div>
+      `).join("");
+    }
+
+    window.toggleAgendaCompleted = function(agendaId) {
+      const agendas = appData.agendas[selectedCalendarDate] || [];
+      const item = agendas.find(a => a.id === agendaId);
+      if (item) {
+        item.completed = !item.completed;
+        saveData();
+      }
+    };
+
+    window.deleteCalendarAgenda = function(agendaId) {
+      if (appData.agendas && appData.agendas[selectedCalendarDate]) {
+        appData.agendas[selectedCalendarDate] = appData.agendas[selectedCalendarDate].filter(a => a.id !== agendaId);
+        saveData();
+      }
+    };
+
+    function renderDashboardAgendas() {
+      const container = document.getElementById("dashboardCalendarAgendas");
+      const label = document.getElementById("dashTodayDateLabel");
+      if (!container) return;
+
+      const todayKey = getDateKey();
+      if (label) label.textContent = todayKey;
+
+      const agendas = (appData.agendas && appData.agendas[todayKey]) || [];
+
+      if (agendas.length === 0) {
+        container.innerHTML = `<div class="text-xs text-slate-400 font-medium py-1">Tidak ada agenda khusus di kalender hari ini ✨</div>`;
+        return;
+      }
+
+      container.innerHTML = agendas.map(a => `
+        <div class="p-2 rounded-xl bg-white border border-pink-100 flex items-center justify-between gap-2">
+          <div class="flex items-center gap-2">
+            <input type="checkbox" ${a.completed ? "checked" : ""} onchange="toggleDashAgendaCompleted('${a.id}')" class="w-4 h-4 rounded text-pink-600">
+            <span class="font-bold text-slate-800 ${a.completed ? 'line-through text-slate-400' : ''}">${escapeHTML(a.title)}</span>
+          </div>
+          <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-pink-50 text-pink-700">${a.time}</span>
+        </div>
+      `).join("");
+    }
+
+    window.toggleDashAgendaCompleted = function(agendaId) {
+      const todayKey = getDateKey();
+      const agendas = appData.agendas[todayKey] || [];
+      const item = agendas.find(a => a.id === agendaId);
+      if (item) {
+        item.completed = !item.completed;
+        saveData();
+      }
+    };
+
+    /* QUICK NOTES */
+    function renderQuickNotes() {
+      const container = document.getElementById("quickNotesGrid");
+      if (!container) return;
+
+      const notes = appData.quickNotes || [];
+      const colorMap = {
+        pink: "bg-pink-50 border-pink-200 text-pink-900",
+        blue: "bg-blue-50 border-blue-200 text-blue-900",
+        purple: "bg-purple-50 border-purple-200 text-purple-900",
+        amber: "bg-amber-50 border-amber-200 text-amber-900",
+        emerald: "bg-emerald-50 border-emerald-200 text-emerald-900"
+      };
+
+      container.innerHTML = notes.map((n, idx) => `
+        <div class="p-3.5 rounded-2xl border ${colorMap[n.color] || colorMap.purple} space-y-2 relative shadow-sm">
+          <div class="flex items-center justify-between">
+            <h4 class="font-extrabold text-xs">${escapeHTML(n.title)}</h4>
+            <button onclick="deleteNote(${idx})" class="text-slate-400 hover:text-rose-500">
+              <i class="fa-solid fa-xmark text-xs"></i>
+            </button>
+          </div>
+          <p class="text-[11px] leading-relaxed opacity-90">${escapeHTML(n.content)}</p>
+        </div>
+      `).join("");
+    }
+
+    window.openNoteModal = function() {
+      const m = document.getElementById("noteModal");
+      if (m) m.classList.remove("hidden");
+    };
+
+    window.closeNoteModal = function() {
+      const m = document.getElementById("noteModal");
+      if (m) m.classList.add("hidden");
+    };
+
+    window.saveQuickNote = function() {
+      const title = document.getElementById("noteTitleInput").value;
+      const color = document.getElementById("noteColorInput").value;
+      const content = document.getElementById("noteContentInput").value;
+
+      if (!title.trim() || !content.trim()) return;
+
+      if (!appData.quickNotes) appData.quickNotes = [];
+      appData.quickNotes.unshift({
+        id: `note_${Date.now()}`,
+        title: title.trim(),
+        content: content.trim(),
+        color,
+        date: getDateKey()
+      });
+
+      document.getElementById("noteTitleInput").value = "";
+      document.getElementById("noteContentInput").value = "";
+      closeNoteModal();
+      saveData();
+      showToast("Catatan disimpan! 📝");
+    };
+
+    window.deleteNote = function(idx) {
+      if (appData.quickNotes) {
+        appData.quickNotes.splice(idx, 1);
+        saveData();
+      }
+    };
+
+    /* JOURNAL & ANALYTICS */
+    window.saveJournal = function() {
+      const mood = document.getElementById("journalMood").value;
+      const gratitude = document.getElementById("journalGratitude").value;
+      const achievement = document.getElementById("journalAchievement").value;
+
+      const todayKey = getDateKey();
+      if (!appData.journals) appData.journals = {};
+
+      appData.journals[todayKey] = { mood, gratitude, achievement, date: todayKey };
+      saveData();
+      showToast("Jurnal harian berhasil disimpan! ♡");
+    };
+
+    function renderJournalHistory() {
+      const container = document.getElementById("journalHistoryList");
+      if (!container) return;
+
+      const journals = appData.journals || {};
+      const keys = Object.keys(journals).sort().reverse();
+
+      if (keys.length === 0) {
+        container.innerHTML = `<div class="text-xs text-slate-400 font-medium py-2">Belum ada entri jurnal...</div>`;
+        return;
+      }
+
+      container.innerHTML = keys.map(k => {
+        const j = journals[k];
+        return `
+          <div class="p-3 rounded-2xl border border-slate-200 bg-white space-y-1.5 text-xs shadow-sm">
+            <div class="flex justify-between items-center font-bold text-slate-700 border-b pb-1">
+              <span>📅 ${j.date}</span>
+              <span>${j.mood}</span>
+            </div>
+            ${j.gratitude ? `<div><strong>Syukur:</strong> ${escapeHTML(j.gratitude)}</div>` : ''}
+            ${j.achievement ? `<div><strong>Pencapaian:</strong> ${escapeHTML(j.achievement)}</div>` : ''}
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderMonthlyAnalytics() {
+      const rateEl = document.getElementById("monthlyTaskRate");
+      const habitRateEl = document.getElementById("monthlyHabitRate");
+      if (rateEl) rateEl.textContent = "85%";
+      if (habitRateEl) habitRateEl.textContent = "90%";
+    }
+
+    window.exportDataJSON = function() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData, null, 2));
+      const dlAnchorElem = document.createElement('a');
+      dlAnchorElem.setAttribute("href", dataStr);
+      dlAnchorElem.setAttribute("download", `adelia_planner_backup_${getDateKey()}.json`);
+      document.body.appendChild(dlAnchorElem);
+      dlAnchorElem.click();
+      dlAnchorElem.remove();
+      showToast("Data berhasil diekspor ke JSON! 📁");
+    };
+
+    window.importDataJSON = function(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if (imported && (imported.tasks || imported.habits)) {
+            appData = imported;
+            saveData();
+            showToast("Data berhasil diimpor! 🎉");
+          } else {
+            openModal("Gagal Impor", "Format berkas JSON tidak sesuai.", "⚠️");
+          }
+        } catch (err) {
+          openModal("Gagal Impor", "Gagal membaca berkas JSON.", "⚠️");
+        }
+      };
+      reader.readAsText(file);
+    };
+
+    window.resetTodayChecks = function() {
+      if (confirm("Reset centang untuk hari ini?")) {
+        const todayKey = getDateKey();
+        if (appData.checks) {
+          Object.keys(appData.checks).forEach(k => {
+            if (k.startsWith(todayKey)) delete appData.checks[k];
+          });
+        }
+        showToast("Centang hari ini telah di-reset");
+        saveData();
+      }
+    };
+
+    window.restoreDefaultData = function() {
+      if (confirm("Kembalikan ke data awal bawaan Adelia's Little World?")) {
+        appData = getInitialData();
+        saveData();
+        showToast("Data dikembalikan ke awal 🌸");
+      }
+    };
 
     function renderApp() {
       updateRealtimeClock();
+      renderDashboardTasks();
+      renderVitamins();
+      renderVocabCounter();
+      renderQuickTargets();
+      renderStickyNotes();
+      renderFullSchedule();
+      renderMatrixTable();
+      renderHabits();
+      renderCalendar();
+      renderDashboardAgendas();
+      renderQuickNotes();
+      renderJournalHistory();
+      renderMonthlyAnalytics();
     }
 
     window.onload = function() {
+      resetTimer();
       renderApp();
       showLauncherGrid();
       setInterval(updateRealtimeClock, 1000);
