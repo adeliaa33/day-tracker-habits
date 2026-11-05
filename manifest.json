@@ -2,7 +2,7 @@
   "name": "Adelia's Little World ♡",
   "short_name": "Adelia Planner",
   "description": "Interactive Daily Schedule, Habit Tracker & Me-Time Planner",
-  "start_url": "/",
+  "start_url": "/index.html",
   "display": "standalone",
   "background_color": "#FFF9F0",
   "theme_color": "#294C7A",
