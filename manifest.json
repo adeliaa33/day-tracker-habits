@@ -3,22 +3,22 @@
   "short_name": "Adelia Planner",
   "description": "Interactive Daily Planner & Habit Tracker",
   "start_url": "./index.html",
-  "scope": "./"
+  "scope": "./",
   "display": "standalone",
   "background_color": "#F8FAFF",
   "theme_color": "#294C7A",
   "icons": [
     {
-      "src": "icon-192.jpg",
-      "sizes": "192x192 512x512",
-      "type": "image/png+xml",
+      "src": "./icon-192.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
       "purpose": "any"
     },
     {
-      "src": "icon-512.jpg",
-      "sizes": "192x192 512x512",
-      "type": "image/png+xml",
-      "purpose": "maskabel"
+      "src": "./icon-512.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any"
     }
   ]
 }
