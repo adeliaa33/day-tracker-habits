@@ -1126,7 +1126,7 @@
       });
     }
 
-    const STORAGE_KEY = "adelia_planner_v9";
+    const STORAGE_KEY = "adelia_planner_v10";
 
     const categoryConfig = {
       kegiatan_utama: { label: "Kegiatan Utama", color: "#3B82F6", bg: "bg-blue-50", text: "text-blue-700", border: "border-blue-200", badgeBg: "bg-blue-500" },
@@ -1469,22 +1469,9 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    /* TIME CRITERIA LOCK CHECK */
+    /* TIME CRITERIA LOCK CHECK REMOVED FOR MOBILE FLEXIBILITY */
     function isTaskActive(task, dateStr = getDateKey()) {
-      const todayStr = getDateKey();
-      if (dateStr !== todayStr) return false;
-
-      const now = new Date();
-      const currentMin = now.getHours() * 60 + now.getMinutes();
-
-      const [h1, m1] = task.start.split(":").map(Number);
-      const [h2, m2] = task.end.split(":").map(Number);
-      
-      const startMin = h1 * 60 + m1;
-      let endMin = h2 * 60 + m2;
-      if (endMin < startMin) endMin += 1440;
-
-      return (currentMin >= startMin && currentMin < endMin);
+      return true; // Unlocked anytime so tasks can be checked immediately on mobile deployed site
     }
 
     function isTaskChecked(taskId, dateStr = getDateKey()) {
@@ -1492,16 +1479,6 @@
     }
 
     window.toggleTaskChecked = function(taskId, isChecked, dateStr = getDateKey()) {
-      const task = (appData.tasks || []).find(t => t.id === taskId);
-      if (task) {
-        const active = isTaskActive(task, dateStr);
-        if (!active && !isTaskChecked(taskId, dateStr)) {
-          showToast(`🔒 Hanya dapat dicentang saat jamnya berlangsung (${task.start} - ${task.end} WIB).`);
-          renderApp();
-          return;
-        }
-      }
-
       if (!appData.checks) appData.checks = {};
       appData.checks[`${dateStr}_${taskId}`] = isChecked;
       saveData();
@@ -1752,18 +1729,15 @@
 
       container.innerHTML = filtered.map(t => {
         const checked = isTaskChecked(t.id, todayKey);
-        const active = isTaskActive(t, todayKey);
         const cfg = categoryConfig[t.category] || categoryConfig.kegiatan_utama;
 
-        const isLocked = !active && !checked;
-
         return `
-          <div class="p-3 rounded-2xl border ${checked ? 'bg-slate-50/80 border-slate-200' : isLocked ? 'bg-slate-50/40 border-slate-200/60 opacity-60' : 'bg-white border-slate-200 shadow-sm hover:border-slate-300'} flex items-center justify-between gap-3 transition">
-            <label class="custom-check flex items-center gap-3 flex-1 cursor-pointer min-w-0 ${isLocked ? 'cursor-not-allowed' : ''}">
-              <input type="checkbox" ${checked ? "checked" : ""} ${isLocked ? "disabled" : ""} onchange="toggleTaskChecked('${t.id}', this.checked)" class="sr-only">
+          <div class="p-3 rounded-2xl border ${checked ? 'bg-slate-50/80 border-slate-200' : 'bg-white border-slate-200 shadow-sm hover:border-slate-300'} flex items-center justify-between gap-3 transition">
+            <label class="custom-check flex items-center gap-3 flex-1 cursor-pointer min-w-0">
+              <input type="checkbox" ${checked ? "checked" : ""} onchange="toggleTaskChecked('${t.id}', this.checked)" class="sr-only">
               <span class="checkmark w-5 h-5 rounded-md border-2 border-slate-300 relative shrink-0 transition"></span>
               <div class="min-w-0">
-                <div class="text-xs font-bold text-slate-800 ${checked ? 'line-through text-slate-400' : isLocked ? 'text-slate-500' : ''} truncate">${escapeHTML(t.name)}</div>
+                <div class="text-xs font-bold text-slate-800 ${checked ? 'line-through text-slate-400' : ''} truncate">${escapeHTML(t.name)}</div>
                 <div class="text-[10px] text-slate-400 font-medium">${t.start} - ${t.end}</div>
               </div>
             </label>
@@ -1787,15 +1761,12 @@
 
       container.innerHTML = tasks.map(t => {
         const checked = isTaskChecked(t.id, todayKey);
-        const active = isTaskActive(t, todayKey);
         const cfg = categoryConfig[t.category] || categoryConfig.kegiatan_utama;
 
-        const isLocked = !active && !checked;
-
         return `
-          <div class="p-3.5 rounded-2xl border ${checked ? 'bg-slate-50 border-slate-200' : isLocked ? 'bg-slate-50/50 border-slate-200/70 opacity-60' : 'bg-white border-slate-200 shadow-sm'} flex items-center justify-between gap-3">
-            <label class="custom-check flex items-center gap-3 flex-1 min-w-0 cursor-pointer ${isLocked ? 'cursor-not-allowed' : ''}">
-              <input type="checkbox" ${checked ? "checked" : ""} ${isLocked ? "disabled" : ""} onchange="toggleTaskChecked('${t.id}', this.checked)" class="sr-only">
+          <div class="p-3.5 rounded-2xl border ${checked ? 'bg-slate-50 border-slate-200' : 'bg-white border-slate-200 shadow-sm'} flex items-center justify-between gap-3">
+            <label class="custom-check flex items-center gap-3 flex-1 min-w-0 cursor-pointer">
+              <input type="checkbox" ${checked ? "checked" : ""} onchange="toggleTaskChecked('${t.id}', this.checked)" class="sr-only">
               <span class="checkmark w-5 h-5 rounded-md border-2 border-slate-300 relative shrink-0 transition"></span>
               <div class="min-w-0">
                 <div class="text-xs font-extrabold text-slate-800 ${checked ? 'line-through text-slate-400' : ''} truncate">${escapeHTML(t.name)}</div>
