@@ -5,8 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Adelia's Little World ♡ - Interactive Planner</title>
   
-  <!-- Manifest & Theme Color untuk PWA Eksternal -->
-  <link rel="manifest" href="./manifest.json">
+  <!-- Manifest & Theme Color -->
   <meta name="theme-color" content="#294C7A">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -151,6 +150,7 @@
 
   <div id="app" class="flex-grow flex flex-col max-w-6xl w-full mx-auto px-3 py-3 md:px-6 md:py-6">
 
+    <!-- APP HEADER -->
     <header class="planner-card p-4 md:p-6 mb-4 md:mb-5 shadow-planner relative overflow-hidden bg-gradient-to-r from-[#DCEEFF] via-[#FCE1E8] to-[#E9E1FF]">
       <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-4">
         
@@ -195,10 +195,12 @@
       </div>
     </header>
 
+    <!-- MAIN LAUNCHER GRID -->
     <div id="mainLauncherGrid" class="space-y-4 mb-4 md:mb-5">
       
       <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
         
+        <!-- CURRENT TASK LAUNCHER WIDGET -->
         <div class="planner-card p-4 shadow-planner bg-gradient-to-r from-sky-50 via-purple-50 to-pink-50 border-2 border-sky-100 flex flex-col justify-between">
           <div class="flex items-start justify-between gap-2">
             <div>
@@ -228,6 +230,7 @@
           </div>
         </div>
 
+        <!-- UPCOMING TASK LAUNCHER WIDGET -->
         <div class="planner-card p-4 shadow-planner bg-gradient-to-r from-purple-50 via-pink-50 to-amber-50 border-2 border-purple-100 flex flex-col justify-between">
           <div class="flex items-start justify-between gap-2">
             <div>
@@ -257,6 +260,7 @@
 
       </div>
 
+      <!-- MAIN FEATURE NAVIGATION MATRIX GRID -->
       <div class="planner-card p-4 md:p-6 shadow-planner bg-white border-2 border-slate-100 rounded-3xl space-y-4">
         <div class="grid grid-cols-3 gap-2.5 md:gap-4">
           <button onclick="switchTab('home')" id="grid-tab-home" class="p-3.5 md:p-5 rounded-2xl bg-sky-50 hover:bg-sky-100 border border-sky-200/60 flex flex-col items-center justify-center gap-2 transition active:scale-95 shadow-sm group">
@@ -326,6 +330,7 @@
 
     </div>
 
+    <!-- SUB-PAGE TOP BACK BAR -->
     <div id="topBackNav" class="hidden mb-4 flex items-center justify-between bg-white/90 backdrop-blur-md p-2.5 px-4 rounded-2xl border border-slate-200/80 shadow-sm">
       <button onclick="showLauncherGrid()" class="px-3.5 py-1.5 bg-planner-navy hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow transition active:scale-95 flex items-center gap-2">
         <i class="fa-solid fa-grip text-xs"></i> <span>‹ Kembali ke Menu Utama</span>
@@ -333,6 +338,7 @@
       <span id="activeTabBreadcrumb" class="text-xs font-extrabold text-planner-navy font-cute">--</span>
     </div>
 
+    <!-- MOBILE BOTTOM NAVIGATION -->
     <nav id="mobileBottomBar" class="hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/80 px-1 py-1.5 justify-around items-center shadow-lg overflow-x-auto">
       <button onclick="switchTab('home')" id="mobile-tab-home" class="mobile-nav-btn flex flex-col items-center gap-0.5 p-1 text-slate-400 transition">
         <i class="fa-solid fa-house text-sm"></i>
@@ -639,7 +645,7 @@
           </div>
         </div>
 
-        <div id="celebrationBanner" class="hidden p-4 rounded-2xl bg-gradient-to-r from-amber-300 via-pink-300 to-purple-300 text-slate-900 shadow-md relative overflow-hidden flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div id="celebrationBanner" class="p-4 rounded-2xl bg-gradient-to-r from-amber-300 via-pink-300 to-purple-300 text-slate-900 shadow-md relative overflow-hidden flex flex-col sm:flex-row items-center justify-between gap-3">
           <div class="flex items-center gap-3">
             <div class="w-12 h-12 rounded-2xl bg-white/90 flex items-center justify-center text-2xl shadow">🎉</div>
             <div>
@@ -891,7 +897,6 @@
 
         <div class="space-y-4 text-xs">
           
-          <!-- Uji Notifikasi & Getar -->
           <div class="p-4 bg-blue-50 rounded-2xl border border-blue-200 space-y-2">
             <h4 class="font-bold text-blue-900 flex items-center gap-2">
               <i class="fa-solid fa-mobile-screen-button text-blue-600 text-lg"></i>
@@ -953,7 +958,7 @@
 
   </div>
 
-  <!-- ALL-IN-ONE COMPREHENSIVE PDF REPORT PRINT TEMPLATE -->
+  <!-- COMPREHENSIVE PDF REPORT PRINT TEMPLATE -->
   <div id="pdfReportContainer" class="hidden p-6 bg-white font-sans text-slate-800 space-y-5">
     <div class="border-b-4 border-pink-300 pb-4 flex items-center justify-between">
       <div class="flex items-center gap-3">
@@ -1230,76 +1235,142 @@
     }
 
     let currentFilterCategory = "all";
-    let lastNotifiedTaskId = null;
+  let lastNotifiedTaskId = null;
+  let selectedAnalyticsMonth = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
+  let scheduledTimers = [];
 
-    function saveData() {
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
-      } catch (e) {}
-      renderApp();
-    }
+  function saveData() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+    } catch (e) {}
+    renderApp();
+    scheduleBackgroundAlarms();
+  }
 
-    /* SERVICE WORKER, VIBRATION & NOTIFICATION LOGIC */
-    function registerServiceWorker() {
+  /* FULL SERVICE WORKER & LOCAL NOTIFICATION SCHEDULER */
+  function registerServiceWorker() {
+    try {
       if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('./sw.js').then((reg) => {
-          console.log('Service Worker Registered!', reg);
-        }).catch((err) => {
-          console.log('Service Worker Registration Failed:', err);
-        });
+        // Blob Service Worker untuk mendukung Notifikasi Background PWA
+        const swCode = `
+          self.addEventListener('install', (e) => self.skipWaiting());
+          self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
+          
+          self.addEventListener('notificationclick', (e) => {
+            e.notification.close();
+            e.waitUntil(
+              clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+                if (clientList.length > 0) return clientList[0].focus();
+                return clients.openWindow('./');
+              })
+            );
+          });
+        `;
+        const blob = new Blob([swCode], { type: 'application/javascript' });
+        const swUrl = URL.createObjectURL(blob);
+        navigator.serviceWorker.register(swUrl).then(() => {
+          console.log('PWA Background Worker Active');
+        }).catch(() => {});
       }
+    } catch (err) {}
+  }
+
+  // PENJADWAL ALARM AUTOMATIS UNTUK NOTIFIKASI HP
+  function scheduleBackgroundAlarms() {
+    if (!appData.alarmEnabled) return;
+
+    // Bersihkan timer lama jika ada
+    scheduledTimers.forEach(t => clearTimeout(t));
+    scheduledTimers = [];
+
+    const now = new Date();
+    const currentMin = now.getHours() * 60 + now.getMinutes();
+    const currentSec = now.getSeconds();
+    const tasks = appData.tasks || [];
+
+    tasks.forEach(t => {
+      const [h, m] = t.start.split(":").map(Number);
+      const startMin = h * 60 + m;
+
+      // Hitung selisih waktu dalam milidetik menuju jam kegiatan
+      let diffMin = startMin - currentMin;
+      if (diffMin > 0) {
+        const delayMs = (diffMin * 60 - currentSec) * 1000;
+        
+        // Pasang Timer Notifikasi HP
+        const timerId = setTimeout(() => {
+          sendSystemNotification(
+            `⏰ Waktunya: ${t.name}`,
+            `Saatnya memulai kegiatan jam ${t.start} - ${t.end} WIB. Semangat Adelia! ✨`
+          );
+        }, delayMs);
+        
+        scheduledTimers.push(timerId);
+      }
+    });
+  }
+
+  window.triggerMobileVibration = function(pattern = [300, 100, 300, 100, 400]) {
+    if ('vibrate' in navigator) {
+      try {
+        navigator.vibrate(pattern);
+      } catch (e) {}
     }
+  };
 
-    window.triggerMobileVibration = function(pattern = [200, 100, 200, 100, 300]) {
-      if ('vibrate' in navigator) {
-        try {
-          navigator.vibrate(pattern);
-        } catch (e) {}
-      }
-    };
+  window.requestNotificationAndVibrationPermission = function() {
+    triggerMobileVibration([150, 100, 150]);
+    if ('Notification' in window) {
+      Notification.requestPermission().then((permission) => {
+        if (permission === 'granted') {
+          showToast("Izin Notifikasi HP Aktif! 🔔 System alarm siap.");
+          sendSystemNotification("Adelia's Little World ♡", "Pengingat otomatis jam kegiatan HP kamu sudah aktif ✨");
+          scheduleBackgroundAlarms();
+        } else {
+          showToast("Izin notifikasi ditolak 🔕");
+        }
+      });
+    } else {
+      showToast("Browser/HP tidak mendukung Web Notification API");
+    }
+  };
 
-    window.requestNotificationAndVibrationPermission = function() {
-      triggerMobileVibration([150, 100, 150]);
-      if ('Notification' in window) {
-        Notification.requestPermission().then((permission) => {
-          if (permission === 'granted') {
-            showToast("Izin notifikasi diberikan! 🔔");
-            sendSystemNotification("Adelia's Little World ♡", "Pengingat notifikasi & getar HP aktif!");
-          } else {
-            showToast("Izin notifikasi ditolak 🔕");
-          }
-        });
-      } else {
-        showToast("Browser tidak mendukung Web Notification API");
-      }
-    };
+  window.testVibrationAndSound = function() {
+    playChimeSound();
+    triggerMobileVibration([300, 100, 300, 100, 400]);
+    sendSystemNotification("Tes Alarm HP 🐱", "Haloo Adelia! Notifikasi jadwal otomatis HP kamu berfungsi dengan baik ✨");
+    showToast("Mengirim tes notifikasi & getar HP... 📳");
+  };
 
-    window.testVibrationAndSound = function() {
-      playChimeSound();
-      triggerMobileVibration([200, 100, 300, 100, 400]);
-      sendSystemNotification("Tes Alarm & Getar HP 🐱", "Haloo Adelia! Fitur suara dan getar HP berfungsi sempurna ✨");
-      showToast("Mengirim sampel getar HP & suara chime... 📳");
-    };
+  function sendSystemNotification(title, body) {
+    triggerMobileVibration();
+    playChimeSound();
 
-    function sendSystemNotification(title, body) {
-      triggerMobileVibration();
-      playChimeSound();
-      if ('Notification' in window && Notification.permission === 'granted') {
+    if ('Notification' in window && Notification.permission === 'granted') {
+      try {
         if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-          navigator.serviceWorker.ready.then((registration) => {
-            registration.showNotification(title, {
+          navigator.serviceWorker.ready.then(reg => {
+            reg.showNotification(title, {
               body: body,
               icon: 'https://placehold.co/192x192/294C7A/FFF?text=🐱',
-              vibrate: [200, 100, 200]
+              badge: 'https://placehold.co/192x192/294C7A/FFF?text=🐱',
+              vibrate: [300, 100, 300, 100, 400],
+              tag: 'adelia-schedule-alarm',
+              renotify: true
             });
           });
         } else {
-          new Notification(title, { body: body, icon: 'https://placehold.co/192x192/294C7A/FFF?text=🐱' });
+          new Notification(title, { 
+            body: body, 
+            icon: 'https://placehold.co/192x192/294C7A/FFF?text=🐱',
+            vibrate: [300, 100, 300]
+          });
         }
-      }
+      } catch(e) {}
     }
+  }
 
-    window.showToast = function(msg) {
+  window.showToast = function(msg) {
       const container = document.getElementById("toastContainer");
       if (!container) return;
       const toast = document.createElement("div");
@@ -1541,6 +1612,19 @@
           sendSystemNotification("Waktu Me-Time Selesai! 🎉", "Waktu istirahat selesai, semoga energi Adelia kembali pulih ✨");
           if (statusEl) statusEl.textContent = "Selesai! Istirahat hebat! 🎉";
           showToast("Waktu Me-Time selesai! ✨");
+          
+          const activitySelect = document.getElementById("timerActivity");
+          const actName = activitySelect ? activitySelect.value : "Me-Time";
+          const minInput = document.getElementById("timerMinutes");
+          const mins = minInput ? parseInt(minInput.value, 10) || 20 : 20;
+          
+          if (!appData.sessions) appData.sessions = [];
+          appData.sessions.push({
+            date: getDateKey(),
+            activity: actName,
+            minutes: mins
+          });
+          saveData();
         }
       }, 1000);
     };
@@ -1809,7 +1893,6 @@
         }
       }
 
-      // TRIGER NOTIFIKASI SENSORY (GETAR + SUARA + POPUP NOTIF) SAAT JADWAL BERGANTI
       if (activeTask && appData.alarmEnabled && lastNotifiedTaskId !== activeTask.id) {
         lastNotifiedTaskId = activeTask.id;
         sendSystemNotification(`Waktunya: ${activeTask.name} ⏰`, `Jam ${activeTask.start} - ${activeTask.end} WIB. Semangat Adelia! ✨`);
@@ -2633,11 +2716,83 @@
       }).join("");
     }
 
+    function initMonthlyOptions() {
+      const select = document.getElementById("monthlySelect");
+      if (!select) return;
+
+      const months = [];
+      const now = new Date();
+      for (let i = 0; i < 6; i++) {
+        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        const k = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+        const name = d.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+        months.push({ key: k, label: name });
+      }
+
+      select.innerHTML = months.map(m => `<option value="${m.key}">${m.label}</option>`).join("");
+      select.value = selectedAnalyticsMonth;
+    }
+
+    window.changeMonthlyHistory = function(val) {
+      selectedAnalyticsMonth = val;
+      renderMonthlyAnalytics();
+    };
+
     function renderMonthlyAnalytics() {
       const rateEl = document.getElementById("monthlyTaskRate");
       const habitRateEl = document.getElementById("monthlyHabitRate");
-      if (rateEl) rateEl.textContent = "85%";
-      if (habitRateEl) habitRateEl.textContent = "90%";
+      const vocabTotalEl = document.getElementById("monthlyTotalVocab");
+      const metimeTotalEl = document.getElementById("monthlyMetimeTotal");
+
+      const checks = appData.checks || {};
+      const tasks = appData.tasks || [];
+      const habits = appData.habits || [];
+      const vocabCount = appData.vocabCount || {};
+      const sessions = appData.sessions || [];
+
+      let totalTasksChecked = 0;
+      let totalHabitsChecked = 0;
+      let daysLogged = new Set();
+
+      Object.keys(checks).forEach(k => {
+        if (k.startsWith(selectedAnalyticsMonth) && checks[k]) {
+          const parts = k.split("_");
+          const datePart = parts[0];
+          daysLogged.add(datePart);
+
+          if (k.includes("_habit_")) {
+            totalHabitsChecked++;
+          } else {
+            totalTasksChecked++;
+          }
+        }
+      });
+
+      const dayCount = Math.max(daysLogged.size, 1);
+      const possibleTasks = tasks.length * dayCount;
+      const possibleHabits = habits.length * dayCount;
+
+      const taskRate = possibleTasks > 0 ? Math.round((totalTasksChecked / possibleTasks) * 100) : 0;
+      const habitRate = possibleHabits > 0 ? Math.round((totalHabitsChecked / possibleHabits) * 100) : 0;
+
+      let monthVocab = 0;
+      Object.keys(vocabCount).forEach(k => {
+        if (k.startsWith(selectedAnalyticsMonth)) {
+          monthVocab += (vocabCount[k] || 0);
+        }
+      });
+
+      let monthMetime = 0;
+      sessions.forEach(s => {
+        if (s.date && s.date.startsWith(selectedAnalyticsMonth)) {
+          monthMetime += (s.minutes || 0);
+        }
+      });
+
+      if (rateEl) rateEl.textContent = `${taskRate}%`;
+      if (habitRateEl) habitRateEl.textContent = `${habitRate}%`;
+      if (vocabTotalEl) vocabTotalEl.textContent = `${monthVocab} kata`;
+      if (metimeTotalEl) metimeTotalEl.textContent = `${monthMetime} min`;
     }
 
     window.exportDataJSON = function() {
@@ -2708,16 +2863,29 @@
       renderDashboardAgendas();
       renderQuickNotes();
       renderJournalHistory();
+      initMonthlyOptions();
       renderMonthlyAnalytics();
     }
 
-    window.onload = function() {
-      registerServiceWorker();
-      resetTimer();
-      renderApp();
-      showLauncherGrid();
-      setInterval(updateRealtimeClock, 1000);
-    };
+    // INITIALIZATION GUARANTEE FOR MOBILE BROWSERS
+    function initApp() {
+      try {
+        registerServiceWorker();
+        resetTimer();
+        renderApp();
+        showLauncherGrid();
+        scheduleBackgroundAlarms();
+        setInterval(updateRealtimeClock, 1000);
+      } catch (err) {
+        console.error("App init error:", err);
+      }
+    }
+
+    if (document.readyState === "complete" || document.readyState === "interactive") {
+      setTimeout(initApp, 50);
+    } else {
+      window.addEventListener("DOMContentLoaded", initApp);
+    }
   </script>
 </body>
 </html>
