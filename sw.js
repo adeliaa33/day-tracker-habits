@@ -1,19 +1,23 @@
-const CACHE_NAME = 'adelia-planner-v3';
+const CACHE_NAME = 'adelia-planner-v4';
 
-// Hanya simpan berkas lokal internal ke dalam cache saat instalasi awal
+// Aset lokal yang dicoba di-cache secara aman
 const LOCAL_ASSETS = [
   './',
   './index.html',
-  './manifest.json',
-  './icon-192.png',
-  './icon-512.png'
+  './manifest.json'
 ];
 
-// Install Event - Simpan aset lokal
+// Install Event - Gunakan penanganan aman agar jika ada file hilang, SW TIDAK CRASH
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(LOCAL_ASSETS);
+    caches.open(CACHE_NAME).then(async (cache) => {
+      for (const asset of LOCAL_ASSETS) {
+        try {
+          await cache.add(asset);
+        } catch (err) {
+          console.warn('Gagal meng-cache aset (diabaikan agar HP tidak blank):', asset);
+        }
+      }
     }).then(() => self.skipWaiting())
   );
 });
@@ -33,35 +37,46 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch Event - Ambil dari cache dulu, kalau tidak ada baru ambil dari internet (Aman untuk CDN & Offline)
+// Fetch Event - Mengambil dari Jaringan / Cache dengan aman
 self.addEventListener('fetch', (event) => {
-  // Hanya proses permintaan GET
   if (event.request.method !== 'GET') return;
 
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-      return fetch(event.request).then((networkResponse) => {
-        // Jangan simpan respon jika tidak valid
-        if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
-          return networkResponse;
+    fetch(event.request)
+      .then((networkResponse) => {
+        // Jika berhasil mengambil versi terbaru dari jaringan, simpan ke cache
+        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+          const responseToCache = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseToCache);
+          });
         }
-        
-        // Simpan salinan respon ke cache secara dinamis
-        const responseToCache = networkResponse.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseToCache);
-        });
-
         return networkResponse;
-      }).catch(() => {
-        // Fallback jika offline dan aset tidak ada di cache
-        if (event.request.mode === 'navigate') {
-          return caches.match('./index.html');
-        }
-      });
-    })
+      })
+      .catch(() => {
+        // Jika HP sedang offline/koneksi terputus, ambil dari cache
+        return caches.match(event.request).then((cachedResponse) => {
+          if (cachedResponse) {
+            return cachedResponse;
+          }
+          if (event.request.mode === 'navigate') {
+            return caches.match('./index.html') || caches.match('./');
+          }
+        });
+      })
   );
+});
+
+// Listener untuk menerima perintah Notifikasi dari Aplikasi Utama
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SCHEDULED_NOTIFICATION') {
+    self.registration.showNotification(event.data.title, {
+      body: event.data.body,
+      icon: './icon-192.png',
+      badge: './icon-192.png',
+      vibrate: [200, 100, 200, 100, 300],
+      tag: 'adelia-schedule-alarm',
+      renotify: true
+    });
+  }
 });
