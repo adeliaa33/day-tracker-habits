@@ -12,7 +12,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Adelia Planner">
-  <link rel="icon" type="image/png" href="icon-192.png">
+  <link rel="icon" type="image/png" href="assets/icons/icon-192.png">
 
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -24,7 +24,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Quicksand:wght@500;600;700&family=Fredoka:wght@400;500;600&display=swap" rel="stylesheet">
-  
   
   <script>
     tailwind.config = {
@@ -181,17 +180,6 @@
           <div class="bg-white/80 border border-white/90 px-3 py-1 md:py-1.5 rounded-xl shadow-sm text-left md:text-right flex-1 md:flex-none">
             <div id="headerDate" class="text-[11px] md:text-xs font-bold text-planner-navy">-- ---- ----</div>
             <div id="headerClock" class="text-[10px] md:text-[11px] text-pink-600 font-extrabold">00:00:00 WIB</div>
-          </div>
-
-          <div class="flex items-center gap-2">
-            <button id="btnAlarmToggle" onclick="toggleAlarmSetting()" title="Alarm & Notifikasi Pengingat" class="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-white/80 hover:bg-white text-planner-navy border border-white flex items-center justify-center transition active:scale-90 relative shadow-sm">
-              <i class="fa-solid fa-bell text-xs md:text-sm" id="alarmIcon"></i>
-              <span id="alarmBadge" class="absolute -top-1 -right-1 w-2.5 h-2.5 md:w-3 md:h-3 bg-emerald-500 rounded-full border-2 border-white"></span>
-            </button>
-
-            <button id="btnAmbientToggle" onclick="toggleAmbientSound()" title="Suara Lo-Fi Hujan" class="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-white/80 hover:bg-white text-planner-navy border border-white flex items-center justify-center transition active:scale-90 shadow-sm">
-              <i class="fa-solid fa-cloud-rain text-xs md:text-sm" id="ambientIcon"></i>
-            </button>
           </div>
         </div>
 
@@ -896,28 +884,10 @@
     <!-- TAB 9: PENGATURAN -->
     <main id="content-settings" class="tab-content space-y-5">
       <div class="planner-card p-6 shadow-planner max-w-2xl mx-auto space-y-5">
-        <h2 class="text-xl font-extrabold text-planner-navy font-cute border-b border-slate-100 pb-3">⚙️ Pengaturan & Notifikasi HP</h2>
+        <h2 class="text-xl font-extrabold text-planner-navy font-cute border-b border-slate-100 pb-3">⚙️ Pengaturan & Data Aplikasi</h2>
 
         <div class="space-y-4 text-xs">
           
-          <div class="p-4 bg-blue-50 rounded-2xl border border-blue-200 space-y-2">
-            <h4 class="font-bold text-blue-900 flex items-center gap-2">
-              <i class="fa-solid fa-mobile-screen-button text-blue-600 text-lg"></i>
-              <span>Fitur Notifikasi & Getar HP</span>
-            </h4>
-            <p class="text-slate-600 leading-relaxed">
-              Izinkan notifikasi agar HP bisa bergetar dan memberikan pengingat suara ketika jam kegiatan berganti atau alarm menyala!
-            </p>
-            <div class="flex flex-wrap gap-2 pt-1">
-              <button onclick="requestNotificationAndVibrationPermission()" class="px-4 py-2 bg-planner-navy text-white rounded-xl font-bold shadow-sm flex items-center gap-1.5">
-                <i class="fa-solid fa-bell"></i> <span>Aktifkan Izin Notifikasi HP</span>
-              </button>
-              <button onclick="testVibrationAndSound()" class="px-4 py-2 bg-white text-planner-navy border border-blue-300 rounded-xl font-bold shadow-sm flex items-center gap-1.5">
-                <i class="fa-solid fa-vibrate"></i> <span>Tes Getar & Suara HP</span>
-              </button>
-            </div>
-          </div>
-
           <div class="p-4 bg-gradient-to-r from-pink-50 via-purple-50 to-sky-50 rounded-2xl border-2 border-pink-200 space-y-3 shadow-sm">
             <div class="flex items-center gap-2 text-pink-900 font-extrabold text-sm">
               <i class="fa-solid fa-file-pdf text-pink-600 text-2xl"></i>
@@ -1224,7 +1194,6 @@
         quickNotes: [
           { id: "note_1", title: "Target Buku TOEFL Hacks 📖", content: "Selesaikan bab Listening Section & latihan soal 20 nomor setiap pagi.", color: "purple", date: getDateKey() }
         ],
-        alarmEnabled: true,
         mascotPetCount: 0
       };
     }
@@ -1238,142 +1207,16 @@
     }
 
     let currentFilterCategory = "all";
-  let lastNotifiedTaskId = null;
-  let selectedAnalyticsMonth = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
-  let scheduledTimers = [];
+    let selectedAnalyticsMonth = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
 
-  function saveData() {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
-    } catch (e) {}
-    renderApp();
-    scheduleBackgroundAlarms();
-  }
-
-  /* FULL SERVICE WORKER & LOCAL NOTIFICATION SCHEDULER */
-  function registerServiceWorker() {
-    try {
-      if ('serviceWorker' in navigator) {
-        // Blob Service Worker untuk mendukung Notifikasi Background PWA
-        const swCode = `
-          self.addEventListener('install', (e) => self.skipWaiting());
-          self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
-          
-          self.addEventListener('notificationclick', (e) => {
-            e.notification.close();
-            e.waitUntil(
-              clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
-                if (clientList.length > 0) return clientList[0].focus();
-                return clients.openWindow('./');
-              })
-            );
-          });
-        `;
-        const blob = new Blob([swCode], { type: 'application/javascript' });
-        const swUrl = URL.createObjectURL(blob);
-        navigator.serviceWorker.register(swUrl).then(() => {
-          console.log('PWA Background Worker Active');
-        }).catch(() => {});
-      }
-    } catch (err) {}
-  }
-
-  // PENJADWAL ALARM AUTOMATIS UNTUK NOTIFIKASI HP
-  function scheduleBackgroundAlarms() {
-    if (!appData.alarmEnabled) return;
-
-    // Bersihkan timer lama jika ada
-    scheduledTimers.forEach(t => clearTimeout(t));
-    scheduledTimers = [];
-
-    const now = new Date();
-    const currentMin = now.getHours() * 60 + now.getMinutes();
-    const currentSec = now.getSeconds();
-    const tasks = appData.tasks || [];
-
-    tasks.forEach(t => {
-      const [h, m] = t.start.split(":").map(Number);
-      const startMin = h * 60 + m;
-
-      // Hitung selisih waktu dalam milidetik menuju jam kegiatan
-      let diffMin = startMin - currentMin;
-      if (diffMin > 0) {
-        const delayMs = (diffMin * 60 - currentSec) * 1000;
-        
-        // Pasang Timer Notifikasi HP
-        const timerId = setTimeout(() => {
-          sendSystemNotification(
-            `⏰ Waktunya: ${t.name}`,
-            `Saatnya memulai kegiatan jam ${t.start} - ${t.end} WIB. Semangat Adelia! ✨`
-          );
-        }, delayMs);
-        
-        scheduledTimers.push(timerId);
-      }
-    });
-  }
-
-  window.triggerMobileVibration = function(pattern = [300, 100, 300, 100, 400]) {
-    if ('vibrate' in navigator) {
+    function saveData() {
       try {
-        navigator.vibrate(pattern);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
       } catch (e) {}
+      renderApp();
     }
-  };
 
-  window.requestNotificationAndVibrationPermission = function() {
-    triggerMobileVibration([150, 100, 150]);
-    if ('Notification' in window) {
-      Notification.requestPermission().then((permission) => {
-        if (permission === 'granted') {
-          showToast("Izin Notifikasi HP Aktif! 🔔 System alarm siap.");
-          sendSystemNotification("Adelia's Little World ♡", "Pengingat otomatis jam kegiatan HP kamu sudah aktif ✨");
-          scheduleBackgroundAlarms();
-        } else {
-          showToast("Izin notifikasi ditolak 🔕");
-        }
-      });
-    } else {
-      showToast("Browser/HP tidak mendukung Web Notification API");
-    }
-  };
-
-  window.testVibrationAndSound = function() {
-    playChimeSound();
-    triggerMobileVibration([300, 100, 300, 100, 400]);
-    sendSystemNotification("Tes Alarm HP 🐱", "Haloo Adelia! Notifikasi jadwal otomatis HP kamu berfungsi dengan baik ✨");
-    showToast("Mengirim tes notifikasi & getar HP... 📳");
-  };
-
-  function sendSystemNotification(title, body) {
-    triggerMobileVibration();
-    playChimeSound();
-
-    if ('Notification' in window && Notification.permission === 'granted') {
-      try {
-        if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-          navigator.serviceWorker.ready.then(reg => {
-            reg.showNotification(title, {
-              body: body,
-              icon: 'https://placehold.co/192x192/294C7A/FFF?text=🐱',
-              badge: 'https://placehold.co/192x192/294C7A/FFF?text=🐱',
-              vibrate: [300, 100, 300, 100, 400],
-              tag: 'adelia-schedule-alarm',
-              renotify: true
-            });
-          });
-        } else {
-          new Notification(title, { 
-            body: body, 
-            icon: 'https://placehold.co/192x192/294C7A/FFF?text=🐱',
-            vibrate: [300, 100, 300]
-          });
-        }
-      } catch(e) {}
-    }
-  }
-
-  window.showToast = function(msg) {
+    window.showToast = function(msg) {
       const container = document.getElementById("toastContainer");
       if (!container) return;
       const toast = document.createElement("div");
@@ -1403,93 +1246,6 @@
       if (m) m.classList.add("hidden");
     };
 
-    /* AUDIO SYNTHESIZER & ALARM */
-    let audioCtx = null;
-    let ambientNoiseNode = null;
-    let isAmbientPlaying = false;
-
-    function getAudioContext() {
-      if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      }
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
-      }
-      return audioCtx;
-    }
-
-    window.playChimeSound = function() {
-      try {
-        const ctx = getAudioContext();
-        const now = ctx.currentTime;
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(523.25, now);
-        osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.1);
-
-        gain.gain.setValueAtTime(0.15, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
-
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-
-        osc.start(now);
-        osc.stop(now + 0.3);
-      } catch (e) {}
-    };
-
-    window.toggleAlarmSetting = function() {
-      appData.alarmEnabled = !appData.alarmEnabled;
-      saveData();
-      if (appData.alarmEnabled) {
-        requestNotificationAndVibrationPermission();
-      }
-      showToast(appData.alarmEnabled ? "Alarm & getar pengingat diaktifkan 🔔" : "Alarm pengingat dinonaktifkan 🔕");
-    };
-
-    window.toggleAmbientSound = function() {
-      try {
-        const ctx = getAudioContext();
-        const icon = document.getElementById("ambientIcon");
-
-        if (!isAmbientPlaying) {
-          const bufferSize = ctx.sampleRate * 2;
-          const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-          const output = noiseBuffer.getChannelData(0);
-          for (let i = 0; i < bufferSize; i++) {
-            output[i] = Math.random() * 2 - 1;
-          }
-
-          ambientNoiseNode = ctx.createBufferSource();
-          ambientNoiseNode.buffer = noiseBuffer;
-          ambientNoiseNode.loop = true;
-
-          const filter = ctx.createBiquadFilter();
-          filter.type = 'lowpass';
-          filter.frequency.value = 400;
-
-          const gain = ctx.createGain();
-          gain.gain.value = 0.05;
-
-          ambientNoiseNode.connect(filter);
-          filter.connect(gain);
-          gain.connect(ctx.destination);
-
-          ambientNoiseNode.start();
-          isAmbientPlaying = true;
-          if (icon) icon.className = "fa-solid fa-volume-high text-xs md:text-sm text-blue-600 animate-pulse";
-          showToast("Suara Lo-Fi Hujan diputar 🌧️");
-        } else {
-          if (ambientNoiseNode) ambientNoiseNode.stop();
-          isAmbientPlaying = false;
-          if (icon) icon.className = "fa-solid fa-cloud-rain text-xs md:text-sm text-planner-navy";
-          showToast("Suara ambient dihentikan");
-        }
-      } catch (e) {}
-    };
-
     /* MASCOT PET FUNCTION */
     window.petMascot = function(e) {
       if (!appData.mascotPetCount) appData.mascotPetCount = 0;
@@ -1508,8 +1264,6 @@
         bubbleEl.textContent = bubbles[Math.floor(Math.random() * bubbles.length)];
       }
 
-      playChimeSound();
-      triggerMobileVibration([100, 50, 100]);
       triggerConfettiBurst();
       showToast("Mimi merasa senang dipukpuk! 🐱💖");
       saveData();
@@ -1611,8 +1365,6 @@
           clearInterval(timerInterval);
           isTimerRunning = false;
           triggerConfettiBurst();
-          triggerMobileVibration([300, 100, 300, 100, 500]);
-          sendSystemNotification("Waktu Me-Time Selesai! 🎉", "Waktu istirahat selesai, semoga energi Adelia kembali pulih ✨");
           if (statusEl) statusEl.textContent = "Selesai! Istirahat hebat! 🎉";
           showToast("Waktu Me-Time selesai! ✨");
           
@@ -1742,7 +1494,6 @@
       if (task) {
         const active = isTaskActive(task, dateStr);
         if (!active && !isTaskChecked(taskId, dateStr)) {
-          triggerMobileVibration([100, 50, 100]);
           showToast(`🔒 Hanya dapat dicentang saat jamnya berlangsung (${task.start} - ${task.end} WIB).`);
           renderApp();
           return;
@@ -1751,10 +1502,6 @@
 
       if (!appData.checks) appData.checks = {};
       appData.checks[`${dateStr}_${taskId}`] = isChecked;
-      if (isChecked) {
-        playChimeSound();
-        triggerMobileVibration([100, 50, 150]);
-      }
       saveData();
     };
 
@@ -1894,11 +1641,6 @@
         } else if (currentMin < startMin && !nextTask) {
           nextTask = t;
         }
-      }
-
-      if (activeTask && appData.alarmEnabled && lastNotifiedTaskId !== activeTask.id) {
-        lastNotifiedTaskId = activeTask.id;
-        sendSystemNotification(`Waktunya: ${activeTask.name} ⏰`, `Jam ${activeTask.start} - ${activeTask.end} WIB. Semangat Adelia! ✨`);
       }
 
       const curTitle = document.getElementById("currentTaskTitle");
@@ -2211,7 +1953,6 @@
       if (!appData.vitamins[todayKey]) appData.vitamins[todayKey] = {};
 
       appData.vitamins[todayKey][vitKey] = isChecked;
-      if (isChecked) playChimeSound();
       saveData();
     };
 
@@ -2233,7 +1974,6 @@
       if (!appData.vocabCount) appData.vocabCount = {};
       const current = appData.vocabCount[todayKey] || 0;
       appData.vocabCount[todayKey] = current + num;
-      playChimeSound();
       saveData();
     };
 
@@ -2261,7 +2001,6 @@
       if (!appData.quickTargets[todayKey]) appData.quickTargets[todayKey] = {};
 
       appData.quickTargets[todayKey][targetKey] = !appData.quickTargets[todayKey][targetKey];
-      playChimeSound();
       saveData();
     };
 
@@ -2336,10 +2075,6 @@
       const todayKey = getDateKey();
       if (!appData.checks) appData.checks = {};
       appData.checks[`${todayKey}_habit_${idx}`] = isChecked;
-      if (isChecked) {
-        playChimeSound();
-        triggerMobileVibration([100, 50, 100]);
-      }
       saveData();
     };
 
@@ -2430,10 +2165,6 @@
     window.toggleMatrixHabit = function(idx, isChecked, dateStr) {
       if (!appData.checks) appData.checks = {};
       appData.checks[`${dateStr}_habit_${idx}`] = isChecked;
-      if (isChecked) {
-        playChimeSound();
-        triggerMobileVibration([100, 50, 100]);
-      }
       saveData();
     };
 
@@ -2870,14 +2601,11 @@
       renderMonthlyAnalytics();
     }
 
-    // INITIALIZATION GUARANTEE FOR MOBILE BROWSERS
     function initApp() {
       try {
-        registerServiceWorker();
         resetTimer();
         renderApp();
         showLauncherGrid();
-        scheduleBackgroundAlarms();
         setInterval(updateRealtimeClock, 1000);
       } catch (err) {
         console.error("App init error:", err);
