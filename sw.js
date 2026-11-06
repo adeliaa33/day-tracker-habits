@@ -1,4 +1,4 @@
-const CACHE_NAME = 'adelia-planner-v4';
+const CACHE_NAME = 'adelia-planner-v5';
 
 const LOCAL_ASSETS = [
   './',
