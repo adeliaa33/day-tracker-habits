@@ -2,11 +2,19 @@
   "name": "Adelia's Little World ♡",
   "short_name": "Adelia Planner",
   "description": "Interactive Daily Planner & Habit Tracker",
-  "start_url": "./index.html",
-  "scope": "./",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#F8FAFF",
   "theme_color": "#294C7A",
+  "lang": "id",
+  "categories": [
+    "productivity",
+    "lifestyle",
+    "utilities"
+  ],
   "icons": [
     {
       "src": "./icon-192.png",
